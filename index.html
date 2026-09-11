@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InteeBuild — Web a APK/AAB nativo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/style.css" />
+  <link rel="icon" href="./assets/icon.svg" type="image/svg+xml" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo"><img src="./assets/icon.svg" alt="IB" width="20" height="20" /></span>
+      <div class="brand-txt">
+        <strong>InteeBuild</strong>
+        <small>Web → APK / AAB</small>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <select id="templateSelect" class="template-select">
+        <option value=""><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Plantilla…</option>
+        <option value="web"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Web estándar</option>
+        <option value="pwa"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> PWA</option>
+        <option value="radio"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Radio</option>
+        <option value="ecommerce"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Ecommerce</option>
+        <option value="blog"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Blog</option>
+        <option value="game"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Game</option>
+        <option value="edu"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Educación</option>
+        <option value="empresa"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Empresa</option>
+        <option value="comunidad"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Comunidad</option>
+        <option value="streaming"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Streaming</option>
+        <option value="dashboard"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Dashboard</option>
+        <option value="ai"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> AI Web App</option>
+        <option value="maps"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>️ Maps</option>
+        <option value="finanzas"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Finanzas</option>
+        <option value="eventos"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Eventos</option>
+      </select>
+      <button id="modeToggle" class="btn ghost sm">Modo avanzado</button>
+      <div id="ghBadge" class="badge badge-warn">Verificando…</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Tu web, convertida en APK nativo.</h1>
+      <p class="sub">Wizard completo con analyzer inteligente, Plugin Hub, InteeBridge, preview en vivo y compilación real con Capacitor + GitHub Actions.</p>
+    </section>
+
+    <div class="ad-container ad-banner">
+      <script>atOptions={'key':'f782587ac8395b4bfe62f052ed3b33b5','format':'iframe','height':250,'width':300,'params':{}};</script>
+      <script src="https://www.highrevenueformat.com/f782587ac8395b4bfe62f052ed3b33b5/invoke.js"></script>
+    </div>
+
+    <div id="alertConfig" class="alert hidden"></div>
+
+    <div class="layout">
+      <div class="wizard" id="wizard">
+        <nav class="steps-bar">
+          <button class="step-dot active" data-step="0"><span>1</span><label>Web</label></button>
+          <button class="step-dot" data-step="1"><span>2</span><label>Permisos</label></button>
+          <button class="step-dot" data-step="2"><span>3</span><label>Plugins</label></button>
+          <button class="step-dot" data-step="3"><span>4</span><label>Config</label></button>
+          <button class="step-dot" data-step="4"><span>5</span><label>Preview</label></button>
+          <button class="step-dot" data-step="5"><span>6</span><label>Compilar</label></button>
+          <button class="step-dot" data-step="6"><span>7</span><label>Historial</label></button>
+        </nav>
+
+        <!-- STEP 0: Web / App info -->
+        <div class="step active" data-step="0">
+          <div class="card">
+            <div class="card-title"><span class="card-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span> Tu aplicación</div>
+            <div class="input-type-toggle">
+              <div class="toggle-group">
+                <button type="button" class="toggle-btn active" data-input="url">URL</button>
+                <button type="button" class="toggle-btn" data-input="html">Código HTML</button>
+              </div>
+            </div>
+            <div id="urlGroup">
+              <label>URL de la página
+                <div style="display:flex;gap:8px">
+                  <input type="url" name="url" placeholder="https://mi-web.com" style="flex:1" />
+                  <button type="button" class="btn ghost sm" id="analyzeBtn"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Analizar</button>
+                </div>
+              </label>
+              <div id="analyzeBox" class="analyze hidden">
+                <div class="analyze-header">
+                  <div class="analyze-score-ring">
+                    <svg width="56" height="56" viewBox="0 0 56 56">
+                      <circle cx="28" cy="28" r="22" fill="none" stroke="#e4e4e7" stroke-width="5"/>
+                      <circle id="analyzeRing" cx="28" cy="28" r="22" fill="none" stroke="#4f46e5" stroke-width="5" stroke-dasharray="138.2" stroke-dashoffset="138.2" stroke-linecap="round" style="transition:stroke-dashoffset .6s ease"/>
+                    </svg>
+                    <div class="score-text"><span id="analyzeScore">0</span></div>
+                  </div>
+                  <div class="analyze-diag">
+                    <span id="analyzeDiag">Analizando…</span>
+                    <small id="analyzeSubDiag"></small>
+                  </div>
+                </div>
+                <div id="analyzeGrid" class="analyze-grid"></div>
+                <div id="analyzeFramework" class="analyze-framework hidden"></div>
+                <div id="analyzePwa" class="analyze-pwa hidden"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> PWA detectada — nombre, icono y colores se importarán automáticamente</div>
+                <div id="autopilotBox" class="autopilot-box hidden">
+                  <div class="autopilot-title"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> ¿Qué necesita esta web?</div>
+                  <div id="autopilotItems"></div>
+                  <button type="button" class="btn primary sm" id="autopilotApply" style="margin-top:10px">⚡ Aplicar configuración automática</button>
+                </div>
+              </div>
+            </div>
+            <div id="htmlGroup" class="hidden">
+              <label>Código HTML
+                <textarea name="htmlCode" rows="7" placeholder="&lt;!DOCTYPE html&gt;&#10;&lt;html&gt;..."></textarea>
+              </label>
+            </div>
+            <label>Nombre de la app
+              <input type="text" name="appName" placeholder="Mi App" maxlength="40" id="appNameInput" />
+            </label>
+            <div class="row">
+              <label>Package (opcional)
+                <input type="text" name="packageName" placeholder="com.miempresa.app" />
+              </label>
+              <label>Versión
+                <input type="text" name="versionName" value="1.0.0" />
+              </label>
+            </div>
+            <div class="row advanced hidden">
+              <label>Autor
+                <input type="text" name="author" placeholder="INTEE" />
+              </label>
+              <label>Version Code
+                <input type="number" name="versionCode" value="1" min="1" />
+              </label>
+            </div>
+            <div class="advanced hidden">
+              <label>Website
+                <input type="url" name="website" placeholder="https://..." />
+              </label>
+              <label>Descripción
+                <input type="text" name="description" placeholder="App generada con InteeBuild" />
+              </label>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span class="card-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>️</span> Icono</div>
+            <label>
+              <div class="file" id="iconDrop">
+                <input type="file" id="iconInput" accept="image/png,image/jpeg,image/webp" />
+                <span><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Elegir imagen PNG / JPG / WebP (512×512 recomendado)</span>
+              </div>
+              <img id="iconPreview" class="icon-preview hidden" alt="preview" />
+            </label>
+            <label class="switch">
+              <input type="checkbox" name="adaptiveIconEnabled" id="adaptiveCheck" />
+              <span class="trk"><span class="knob"></span></span>
+              <span class="txt"><b>Icono adaptativo</b><small>Genera ic_launcher.xml (Android 8+)</small></span>
+            </label>
+            <div id="adaptiveBox" class="hidden" style="padding-top:10px">
+              <div class="row">
+                <label>Fondo
+                  <input type="color" name="adaptiveIconBg" value="#4f46e5" />
+                </label>
+                <label>Foreground (opcional)
+                  <div class="file" style="padding:10px">
+                    <input type="file" id="adaptiveFgInput" accept="image/png,image/jpeg,image/webp" />
+                    <span style="font-size:12px">Elegir foreground</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-nav"><span></span><button type="button" class="btn primary next-btn">Siguiente →</button></div>
+        </div>
+
+        <!-- STEP 1: Permisos -->
+        <div class="step" data-step="1">
+          <div class="card">
+            <div class="card-title"><span class="card-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span> Permisos Android</div>
+            <p class="hint">Se declaran en AndroidManifest.xml. Activa solo los que tu app necesita.</p>
+            <div class="perm-tabs">
+              <button class="perm-tab active" data-ptab="easy">Modo fácil</button>
+              <button class="perm-tab" data-ptab="advanced">Modo avanzado</button>
+            </div>
+
+            <div id="permEasy" class="perm-easy">
+              <label class="perm-tile" data-perm="notifications">
+                <input type="checkbox" name="notifications" checked />
+                <div class="perm-check"></div>
+                <div class="perm-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div>
+                <div class="perm-name">Notificaciones</div>
+                <div class="perm-code">POST_NOTIFICATIONS</div>
+              </label>
+              <label class="perm-tile" data-perm="cameraMic">
+                <input type="checkbox" name="cameraMic" />
+                <div class="perm-check"></div>
+                <div class="perm-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div>
+                <div class="perm-name">Cámara</div>
+                <div class="perm-code">CAMERA</div>
+              </label>
+              <label class="perm-tile" data-perm="microphone">
+                <input type="checkbox" name="microphone" />
+                <div class="perm-check"></div>
+                <div class="perm-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>️</div>
+                <div class="perm-name">Micrófono</div>
+                <div class="perm-code">RECORD_AUDIO</div>
+              </label>
+              <label class="perm-tile" data-perm="gps">
+                <input type="checkbox" name="gps" />
+                <div class="perm-check"></div>
+                <div class="perm-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div>
+                <div class="perm-name">Ubicación</div>
+                <div class="perm-code">ACCESS_FINE_LOCATION</div>
+              </label>
+              <label class="perm-tile" data-perm="storage">
+                <input type="checkbox" name="storage" />
+                <div class="perm-check"></div>
+                <div class="perm-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div>
+                <div class="perm-name">Almacenamiento</div>
+                <div class="perm-code">READ_MEDIA_*</div>
+              </label>
+              <label class="perm-tile" data-perm="bluetooth">
+                <input type="checkbox" name="bluetooth" />
+                <div class="perm-check"></div>
+                <div class="perm-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div>
+                <div class="perm-name">Bluetooth</div>
+                <div class="perm-code">BLUETOOTH_*</div>
+              </label>
+              <label class="perm-tile" data-perm="nfc">
+                <input type="checkbox" name="nfc" />
+                <div class="perm-check"></div>
+                <div class="perm-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div>
+                <div class="perm-name">NFC</div>
+                <div class="perm-code">NFC</div>
+              </label>
+              <label class="perm-tile" data-perm="foreground">
+                <input type="checkbox" name="foreground" checked />
+                <div class="perm-check"></div>
+                <div class="perm-icon">⚙️</div>
+                <div class="perm-name">Foreground Service</div>
+                <div class="perm-code">FOREGROUND_SERVICE</div>
+              </label>
+              <label class="perm-tile" data-perm="wakeLock">
+                <input type="checkbox" name="wakeLock" />
+                <div class="perm-check"></div>
+                <div class="perm-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div>
+                <div class="perm-name">Wake Lock</div>
+                <div class="perm-code">WAKE_LOCK</div>
+              </label>
+              <label class="perm-tile" data-perm="biometric">
+                <input type="checkbox" name="biometric" />
+                <div class="perm-check"></div>
+                <div class="perm-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div>
+                <div class="perm-name">Biometría</div>
+                <div class="perm-code">USE_BIOMETRIC</div>
+              </label>
+            </div>
+
+            <div id="permAdvanced" class="hidden" style="margin-top:4px">
+              <label class="switch"><input type="checkbox" name="phone" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Teléfono <span class="warn-tag">⚠ Play Store</span></b><small>CALL_PHONE, READ_PHONE_STATE</small></span></label>
+              <label class="switch"><input type="checkbox" name="sms" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>SMS <span class="warn-tag">⚠ Play Store</span></b><small>SEND_SMS, READ_SMS</small></span></label>
+              <label class="switch"><input type="checkbox" name="contacts" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Contactos</b><small>READ_CONTACTS, WRITE_CONTACTS</small></span></label>
+              <label class="switch"><input type="checkbox" name="calendar" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Calendario</b><small>READ_CALENDAR, WRITE_CALENDAR</small></span></label>
+              <label class="switch"><input type="checkbox" name="sensors" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Sensores corporales</b><small>BODY_SENSORS</small></span></label>
+              <label class="switch"><input type="checkbox" name="activityRecognition" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Actividad física</b><small>ACTIVITY_RECOGNITION</small></span></label>
+              <label class="switch"><input type="checkbox" name="systemAlert" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Alerta sistema <span class="warn-tag">⚠ Play Store</span></b><small>SYSTEM_ALERT_WINDOW</small></span></label>
+              <label class="switch"><input type="checkbox" name="installPackages" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Instalar paquetes <span class="warn-tag">⚠ Play Store</span></b><small>REQUEST_INSTALL_PACKAGES</small></span></label>
+              <label class="switch"><input type="checkbox" name="alarm" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Alarmas exactas</b><small>SCHEDULE_EXACT_ALARM</small></span></label>
+              <label class="switch"><input type="checkbox" name="nearby" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>WiFi cercanos</b><small>NEARBY_WIFI_DEVICES</small></span></label>
+              <label class="switch"><input type="checkbox" name="vibration" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Vibración</b><small>VIBRATE</small></span></label>
+            </div>
+          </div>
+          <div class="step-nav"><button type="button" class="btn ghost prev-btn">← Atrás</button><button type="button" class="btn primary next-btn">Siguiente →</button></div>
+        </div>
+
+        <!-- STEP 2: Plugins -->
+        <div class="step" data-step="2">
+          <div class="card">
+            <div class="card-title"><span class="card-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span> InteeBuild Plugin Hub</div>
+            <p class="hint">Instala plugins Capacitor para acceder a funciones nativas desde tu web.</p>
+            <div class="plugin-tabs">
+              <button class="plugin-tab active" data-ptab="device"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Device</button>
+              <button class="plugin-tab" data-ptab="files"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Files</button>
+              <button class="plugin-tab" data-ptab="comm"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Communication</button>
+              <button class="plugin-tab" data-ptab="ui"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> UI</button>
+              <button class="plugin-tab" data-ptab="advanced"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Advanced</button>
+            </div>
+
+            <div class="plugin-cat active" data-pcat="device">
+              <label class="plugin-card" data-plugin="plugin_camera">
+                <input type="checkbox" name="plugin_camera" />
+                <div class="pi"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div><div class="pl"><b>Camera</b><small>@capacitor/camera</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_geolocation">
+                <input type="checkbox" name="plugin_geolocation" />
+                <div class="pi"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div><div class="pl"><b>Geolocation</b><small>@capacitor/geolocation</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_bluetooth">
+                <input type="checkbox" name="plugin_bluetooth" />
+                <div class="pi"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div><div class="pl"><b>Bluetooth LE</b><small>@capacitor-community/bluetooth-le</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_nfc">
+                <input type="checkbox" name="plugin_nfc" />
+                <div class="pi"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div><div class="pl"><b>NFC</b><small>phonegap-nfc</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_biometrics">
+                <input type="checkbox" name="plugin_biometrics" />
+                <div class="pi"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div><div class="pl"><b>Biometrics</b><small>@capacitor/biometrics</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_haptics">
+                <input type="checkbox" name="plugin_haptics" />
+                <div class="pi"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div><div class="pl"><b>Haptics</b><small>@capacitor/haptics</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_device">
+                <input type="checkbox" name="plugin_device" />
+                <div class="pi"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div><div class="pl"><b>Device Info</b><small>@capacitor/device</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_network">
+                <input type="checkbox" name="plugin_network" />
+                <div class="pi"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div><div class="pl"><b>Network</b><small>@capacitor/network</small></div>
+                <div class="plugin-check"></div>
+              </label>
+            </div>
+
+            <div class="plugin-cat" data-pcat="files">
+              <label class="plugin-card" data-plugin="plugin_filesystem">
+                <input type="checkbox" name="plugin_filesystem" />
+                <div class="pi"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div><div class="pl"><b>Filesystem</b><small>@capacitor/filesystem</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_share">
+                <input type="checkbox" name="plugin_share" />
+                <div class="pi">↗️</div><div class="pl"><b>Share</b><small>@capacitor/share</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_clipboard">
+                <input type="checkbox" name="plugin_clipboard" />
+                <div class="pi"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div><div class="pl"><b>Clipboard</b><small>@capacitor/clipboard</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_preferences">
+                <input type="checkbox" name="plugin_preferences" />
+                <div class="pi"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div><div class="pl"><b>Preferences</b><small>@capacitor/preferences</small></div>
+                <div class="plugin-check"></div>
+              </label>
+            </div>
+
+            <div class="plugin-cat" data-pcat="comm">
+              <label class="plugin-card" data-plugin="plugin_notifications">
+                <input type="checkbox" name="plugin_notifications" />
+                <div class="pi"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div><div class="pl"><b>Push Notifications</b><small>@capacitor/push-notifications</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_localNotifications">
+                <input type="checkbox" name="plugin_localNotifications" />
+                <div class="pi"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div><div class="pl"><b>Local Notifications</b><small>@capacitor/local-notifications</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_browser">
+                <input type="checkbox" name="plugin_browser" />
+                <div class="pi"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div><div class="pl"><b>In-App Browser</b><small>@capacitor/browser</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_dialog">
+                <input type="checkbox" name="plugin_dialog" />
+                <div class="pi"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div><div class="pl"><b>Dialog</b><small>@capacitor/dialog</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_toast">
+                <input type="checkbox" name="plugin_toast" />
+                <div class="pi"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div><div class="pl"><b>Toast</b><small>@capacitor/toast</small></div>
+                <div class="plugin-check"></div>
+              </label>
+            </div>
+
+            <div class="plugin-cat" data-pcat="ui">
+              <label class="plugin-card" data-plugin="plugin_statusBar">
+                <input type="checkbox" name="plugin_statusBar" />
+                <div class="pi"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div><div class="pl"><b>Status Bar</b><small>@capacitor/status-bar</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_screenReader">
+                <input type="checkbox" name="plugin_screenReader" />
+                <div class="pi"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>️</div><div class="pl"><b>Screen Reader</b><small>@capacitor/screen-reader</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_admob">
+                <input type="checkbox" name="plugin_admob" />
+                <div class="pi"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div><div class="pl"><b>AdMob</b><small>@capacitor-community/admob</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_app">
+                <input type="checkbox" name="plugin_app" />
+                <div class="pi"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div><div class="pl"><b>App (State/URL)</b><small>@capacitor/app</small></div>
+                <div class="plugin-check"></div>
+              </label>
+            </div>
+
+            <div class="plugin-cat" data-pcat="advanced">
+              <label class="plugin-card" data-plugin="plugin_inteebridge">
+                <input type="checkbox" name="plugin_inteebridge" />
+                <div class="pi"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div><div class="pl"><b>InteeBridge SDK</b><small>Intee.location(), .camera(), .share()…</small></div>
+                <div class="plugin-check"></div>
+              </label>
+            </div>
+
+            <div id="integridgeInfo" class="inteebridge-box hidden" style="margin-top:12px">
+              <div class="inteebridge-title"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> InteeBridge — Desde tu web llamas a APIs nativas</div>
+              <div style="margin-bottom:6px;font-size:12px;color:var(--muted)">Accesible como <code>Intee</code> global en la WebView:</div>
+              <span class="inteebridge-api">await Intee.location()</span>
+              <span class="inteebridge-api">Intee.camera()</span>
+              <span class="inteebridge-api">Intee.share({title,url})</span>
+              <span class="inteebridge-api">Intee.vibrate()</span>
+              <span class="inteebridge-api">Intee.clipboard.write(text)</span>
+              <span class="inteebridge-api">Intee.biometric()</span>
+            </div>
+          </div>
+          <div class="step-nav"><button type="button" class="btn ghost prev-btn">← Atrás</button><button type="button" class="btn primary next-btn">Siguiente →</button></div>
+        </div>
+
+        <!-- STEP 3: Configuración -->
+        <div class="step" data-step="3">
+          <div class="card">
+            <div class="card-title"><span class="card-icon">⚙️</span> SDK Android</div>
+            <div class="row-3">
+              <label>compileSdk<select name="compileSdk"><option>33</option><option>34</option><option selected>35</option><option>36</option></select></label>
+              <label>targetSdk<select name="targetSdk"><option>27</option><option>28</option><option>29</option><option>30</option><option>31</option><option>32</option><option>33</option><option>34</option><option selected>35</option><option>36</option></select></label>
+              <label>minSdk<select name="minSdk"><option>23</option><option>24</option><option>26</option><option>27</option><option>28</option><option>29</option></select></label>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span class="card-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span> Salida y Java</div>
+            <div class="row">
+              <label>Tipo de salida<select name="outputType"><option value="apk">APK</option><option value="aab">AAB (Play Store)</option><option value="both">APK + AAB</option></select></label>
+              <label>Webhook URL (opcional)<input type="url" name="webhookUrl" placeholder="https://..." /></label>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span class="card-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span> Apariencia</div>
+            <div class="row">
+              <label>Tema<select name="appTheme"><option value="system">Sistema</option><option value="light">Claro</option><option value="dark">Oscuro</option></select></label>
+              <label>Animación entrada<select name="entryAnimation"><option value="none">Ninguna</option><option value="fade">Fade</option><option value="slide">Slide</option></select></label>
+            </div>
+            <div class="row">
+              <label>Color acento<input type="color" name="accentColor" value="#4f46e5" /></label>
+              <label>Color primario<input type="color" name="statusBarColor" value="#ffffff" /></label>
+            </div>
+            <div class="row advanced hidden">
+              <label>Navigation bar color<input type="color" name="navigationBarColor" value="#ffffff" /></label>
+              <label>&nbsp;</label>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span class="card-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span> Pantalla</div>
+            <label>Orientación<select name="orientation"><option value="any">Automática</option><option value="portrait">Vertical</option><option value="landscape">Horizontal</option><option value="sensor">Sensor</option></select></label>
+            <label class="switch"><input type="checkbox" name="fullscreen" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Pantalla completa</b><small>Ocultar status bar</small></span></label>
+            <label class="switch"><input type="checkbox" name="edgeToEdge" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Edge-to-edge</b><small>Contenido bajo barras del sistema</small></span></label>
+            <label class="switch"><input type="checkbox" name="keepScreenOn" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Mantener pantalla encendida</b><small>WAKE_LOCK</small></span></label>
+            <label class="switch"><input type="checkbox" name="useCleartext" checked /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Tráfico HTTP</b><small>Permitir cleartext (URLs http://)</small></span></label>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span class="card-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span> Splash Screen</div>
+            <label class="switch"><input type="checkbox" name="splashEnabled" id="splashCheck" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Activar Splash</b><small>Pantalla de carga inicial</small></span></label>
+            <div id="splashOptions" class="hidden" style="padding-top:8px">
+              <div class="row">
+                <label>Color<input type="color" name="splashColor" value="#ffffff" /></label>
+                <label>Duración (ms)<input type="number" name="splashDuration" value="2000" min="500" max="5000" /></label>
+              </div>
+            </div>
+          </div>
+
+          <div class="card advanced hidden">
+            <div class="card-title"><span class="card-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span> Deep Links</div>
+            <label class="switch"><input type="checkbox" name="deepLinksEnabled" id="dlCheck" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Activar App Links</b><small>https://tu-dominio abre directamente la app</small></span></label>
+            <div id="dlBox" class="hidden" style="padding-top:8px">
+              <label>Dominio<input type="text" name="deepLinkDomain" placeholder="miweb.com" /></label>
+              <label>Rutas (coma separadas)<input type="text" name="deepLinkPaths" placeholder="/producto/*, /perfil" /></label>
+            </div>
+          </div>
+
+          <div class="card advanced hidden">
+            <div class="card-title"><span class="card-icon">⚙️</span> Developer Mode (Control Total del Proyecto)</div>
+            <p class="hint">Inspecciona y edita los archivos nativos generados antes de compilar.</p>
+            <div style="display:flex;gap:12px;margin-bottom:12px">
+              <div style="width:180px;border:1px solid var(--border);border-radius:8px;padding:8px;background:var(--surface-2);font-size:11px;font-family:monospace">
+                <div style="font-weight:bold;margin-bottom:4px;color:var(--text)"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Archivos</div>
+                <div style="color:var(--accent);cursor:pointer" onclick="document.getElementById('devCodeView').textContent=document.querySelector('[name=\'appName\']').value ? '{\n  \"appId\": \"' + (document.querySelector('[name=\'packageName\']').value||'com.inteebuild.app') + '\",\n  \"appName\": \"' + document.querySelector('[name=\'appName\']').value + '\",\n  \"webDir\": \"www\"\n}' : 'capacitor.config.json'"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> capacitor.config.json</div>
+                <div style="color:var(--muted);cursor:pointer;margin-top:2px" onclick="document.getElementById('devCodeView').textContent='<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\">\n  <!-- Manifest generado automáticamente -->\n</manifest>'"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> AndroidManifest.xml</div>
+                <div style="color:var(--muted);cursor:pointer;margin-top:2px" onclick="document.getElementById('devCodeView').textContent='{\n  \"name\": \"inteebuild-app\",\n  \"version\": \"1.0.0\"\n}'"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> package.json</div>
+                <div style="color:var(--muted);cursor:pointer;margin-top:2px" onclick="document.getElementById('devCodeView').textContent='plugins/\nres/\n  mipmap-hdpi/\n  values/colors.xml'"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> res/</div>
+              </div>
+              <div style="flex:1;min-width:0">
+                <pre id="devCodeView" class="console" style="margin-top:0;height:120px;background:#0f172a;color:#38bdf8">{
+  "appId": "com.inteebuild.app",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}</pre>
+              </div>
+            </div>
+            <div style="background:#090d16;padding:8px 12px;border-radius:6px;font-family:monospace;font-size:11px;color:#4ade80">
+              $ npx cap sync android<br/>
+              <span style="color:#94a3b8">> Syncing Android tasks completed in 1.2s. Ready for build.</span>
+            </div>
+          </div>
+
+          <div class="card advanced hidden">
+            <div class="card-title"><span class="card-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span> WebView avanzada</div>
+            <label>User-Agent personalizado<input type="text" name="userAgent" placeholder="InteeBuild/1.0 WebView" /></label>
+            <label>Back button behavior<select name="backButtonBehavior"><option value="back">Volver atrás</option><option value="exit">Cerrar app</option><option value="confirm">Preguntar al salir</option><option value="none">Ninguno</option></select></label>
+            <label>Cache mode<select name="cacheMode"><option value="normal">Normal</option><option value="no-cache">Sin caché</option><option value="force-cache">Forzar caché</option></select></label>
+            <label>JavaScript injection<textarea name="jsInjection" rows="4" placeholder="// Código JS inyectado al cargar la página&#10;window.myVar = 'hola';"></textarea></label>
+            <label>CSS injection<textarea name="cssInjection" rows="4" placeholder="/* CSS inyectado al cargar */&#10;body { font-family: sans-serif; }"></textarea></label>
+            <label>Custom headers (clave: valor, uno por línea)<textarea name="customHeaders" rows="3" placeholder="X-App-Version: 1.0&#10;X-Platform: android"></textarea></label>
+          </div>
+
+          <div class="card advanced hidden">
+            <div class="card-title"><span class="card-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span> Notificaciones</div>
+            <label>Canal<input type="text" name="notifChannel" value="General" /></label>
+            <div class="row">
+              <label>Importancia<select name="notifImportance"><option value="low">Baja</option><option value="default">Media</option><option value="high" selected>Alta</option></select></label>
+              <div style="display:flex;flex-direction:column;gap:4px;padding-top:5px">
+                <label class="switch" style="border:none;padding:4px 0"><input type="checkbox" name="notifSound" checked /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Sonido</b></span></label>
+                <label class="switch" style="border:none;padding:4px 0"><input type="checkbox" name="notifVibration" checked /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Vibración</b></span></label>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span class="card-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span> Firma digital</div>
+            <p class="hint">Sube un .jks para firma release y ProGuard. Sin .jks → debug.</p>
+            <div class="file"><input type="file" id="ksInput" accept=".jks,.keystore" /><span id="ksLabel"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Elegir archivo .jks / .keystore</span></div>
+            <div id="ksFields" class="hidden" style="padding-top:12px">
+              <div class="row">
+                <label>Keystore password<input type="password" name="keystorePassword" id="ksPass" /></label>
+                <label>Alias<input type="text" name="keyAlias" id="ksAlias" /></label>
+              </div>
+              <label>Key password<input type="password" name="keyPassword" id="ksKeyPass" /></label>
+            </div>
+          </div>
+
+          <div class="step-nav"><button type="button" class="btn ghost prev-btn">← Atrás</button><button type="button" class="btn primary next-btn">Siguiente →</button></div>
+        </div>
+
+        <!-- STEP 4: Preview -->
+        <div class="step" data-step="4">
+          <div class="card">
+            <div class="card-title"><span class="card-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span> Preview de la app</div>
+            <p class="hint">Simula cómo se verá tu app. Prueba rotación, fullscreen, splash y dark mode.</p>
+            <div style="display:flex;justify-content:center;padding:24px 0">
+              <div class="phone" id="phonePreviewMain">
+                <div class="phone-status"><span>12:30</span><span>●●● <svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> <svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span></div>
+                <div class="phone-notch"></div>
+                <div class="phone-screen" id="ppScreen">
+                  <div class="phone-bar" id="previewBarMain">Mi App</div>
+                  <div class="phone-icon" id="previewIconMain"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div>
+                  <div class="phone-url" id="previewUrlMain">https://mi-web.com</div>
+                  <div class="phone-splash hidden" id="previewSplashMain">Splash</div>
+                  <div class="phone-iframe-wrap hidden" id="ppIframe"></div>
+                </div>
+                <div class="phone-nav"><span>◁</span><span>○</span><span>□</span></div>
+              </div>
+            </div>
+            <div class="preview-device-select">
+              <select id="deviceSelect">
+                <option value="pixel">Pixel 9 (360×800)</option>
+                <option value="galaxy">Galaxy S25 (384×854)</option>
+                <option value="tablet">Tablet (600×960)</option>
+              </select>
+            </div>
+            <div class="preview-controls">
+              <button type="button" class="btn ghost sm" id="ppRotate">↺ Rotar</button>
+              <button type="button" class="btn ghost sm" id="ppFullscreen">⛶ Fullscreen</button>
+              <button type="button" class="btn ghost sm" id="ppSplashBtn"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Splash</button>
+              <button type="button" class="btn ghost sm" id="ppTheme"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Dark</button>
+              <button type="button" class="btn ghost sm" id="ppLive"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Live URL</button>
+            </div>
+          </div>
+          <div class="step-nav"><button type="button" class="btn ghost prev-btn">← Atrás</button><button type="button" class="btn primary next-btn">Siguiente →</button></div>
+        </div>
+
+        <!-- STEP 5: Compilar -->
+        <div class="step" data-step="5">
+          <div class="card build-card">
+            <div id="buildReady">
+              <div class="card-title" style="justify-content:center;font-size:18px"><span class="card-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span> Compilar App</div>
+              <p class="hint">Todo listo. Presiona para iniciar la compilación real con GitHub Actions.</p>
+              <div class="build-actions">
+                <button type="button" class="btn primary" id="buildBtn" style="padding:12px 32px;font-size:15px">⚡ Compilar</button>
+                <button type="button" class="btn ghost" id="zipBtn"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Descargar proyecto .zip</button>
+              </div>
+            </div>
+
+            <div id="buildProgress" class="hidden">
+              <div class="progress-steps">
+                <div class="pstep" id="ps0"><span class="pdot"></span><label>Proyecto generado</label><span class="picon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span></div>
+                <div class="pstep" id="ps1"><span class="pdot"></span><label>Workflow sincronizado</label><span class="picon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span></div>
+                <div class="pstep" id="ps2"><span class="pdot"></span><label>Subido a GitHub</label><span class="picon">☁️</span></div>
+                <div class="pstep" id="ps3"><span class="pdot"></span><label>GitHub Actions ejecutando</label><span class="picon">⚙️</span></div>
+                <div class="pstep" id="ps4"><span class="pdot"></span><label>Permisos e iconos aplicados</label><span class="picon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span></div>
+                <div class="pstep" id="ps5"><span class="pdot"></span><label>APK compilado</label><span class="picon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span></div>
+                <div class="pstep" id="ps6"><span class="pdot"></span><label>AAB / Finalizando</label><span class="picon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span></div>
+              </div>
+              <div class="progress"><span id="progressBar"></span></div>
+              <pre id="buildConsole" class="console hidden"></pre>
+              <button type="button" class="btn ghost sm" id="toggleConsole" style="margin-top:10px">Ver logs</button>
+            </div>
+
+            <div id="buildResult" class="hidden">
+              <div class="result-ok">
+                <div class="result-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div>
+                <div><b>BUILD SUCCESS</b><small id="resultAppName">—</small></div>
+              </div>
+              <div class="result-info">
+                <span>ID: <code id="resultId">—</code></span>
+                <span>Tiempo: <code id="resultTime">—</code></span>
+                <span>Output: <code id="resultOutput">—</code></span>
+              </div>
+              <div class="result-actions" id="resultActions"></div>
+              <div class="result-actions">
+                <button type="button" class="btn ghost sm" id="showQrBtn"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> QR descarga</button>
+                <button type="button" class="btn ghost sm" id="showApkInfoBtn"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Info APK</button>
+                <button type="button" class="btn ghost sm" id="downloadZipBtn"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> .zip</button>
+              </div>
+              <div id="apkInfoBox" class="apk-info hidden">
+                <hr class="section-divider" />
+                <div class="apk-info-grid" id="apkInfoGrid"></div>
+              </div>
+            </div>
+
+            <div id="resultError" class="alert error hidden"></div>
+          </div>
+          <div class="step-nav"><button type="button" class="btn ghost prev-btn" id="backFromBuild">← Atrás</button><span></span></div>
+        </div>
+
+        <!-- STEP 6: Historial -->
+        <div class="step" data-step="6">
+          <div class="card" id="statsCard">
+            <h2><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Estadísticas</h2>
+            <div class="stats-grid">
+              <div class="stat"><b id="statTotal">0</b><small>Total builds</small></div>
+              <div class="stat ok"><b id="statOk">0</b><small>Exitosos</small></div>
+              <div class="stat fail"><b id="statFail">0</b><small>Fallidos</small></div>
+              <div class="stat"><b id="statAvg">—</b><small>Tiempo promedio</small></div>
+            </div>
+            <div class="stats-row">
+              <span>APK: <b id="statApk">0</b></span>
+              <span>AAB: <b id="statAab">0</b></span>
+              <span>Ambos: <b id="statBoth">0</b></span>
+            </div>
+          </div>
+          <div class="card">
+            <h2><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Mis builds</h2>
+            <div id="historyList" class="history-list"><p class="hint">Cargando…</p></div>
+          </div>
+          <div class="step-nav"><button type="button" class="btn ghost prev-btn">← Atrás</button><span></span></div>
+        </div>
+      </div>
+
+      <!-- PREVIEW STICKY PANEL -->
+      <div class="preview-panel">
+        <div class="phone" id="phoneMock">
+          <div class="phone-status"><span id="previewTime">12:30</span><span>●●● <svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> <svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span></div>
+          <div class="phone-notch"></div>
+          <div class="phone-screen" id="phoneScreen">
+            <div class="phone-bar" id="previewBar">Mi App</div>
+            <div class="phone-icon" id="previewIcon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div>
+            <div class="phone-url" id="previewUrl">https://mi-web.com</div>
+            <div class="phone-splash hidden" id="previewSplash">Splash</div>
+          </div>
+          <div class="phone-nav"><span>◁</span><span>○</span><span>□</span></div>
+        </div>
+        <div class="preview-controls">
+          <button type="button" class="btn ghost sm" id="previewRotate">↺ Rotar</button>
+          <button type="button" class="btn ghost sm" id="previewFullscreen">⛶ Full</button>
+          <button type="button" class="btn ghost sm" id="previewSplashBtn"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Splash</button>
+          <button type="button" class="btn ghost sm" id="previewTheme"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Dark</button>
+        </div>
+        <p class="hint" style="text-align:center;margin-top:8px;font-size:11px">Preview en vivo</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- QR Modal -->
+  <div class="qr-modal hidden" id="qrModal">
+    <div class="qr-box">
+      <h3><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Instalar en tu dispositivo</h3>
+      <p>Escanea con la cámara de Android para descargar el APK</p>
+      <div class="qr-img" id="qrImgBox"><span style="color:var(--faint);font-size:12px">Generando QR…</span></div>
+      <div class="result-actions">
+        <a id="qrDirectLink" class="btn primary sm" href="#" download>⬇️ Descargar APK</a>
+      </div>
+      <span class="qr-close" id="qrClose">Cerrar</span>
+    </div>
+  </div>
+
+  <div class="ad-container ad-mobile">
+    <script>atOptions={'key':'43ebfe1e4238ce12d9f5d3aef4789066','format':'iframe','height':50,'width':320,'params':{}};</script>
+    <script src="https://www.highrevenueformat.com/43ebfe1e4238ce12d9f5d3aef4789066/invoke.js"></script>
+  </div>
+
+  <footer>
+    <span>InteeBuild</span><span class="sep">·</span>
+    <span>Web → APK / AAB</span><span class="sep">·</span>
+    <span>Open source</span><span class="sep">·</span>
+    <a href="/api/v1/build" style="color:var(--faint);font-size:11px;text-decoration:none">API v1</a>
+  </footer>
+
+  <script src="./js/app.js"></script>
+</body>
+</html>

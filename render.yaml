@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: inteebuild
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server/server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: INTE_BUILDS_REPO
+        sync: false
+      - key: NODE_ENV
+        value: production
