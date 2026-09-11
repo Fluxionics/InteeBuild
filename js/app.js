@@ -134,10 +134,11 @@ document.querySelectorAll('.plugin-card').forEach((card) => {
   }
 });
 
-const splashCheck = document.getElementById('splashCheck');
-if (splashCheck) {
-  splashCheck.addEventListener('change', (e) => {
-    document.getElementById('splashOptions').classList.toggle('hidden', !e.target.checked);
+const splashToggle = document.querySelector('[name="splashEnabled"]');
+if (splashToggle) {
+  splashToggle.addEventListener('change', (e) => {
+    const box = document.getElementById('splashOptions');
+    if (box) box.classList.toggle('hidden', !e.target.checked);
   });
 }
 

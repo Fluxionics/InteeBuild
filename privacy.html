@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacidad — InteeBuild</title>
+<link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="logo"><img src="./assets/icon.svg" width="20" height="20" alt="IB"></span><div class="brand-txt"><strong>InteeBuild</strong><small>web a APK/AAB</small></div></div>
+  <a href="./index.html" class="btn ghost">Volver</a>
+</header>
+<main style="max-width:800px">
+  <h1>Politica de Privacidad</h1>
+  <p class="hint">Ultima actualizacion: 11 de septiembre de 2026</p>
+  <section class="card">
+    <h2>Resumen</h2>
+    <p>InteeBuild no requiere registro. No almacenamos tu codigo HTML de forma permanente ni tu keystore. Los builds se crean en una rama temporal del repositorio que configures y se eliminan automaticamente tras 60 minutos.</p>
+    <h2>Datos que procesamos</h2>
+    <ul>
+      <li>URL o codigo HTML que proporcionas para generar la app.</li>
+      <li>Nombre, paquete, icono y configuracion elegida.</li>
+      <li>Archivo keystore y contrasenas solo si eliges firma personalizada. Se envian en base64 a una rama temporal y se borran con la rama.</li>
+      <li>Direccion IP anonimizada para limite de 10 builds por hora.</li>
+    </ul>
+    <h2>Almacenamiento</h2>
+    <p>Historial local en <code>data/builds.json</code> con ultimos 30 builds (ID, nombre, estado y tiempo). En hosting efimero como Render este archivo puede reiniciarse tras cada despliegue. No se comparte con terceros.</p>
+    <h2>Cookies y analitica</h2>
+    <p>No usamos cookies propias. Los anuncios de highrevenueformat.com pueden usar cookies de terceros segun su politica.</p>
+    <h2>Tus derechos</h2>
+    <p>Puedes solicitar eliminacion de un build contactando al administrador del despliegue o borrando la rama correspondiente en el repositorio de builds.</p>
+    <h2>Contacto</h2>
+    <p>Abre un issue en <a href="https://github.com/Fluxionics/InteeBuild">GitHub</a> para consultas de privacidad.</p>
+  </section>
+</main>
+<footer><span>InteeBuild</span><span class="sep">·</span><a href="./privacy.html">Privacidad</a><span class="sep">·</span><a href="./terms.html">Terminos</a><span class="sep">·</span><a href="./license.html">Licencia</a></footer>
+</body>
+</html>
