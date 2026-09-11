@@ -1,99 +1,61 @@
-# InteeBuild
+# InteeBuild — Web a APK/AAB nativo
 
-Convierte cualquier pagina web o codigo HTML en un **APK o AAB nativo de Android** con 18 permisos configurables, splash screen, historial de builds y configuracion Android completa.
+Convierte cualquier web o HTML en **APK** (instalación directa) o **AAB** (Google Play) con 18 permisos, firma personalizada, icono adaptativo y ofuscación.
 
-- Sin registro ni cuentas.
-- El APK/AAB se compila en la nube con **GitHub Actions** (gratis).
-- Open source.
+**v4.1.0** — Tester 92/100, preview realista, historial y estadisticas.
 
-## Como funciona
-
-1. El usuario configura su app en 4 pasos: URL/HTML, permisos, configuracion Android, compilar.
-2. El backend genera un proyecto **Capacitor** completo.
-3. El proyecto se sube a un repo de builds y se dispara GitHub Actions.
-4. El usuario recibe el APK/AAB para descargar.
-5. El historial de builds queda guardado para referencia.
-
-## Caracteristicas
-
-### Entrada flexible
-- **URL**: cualquier pagina web (http/https).
-- **HTML directo**: pega tu codigo HTML y genera la app sin hosting.
-
-### 18 Permisos Android
-- Notificaciones (POST_NOTIFICATIONS, VIBRATE)
-- Foreground Service (FOREGROUND_SERVICE, DATA_SYNC)
-- Camara y microfono (CAMERA, RECORD_AUDIO, MODIFY_AUDIO_SETTINGS)
-- Almacenamiento (READ_MEDIA_*, READ_EXTERNAL_STORAGE)
-- GPS (ACCESS_FINE/COARSE/BACKGROUND_LOCATION)
-- Bluetooth (BLUETOOTH, BLUETOOTH_ADMIN, CONNECT, SCAN)
-- Telefono (CALL_PHONE, READ_PHONE_STATE, READ_CALL_LOG)
-- SMS (SEND_SMS, READ_SMS)
-- Calendario (READ_CALENDAR, WRITE_CALENDAR)
-- Contactos (READ_CONTACTS, WRITE_CONTACTS)
-- Sensores (BODY_SENSORS)
-- NFC
-- Alerta del sistema (SYSTEM_ALERT_WINDOW)
-- Instalar paquetes (REQUEST_INSTALL_PACKAGES)
-- Alarmas (SCHEDULE_EXACT_ALARM)
-- Cercanos WiFi (NEARBY_WIFI_DEVICES)
-- Bloqueo de pantalla (WAKE_LOCK)
-
-### Salida
-- **APK**: para instalar directamente.
-- **AAB**: para Google Play.
-- **APK + AAB**: ambos.
-
-### Configuracion Android
-- compileSdk 33-36, targetSdk 27-36, minSdk 23-29
-- Orientacion: automatica, vertical, horizontal, sensor
-- Pantalla completa y mantener pantalla activa
-- Trafico HTTP configurable (cleartext)
-- Splash screen con color y duracion
-- Iconos: PNG, JPG, WebP (hasta 5MB)
-
-### Historial
-- Guarda los ultimos 30 builds.
-- Muestra estado, nombre, fecha, ID.
-- Links directos a APK y logs.
-
-## Arrancar localmente
+## 🚀 Como usar (cualquiera, en local)
 
 ```bash
+git clone https://github.com/Fluxionics/InteeBuild.git
+cd InteeBuild
 npm install
-cp .env.example .env    # rellena GITHUB_TOKEN y INTEE_BUILDS_REPO
+cp .env.example .env
+# edita .env con tu token
 npm run dev
+# abre http://localhost:8787
 ```
 
-## Variables de entorno
+### .env necesario
+```
+GITHUB_TOKEN=ghp_xxx  # token con Contents + Actions en tu repo builds
+INTEE_BUILDS_REPO=tu-usuario/inteebuild-builds  # repo donde compila (crealo vacio)
+```
 
-| Variable | Descripcion |
-|---|---|
-| `GITHUB_TOKEN` | Token con permisos Contents y Actions |
-| `INTEE_BUILDS_REPO` | Repo de builds (ej: `usuario/inteebuild-builds`) |
-| `INTEE_DEFAULT_BRANCH` | Rama por defecto (default: `main`) |
-| `PORT` | Puerto del servidor (default: 8787) |
-| `CORS_ORIGIN` | Origen permitido para CORS (default: todos) |
-| `CLEANUP_SECRET` | Secreto para proteger `/api/cleanup` |
+Cualquiera puede correrlo local sin Render. En Render, pon esas 2 vars en Environment y redeploya.
 
-## API
+## 📱 Flujo
+**Tu web → Análisis (92/100) → Personaliza (nombre/icono/tema) → Permisos → Preview (rotar/fullscreen/splash/live URL) → Compilar (diagnóstico 7 pasos) → APK/AAB**
 
-| Endpoint | Metodo | Descripcion |
-|---|---|---|
-| `/api/health` | GET | Estado del servidor |
-| `/api/build` | POST | Iniciar un build |
-| `/api/build/:id` | GET | Consultar estado |
-| `/api/project` | POST | Descargar proyecto .zip |
-| `/api/history` | GET | Historial de builds |
-| `/api/cleanup` | GET | Limpiar ramas/artifacts (protegido) |
+- **Plantillas:** Web, PWA, Radio, Tienda, Blog, Game, Educación, Empresa, Comunidad, Streaming, Dashboard, AI, Maps, Finanzas, Eventos — auto-configura permisos.
+- **Analizador:** `GET /api/analyze?url=https://...` chequea HTTPS, viewport, manifest, favicon, theme-color, serviceWorker, recursos `http://`, errores HTML, PWA score y sugiere plugins.
+- **Preview:** teléfono con status bar (hora real), notch, navigation bar, rotación, fullscreen, splash, dark/light y **Live URL** (iframe real de tu web).
 
-## Desplegar en Render
+## 🔐 Permisos (18)
+Notificaciones, Foreground (ahora con `FOREGROUND_SERVICE_MEDIA_PLAYBACK` para **audio en segundo plano** — activa también `WAKE_LOCK`), Cámara/mic, Almacenamiento, GPS, Bluetooth, Teléfono, SMS, Calendario, Contactos, Sensores, NFC, System Alert, Instalar paquetes, Alarmas, Nearby WiFi, Vibration, Wake Lock, Biometría.
 
-1. Crea un repo en GitHub con el codigo.
-2. En Render, crea un **New Web Service** desde el repo.
-3. En **Environment**, agrega `GITHUB_TOKEN` e `INTEE_BUILDS_REPO`.
-4. Render usa `render.yaml` automaticamente.
+> **Audio en segundo plano:** activa **Foreground Service + Wake Lock**. El manifest declara `<service android:foregroundServiceType="dataSync|mediaPlayback">`. Tu web debe usar `<audio>` con `autoplay` y el sistema mantendrá el audio. Si falla, revisa que tu HTML no pause el audio en `visibilitychange`.
 
-## Licencia
+## 🎨 Personalización
+Icono PNG/JPG/WebP, **icono adaptativo** (foreground + background color → `mipmap-anydpi-v26`), colores `accent/statusBar/navigationBar`, tema claro/oscuro/sistema, edge-to-edge, splash (color/duración), orientación, pantalla completa, deep links (`https://tu-dominio/*`), notificaciones (canal/importancia), firma `.jks` por usuario (temporal, 60 min), JS/CSS injection, User-Agent, cache, back button.
 
-MIT
+## 🔑 Firma por usuario
+En **Config → Firma**, sube tu `.jks` + password + alias. Solo vive en ese build (rama `build-xxxx` + `signing.properties`), se auto-borra a los 60 min. Si no subes, firma `debug`.
+
+## 📦 Salida
+Elige **APK**, **AAB** o **APK+AAB**. La descarga es directa (`/api/download/:id` extrae `.apk` del ZIP de GitHub, no `.zip` dentro de `.zip`). También puedes descargar **Proyecto .zip** (Capacitor + Android).
+
+## 📊 Historial y Estadísticas
+Paso **Historial** muestra últimos 30 builds (nombre, estado, hace X tiempo, APK/Logs). Si no ves historial, es porque `data/builds.json` es efímero en Render free — en local sí persiste. Estadísticas arriba: total, exitosos, fallidos, APK/AAB/ambos, tiempo promedio.
+
+## 🛡️ Seguridad
+Bloquea `localhost`, `127.`, `10.`, `192.168.`, `172.16-31.`, `169.254.`, metadata endpoints, redirects a IPs privadas, HTML >500KB, icono >5MB, rate limit 10/h por IP, CORS via `CORS_ORIGIN`.
+
+## 💰 Ads
+Solo 2 banners: 300×250 arriba y 320×50 abajo (`highrevenueformat.com`). Son iframes externos, no tocan tu token ni keys. Para uso local sin ads, pon `ADS_ENABLED=false` o comenta los `<script>` en `index.html`.
+
+## 🧭 InteeBridge
+Si activas **InteeBridge**, tu web puede llamar `Intee.location()`, `Intee.camera()`, `Intee.share()`, etc. El archivo `js/inteebridge.js` se inyecta en `android/app/src/main/assets/public`.
+
+## 📄 Licencia
+MIT — úsalo local o despliega donde quieras.

@@ -58,7 +58,7 @@ function goToStep(idx) {
   steps[currentStep].classList.add('active');
   stepDots[currentStep].classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (currentStep === 6) { loadHistory(); loadStats(); }
+  if (currentStep === 5) { loadHistory(); loadStats(); }
 }
 
 stepDots.forEach((dot) => {
