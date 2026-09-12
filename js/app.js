@@ -58,7 +58,8 @@ function goToStep(idx) {
   steps[currentStep].classList.add('active');
   stepDots[currentStep].classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (currentStep === 5) { loadHistory(); loadStats(); }
+  if (currentStep === 5) { runQAChecks(); }
+  if (currentStep === 7) { loadHistory(); loadStats(); }
 }
 
 stepDots.forEach((dot) => {
@@ -537,6 +538,63 @@ function collect() {
   return data;
 }
 
+function runQAChecks() {
+  const list = document.getElementById('qaList');
+  const summary = document.getElementById('qaSummary');
+  const terms = document.getElementById('qaTerms');
+  const nextBtn = document.getElementById('qaNextBtn');
+  if (!list) return;
+  const cfg = collect();
+  const items = [];
+  if (cfg.inputType === 'url') {
+    const url = String(cfg.url || '').trim();
+    let okUrl = false, isHttps = false;
+    try {
+      const u = new URL(url);
+      okUrl = u.protocol === 'http:' || u.protocol === 'https:';
+      isHttps = u.protocol === 'https:';
+    } catch (_) { okUrl = false; }
+    items.push({ label: 'URL válida (http/https)', state: okUrl ? 'ok' : 'fail', detail: okUrl ? url : 'Revisa el paso 1' });
+    items.push({ label: 'Conexión segura HTTPS', state: isHttps ? 'ok' : 'warn', detail: isHttps ? 'Cifrado activo' : 'HTTP permitido solo si activaste tráfico cleartext' });
+  } else {
+    const len = String(cfg.htmlCode || '').length;
+    items.push({ label: 'Código HTML presente', state: len > 50 ? 'ok' : 'fail', detail: len > 50 ? len + ' caracteres' : 'Pega tu HTML en el paso 1' });
+    items.push({ label: 'Tamaño dentro del límite (500 KB)', state: len < 500000 ? 'ok' : 'fail', detail: Math.round(len / 1024) + ' KB' });
+  }
+  const nameOk = String(cfg.appName || '').trim().length >= 2;
+  items.push({ label: 'Nombre de la app', state: nameOk ? 'ok' : 'fail', detail: nameOk ? cfg.appName : 'Falta en el paso 1' });
+  const pkgOk = /^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/.test(String(cfg.packageName || '').trim().toLowerCase()) || !String(cfg.packageName || '').trim();
+  items.push({ label: 'Package ID válido', state: pkgOk ? 'ok' : 'fail', detail: cfg.packageName ? cfg.packageName : 'Se generará automáticamente' });
+  items.push({ label: 'Icono personalizado', state: iconBase64 ? 'ok' : 'warn', detail: iconBase64 ? 'Icono listo' : 'Opcional: se usará el icono por defecto' });
+  const perms = cfg.permissions || {};
+  const permCount = Object.values(perms).filter(Boolean).length;
+  items.push({ label: 'Permisos mínimos necesarios', state: permCount > 0 && permCount <= 8 ? 'ok' : 'warn', detail: permCount + ' activos' + (permCount > 8 ? ' (revisa políticas de Play Store)' : '') });
+  items.push({ label: 'Firma y ofuscación', state: cfg.keystoreBase64 ? 'ok' : 'warn', detail: cfg.keystoreBase64 ? 'Release + ProGuard' : 'Debug (solo pruebas)' });
+  items.push({ label: 'Sin secretos en el código', state: 'ok', detail: 'Token y keystore via entorno / rama temporal' });
+  const fails = items.filter((i) => i.state === 'fail').length;
+  list.innerHTML = items.map((i) =>
+    '<div class="qa-item ' + i.state + '"><span class="qa-dot"></span><div><b>' + i.label + '</b><small>' + i.detail + '</small></div></div>'
+  ).join('');
+  if (summary) {
+    summary.classList.remove('hidden');
+    if (fails > 0) {
+      summary.className = 'alert error';
+      summary.style.marginTop = '12px';
+      summary.textContent = 'Hay ' + fails + ' punto(s) en rojo. Corrige antes de compilar.';
+    } else {
+      summary.className = 'alert success';
+      summary.style.marginTop = '12px';
+      summary.textContent = 'Todo listo. Acepta los términos para ir a compilar.';
+    }
+  }
+  const gate = () => { if (nextBtn) nextBtn.disabled = fails > 0 || !(terms && terms.checked); };
+  if (terms && !terms.dataset.qaBound) {
+    terms.dataset.qaBound = '1';
+    terms.addEventListener('change', gate);
+  }
+  gate();
+}
+
 function setProgressStep(idx, state) {
   const el = document.getElementById('ps' + idx);
   if (!el) return;
@@ -692,7 +750,7 @@ buildBtn.addEventListener('click', async () => {
 });
 
 backFromBuild.addEventListener('click', () => {
-  goToStep(4);
+  goToStep(5);
   buildReady.classList.remove('hidden');
   buildProgress.classList.add('hidden');
   buildResult.classList.add('hidden');

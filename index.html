@@ -68,7 +68,8 @@
           <button class="step-dot" data-step="2"><span>3</span><label>Plugins</label></button>
           <button class="step-dot" data-step="3"><span>4</span><label>Ajustes</label></button>
           <button class="step-dot" data-step="4"><span>5</span><label>Preview</label></button>
-          <button class="step-dot" data-step="5"><span>6</span><label>Compilar</label></button>
+          <button class="step-dot" data-step="5"><span>6</span><label>QA + Seguridad</label></button>
+          <button class="step-dot" data-step="6"><span>7</span><label>Compilar</label></button>
         </nav>
 
         <!-- STEP 0: Web / App info -->
@@ -568,7 +569,7 @@
             <p class="hint">Inspecciona la estructura de código generada antes de la compilación.</p>
             <div style="display:flex;gap:12px;margin-bottom:12px">
               <div style="width:180px;border:1px solid var(--border);border-radius:8px;padding:8px;background:var(--surface-2);font-size:11px;font-family:monospace">
-                <div style="font-weight:bold;margin-bottom:4px;color:var(--text)">📁 Archivos</div>
+                <div style="font-weight:bold;margin-bottom:4px;color:var(--text)"><svg class="ico" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg> Archivos</div>
                 <div style="color:var(--accent);cursor:pointer" onclick="document.getElementById('devCodeView').textContent=document.querySelector('[name=\'appName\']').value ? '{\n  \"appId\": \"' + (document.querySelector('[name=\'packageName\']').value||'com.inteebuild.app') + '\",\n  \"appName\": \"' + document.querySelector('[name=\'appName\']').value + '\",\n  \"webDir\": \"www\"\n}' : 'capacitor.config.json'">capacitor.config.json</div>
                 <div style="color:var(--muted);cursor:pointer;margin-top:2px" onclick="document.getElementById('devCodeView').textContent='<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\">\n  <!-- Manifest generado automáticamente -->\n</manifest>'">AndroidManifest.xml</div>
                 <div style="color:var(--muted);cursor:pointer;margin-top:2px" onclick="document.getElementById('devCodeView').textContent='{\n  \"name\": \"inteebuild-app\",\n  \"version\": \"1.0.0\"\n}'">package.json</div>
@@ -675,8 +676,29 @@
           <div class="step-nav"><button type="button" class="btn ghost prev-btn">← Paso anterior</button><button type="button" class="btn primary next-btn">Siguiente paso →</button></div>
         </div>
 
-        <!-- STEP 5: Compilar -->
+        <!-- STEP 5: QA + Seguridad (última fase) -->
         <div class="step" data-step="5">
+          <div class="card">
+            <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+              Fase Final: Control de Calidad y Seguridad
+            </div>
+            <p class="hint">Revisión automática de tu configuración antes de compilar. Corrige los puntos en rojo y confirma los términos para continuar.</p>
+            <div id="qaList" class="qa-list">
+              <p class="hint">Entrando a la fase QA…</p>
+            </div>
+            <div id="qaSummary" class="alert hidden" style="margin-top:12px"></div>
+            <label class="switch" style="margin-top:12px">
+              <input type="checkbox" id="qaTerms" />
+              <span class="trk"><span class="knob"></span></span>
+              <span class="txt"><b>Acepto los Términos de Uso</b><small>He leído los <a href="./terms.html" target="_blank" rel="noopener">Términos</a>, la <a href="./privacy.html" target="_blank" rel="noopener">Política de Privacidad</a> y la <a href="./license.html" target="_blank" rel="noopener">Licencia</a>. Declaro tener derechos sobre el contenido a convertir.</small></span>
+            </label>
+          </div>
+          <div class="step-nav"><button type="button" class="btn ghost prev-btn">← Paso anterior</button><button type="button" class="btn primary next-btn" id="qaNextBtn" disabled>Ir a compilar →</button></div>
+        </div>
+
+        <!-- STEP 6: Compilar -->
+        <div class="step" data-step="6">
           <div class="card build-card">
             <div id="buildReady">
               <div class="card-title" style="justify-content:center;font-size:18px">
@@ -734,8 +756,8 @@
           <div class="step-nav"><button type="button" class="btn ghost prev-btn" id="backFromBuild">← Paso anterior</button><span></span></div>
         </div>
 
-        <!-- STEP 6: Historial -->
-        <div class="step" data-step="6">
+        <!-- STEP 7: Historial -->
+        <div class="step" data-step="7">
           <div class="card" id="statsCard">
             <h2>Historial de Compilaciones</h2>
             <div class="stats-grid">
@@ -802,23 +824,59 @@
     <script src="https://www.highrevenueformat.com/43ebfe1e4238ce12d9f5d3aef4789066/invoke.js" onerror="this.parentElement.style.display='none'"></script>
   </div>
 
+  <section class="legal-section" aria-label="Información legal">
+    <div class="card">
+      <div class="card-title">
+        <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Información Legal y Políticas
+      </div>
+      <p class="hint">Transparencia total: consulta cómo tratamos tus datos, las reglas de uso y la licencia del proyecto.</p>
+      <div class="legal-grid">
+        <a class="legal-card" href="./about.html">
+          <b>Presentación</b>
+          <small>Qué es InteeBuild y cómo funciona el servicio.</small>
+        </a>
+        <a class="legal-card" href="./privacy.html">
+          <b>Política de Privacidad</b>
+          <small>Qué datos procesamos, borrado en 60 min y tus derechos.</small>
+        </a>
+        <a class="legal-card" href="./terms.html">
+          <b>Términos de Uso</b>
+          <small>Uso permitido, límites, compilación y responsabilidad.</small>
+        </a>
+        <a class="legal-card" href="./license.html">
+          <b>Licencia MIT</b>
+          <small>Uso comercial permitido manteniendo el aviso de copyright.</small>
+        </a>
+      </div>
+    </div>
+  </section>
+
   <footer>
     <span>InteeBuild Studio</span><span class="sep">·</span>
     <span>Web to Native Converter</span><span class="sep">·</span>
+    <a href="./about.html">Presentación</a><span class="sep">·</span>
+    <a href="./privacy.html">Privacidad</a><span class="sep">·</span>
+    <a href="./terms.html">Términos</a><span class="sep">·</span>
+    <a href="./license.html">Licencia</a><span class="sep">·</span>
     <a href="/api/v1/build" style="color:var(--faint);font-size:11px;text-decoration:none">API REST v1</a><span class="sep">·</span>
     <a href="#" onclick="document.getElementById('legalModal').classList.remove('hidden');return false;" style="color:var(--muted);font-size:11px;text-decoration:underline">Términos & Legal</a>
   </footer>
 
   <!-- Modal de Términos Legales -->
   <div class="qr-modal hidden" id="legalModal">
-    <div class="qr-box" style="max-width:540px;text-align:left">
-      <h3 style="margin-bottom:10px">Términos de Servicio y Exención de Responsabilidad</h3>
-      <div style="max-height:260px;overflow-y:auto;font-size:12px;color:var(--muted);line-height:1.6;padding-right:6px">
+    <div class="qr-box" style="max-width:560px;text-align:left">
+      <h3 style="margin-bottom:10px">Términos de Uso y Políticas</h3>
+      <div style="max-height:280px;overflow-y:auto;font-size:12px;color:var(--muted);line-height:1.6;padding-right:6px">
         <p><b>1. Propiedad Intelectual:</b> InteeBuild es una herramienta de conversión técnica. El usuario declara y garantiza ser el propietario o contar con las licencias correspondientes sobre la URL o el contenido HTML introducido.</p>
         <p><b>2. Responsabilidad de Contenido:</b> InteeBuild no se hace responsable por las marcas, derechos de autor o aplicaciones generadas por los usuarios que infrinjan derechos de terceros o las políticas de Google Play Store.</p>
         <p><b>3. Uso del Servicio:</b> El servicio se proporciona "tal cual" (AS IS) sin garantías explícitas sobre la publicación final en tiendas de aplicaciones.</p>
+        <p><b>4. Uso Aceptable:</b> Límite de 10 compilaciones por hora e IP. Prohibido convertir contenido ilegal, malicioso o sin autorización, así como usar el servicio como proxy o para eludir bloqueos de red. Las URLs privadas (localhost, redes locales, metadatos de nube) están bloqueadas.</p>
+        <p><b>5. Privacidad:</b> No pedimos registro. Tu keystore solo vive en la rama temporal del build y se elimina automáticamente junto con ramas, ejecuciones y artefactos de más de 60 minutos. Detalles en la <a href="./privacy.html">Política de Privacidad</a>.</p>
+        <p><b>6. Licencia:</b> El código es abierto bajo licencia MIT (<a href="./license.html">ver licencia</a>). Puedes usarlo personal y comercialmente manteniendo el aviso de copyright.</p>
       </div>
-      <div style="margin-top:16px;text-align:right">
+      <div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <span style="font-size:11px"><a href="./terms.html">Términos completos</a> · <a href="./privacy.html">Privacidad</a> · <a href="./about.html">Presentación</a></span>
         <button type="button" class="btn primary sm" onclick="document.getElementById('legalModal').classList.add('hidden')">Entendido y Aceptar</button>
       </div>
     </div>
