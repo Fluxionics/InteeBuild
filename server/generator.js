@@ -423,6 +423,9 @@ jobs:
         if: \${{ github.event.inputs.platform == 'ios' || github.event.inputs.platform == 'both' }}
         run: npx cap add ios
 
+      - name: Sync Capacitor
+        run: npx cap sync
+
       - name: Suppress compileSdk warning
         run: echo 'android.suppressUnsupportedCompileSdk=36' >> android/gradle.properties
 
@@ -435,7 +438,10 @@ jobs:
           sed -n '1,12p' android/variables.gradle
 
       - name: Apply permissions manifest
-        run: cp main-manifest.xml android/app/src/main/AndroidManifest.xml
+        run: |
+          cp main-manifest.xml android/app/src/main/AndroidManifest.xml
+          echo "--- permisos aplicados ---"
+          grep -o 'android:name="[^"]*"' android/app/src/main/AndroidManifest.xml
 
       - name: Apply app icon
         if: "hashFiles('app-icon.png') != ''"
@@ -444,9 +450,6 @@ jobs:
             cp app-icon.png "android/app/src/main/res/$d/ic_launcher.png"
             cp app-icon.png "android/app/src/main/res/$d/ic_launcher_round.png"
           done
-
-      - name: Sync Capacitor
-        run: npx cap sync
 
       - name: Note iOS
         if: \${{ github.event.inputs.platform == 'ios' || github.event.inputs.platform == 'both' }}

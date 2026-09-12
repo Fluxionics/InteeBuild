@@ -173,7 +173,7 @@ async function deleteArtifact(owner, repo, artifactId) {
 
 async function cleanup(owner, repo, keepBranch) {
   const del = { branches: 0, runs: 0, artifacts: 0 };
-  const cutoff = Date.now() - 60 * 60 * 1000;
+  const cutoff = Date.now() - 30 * 60 * 1000;
   try {
     const branches = await listBranches(owner, repo);
     const old = branches.filter(b => {
