@@ -369,14 +369,14 @@ on:
         type: string
       outputType:
         description: 'Output type (apk/aab/both)'
+        required: false
+        type: string
+        default: 'apk'
       platform:
         description: 'Platform (android/ios/both)'
         required: false
         type: string
         default: 'android'
-        required: false
-        type: string
-        default: 'apk'
 
 permissions:
   contents: read
