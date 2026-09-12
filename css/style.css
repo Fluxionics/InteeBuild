@@ -403,3 +403,17 @@ footer a:hover { color: var(--text); text-decoration: underline; }
 .qa-item.fail { border-color: rgba(220,38,38,.5); }
 .qa-item.fail .qa-dot { background: var(--danger); }
 #qaNextBtn:disabled { opacity: .45; cursor: not-allowed; }
+
+.hero-cta { display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
+.stats-strip { display:flex; gap:18px; margin-top:14px; font-size:13px; color:var(--muted); flex-wrap:wrap; }
+.stats-strip b { color:var(--text); }
+.landing { margin:34px 0; }
+.landing h2 { font-size:20px; margin-bottom:14px; }
+.feat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; }
+.card.feat b { display:block; margin-bottom:4px; }
+.steps-explain { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-bottom:14px; }
+.card.faq { margin-bottom:8px; cursor:pointer; }
+.card.faq summary { font-weight:600; cursor:pointer; }
+.hist-tools { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+.hist-tools input, .hist-tools select { flex:1; min-width:140px; }
+.preset-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }

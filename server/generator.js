@@ -43,7 +43,11 @@ function pv(name, cap) {
 }
 
 function normalizeConfig(raw) {
-  const appName = String(raw.appName || '').trim().slice(0, 40) || 'My Web App';
+  const appNameRaw = String(raw.appName || '').trim();
+  if (appNameRaw && !/^[\p{L}\p{N} _\-.]{2,40}$/u.test(appNameRaw)) {
+    throw Object.assign(new Error('Nombre de app no válido. Solo letras, números, espacios, guiones y puntos (2-40 caracteres). Ejemplo: Mi Tienda'), { status: 400 });
+  }
+  const appName = appNameRaw.slice(0, 40) || 'My Web App';
   const inputType = raw.inputType === 'html' ? 'html' : 'url';
   const htmlCode = inputType === 'html' ? String(raw.htmlCode || '').trim() : '';
   const url = inputType === 'url' ? String(raw.url || '').trim() : 'https://localhost';
@@ -54,12 +58,12 @@ function normalizeConfig(raw) {
       parsed = new URL(url);
       if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') throw new Error();
     } catch (_) {
-      throw Object.assign(new Error('La URL debe ser http(s):// valida'), { status: 400 });
+      throw Object.assign(new Error('URL no válida. Debe empezar con http:// o https://. Ejemplo: https://mi-tienda.com'), { status: 400 });
     }
   }
 
   if (inputType === 'html' && !htmlCode) {
-    throw Object.assign(new Error('Debes proporcionar codigo HTML'), { status: 400 });
+    throw Object.assign(new Error('Debes proporcionar código HTML. Pega tu página o usa "Descargar ejemplo HTML" para inspirarte.'), { status: 400 });
   }
 
   let packageName = String(raw.packageName || '').trim().toLowerCase();
@@ -68,7 +72,11 @@ function normalizeConfig(raw) {
     packageName = `com.inteebuild.${slug}`;
   }
   if (!/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/.test(packageName)) {
-    throw Object.assign(new Error('packageName invalido. Ej: com.miempresa.miniapp'), { status: 400 });
+    throw Object.assign(new Error('Package ID no válido. Solo minúsculas, números y puntos, con al menos un punto. Ejemplo: com.miempresa.miapp'), { status: 400 });
+  }
+  const versionName = String(raw.versionName || '1.0.0').slice(0, 20) || '1.0.0';
+  if (!/^\d+(\.\d+){0,3}$/.test(versionName)) {
+    throw Object.assign(new Error('Versión no válida. Usa números separados por puntos. Ejemplo: 1.0.0'), { status: 400 });
   }
 
   let compileSdk = Number(raw.compileSdk) || 35;
@@ -228,7 +236,7 @@ function normalizeConfig(raw) {
     parsed: inputType === 'url' ? new URL(url) : { protocol: 'https:', href: 'https://localhost' },
     packageName,
     versionCode: Math.max(1, Number(raw.versionCode) || 1),
-    versionName: String(raw.versionName || '1.0.0').slice(0, 20) || '1.0.0',
+    versionName,
     compileSdk, targetSdk, minSdk, capMajor,
     npmVersion: CAPACITOR_VERSIONS[capMajor].npm,
     javaVersion: CAPACITOR_VERSIONS[capMajor].java,

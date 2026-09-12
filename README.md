@@ -2,6 +2,8 @@
 
 Convierte cualquier sitio web o codigo HTML en una aplicacion nativa de Android (APK y AAB). Sin registro, compilacion en la nube con GitHub Actions y control total sobre permisos, firma y personalizacion.
 
+**Documentación:** [Inicio rápido](./docs/quickstart.md) · [Solución de problemas](./docs/troubleshooting.md) · [Guía de permisos](./docs/permissions.md)
+
 ## Caracteristicas
 
 - **Entrada flexible:** URL publica o codigo HTML directo.

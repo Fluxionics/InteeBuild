@@ -265,7 +265,8 @@ if (templateSelect) {
       web: 'Web estándar', pwa: 'PWA Nativa', radio: 'Radio', ecommerce: 'Tienda',
       blog: 'Blog', game: 'Juego', edu: 'Educación', empresa: 'Corporativa',
       comunidad: 'Comunidad', streaming: 'Streaming', dashboard: 'Panel',
-      ai: 'AI Web App', maps: 'Mapas', finanzas: 'Finanzas', eventos: 'Eventos'
+      ai: 'AI Web App', maps: 'Mapas', finanzas: 'Finanzas', eventos: 'Eventos',
+      portafolio: 'Portafolio'
     };
 
     if (v === 'radio') {
@@ -299,6 +300,9 @@ if (templateSelect) {
       setCheck('plugin_biometrics', true); setCheck('biometric', true); setCheck('notifications', true);
     } else if (v === 'eventos') {
       setCheck('cameraMic', true); setCheck('gps', true); setCheck('plugin_camera', true); setCheck('plugin_geolocation', true);
+    } else if (v === 'portafolio') {
+      setCheck('notifications', true); setCheck('storage', true); setCheck('plugin_share', true);
+      setVal('orientation', 'any');
     }
 
     if (typeof updatePreview === 'function') updatePreview();
@@ -885,40 +889,127 @@ if (showApkInfoBtn) {
   });
 }
 
+let historyCache = [];
+
+function escHtml(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function renderHistory() {
+  const q = (document.getElementById('histSearch') && document.getElementById('histSearch').value || '').toLowerCase();
+  const st = (document.getElementById('histStatus') && document.getElementById('histStatus').value) || '';
+  const items = historyCache.filter((h) => {
+    if (st && h.status !== st) return false;
+    if (q && !((h.appName || '').toLowerCase().includes(q) || (h.id || '').toLowerCase().includes(q))) return false;
+    return true;
+  });
+  if (!items.length) {
+    historyList.innerHTML = '<div class="hempty">' + (historyCache.length ? 'Sin resultados para este filtro.' : 'No se registran compilaciones previas.') + '</div>';
+    return;
+  }
+  historyList.innerHTML = items
+    .map((h) => {
+      const statusClass = h.status === 'success' ? 'ok' : h.status === 'failed' || h.status === 'error' ? 'fail' : 'pending';
+      const statusText = h.status === 'success' ? 'Completado' : h.status === 'failed' ? 'Fallido' : h.status === 'error' ? 'Error' : 'En progreso';
+      const buttons = [];
+      if (h.status === 'success') {
+        buttons.push('<a class="btn primary sm" href="/api/download/' + h.id + '">APK</a>');
+      }
+      if (h.runUrl) {
+        buttons.push('<a class="btn ghost sm" href="' + h.runUrl + '" target="_blank" rel="noopener">Logs</a>');
+      }
+      buttons.push('<button type="button" class="btn ghost sm" data-dup="' + h.id + '">Duplicar</button>');
+      buttons.push('<button type="button" class="btn ghost sm" data-exp="' + h.id + '">JSON</button>');
+      buttons.push('<button type="button" class="btn ghost sm" data-del="' + h.id + '">Eliminar</button>');
+      return (
+        '<div class="hitem">' +
+        '<div class="hitem-left">' +
+        '<div class="hitem-name">' + escHtml(h.appName || 'Aplicación') + '</div>' +
+        '<div class="hitem-meta">' +
+        '<span class="hitem-status ' + statusClass + '">' + statusText + '</span>' +
+        '<span>' + timeAgo(h.createdAt) + '</span>' +
+        '<span>ID: ' + escHtml(h.id) + '</span>' +
+        '</div>' +
+        '</div>' +
+        '<div class="hitem-right">' + buttons.join('') + '</div>' +
+        '</div>'
+      );
+    })
+    .join('');
+}
+
+function setField(name, val) {
+  const el = document.querySelector(`[name="${name}"]`);
+  if (!el) return;
+  if (el.type === 'checkbox') {
+    el.checked = !!val;
+    const tile = el.closest('.perm-tile, .plugin-card');
+    if (tile) tile.classList.toggle('checked', !!val);
+  } else {
+    el.value = val == null ? '' : val;
+  }
+}
+
+async function duplicateBuild(id) {
+  try {
+    const res = await fetch('/api/history/' + id);
+    const h = await res.json();
+    if (!res.ok) throw new Error(h.error || 'No se pudo cargar');
+    const c = h.config || {};
+    if (c.inputType === 'html') {
+      document.querySelector('.toggle-btn[data-input="html"]').click();
+      setField('htmlCode', c.htmlCode || '');
+    } else {
+      document.querySelector('.toggle-btn[data-input="url"]').click();
+      setField('url', c.url || '');
+    }
+    ['appName', 'packageName', 'versionName', 'versionCode', 'orientation', 'outputType',
+     'compileSdk', 'targetSdk', 'minSdk', 'splashColor', 'splashDuration', 'accentColor',
+     'statusBarColor', 'navigationBarColor', 'notifChannel', 'notifImportance'].forEach((k) => {
+      if (c[k] !== undefined) setField(k, c[k]);
+    });
+    ['fullscreen', 'edgeToEdge', 'keepScreenOn', 'useCleartext', 'splashEnabled',
+     'notifSound', 'notifVibration', 'adaptiveIconEnabled'].forEach((k) => {
+      if (c[k] !== undefined) setField(k, !!c[k]);
+    });
+    Object.entries(c.permissions || {}).forEach(([k, v]) => setField(k, !!v));
+    Object.entries(c.plugins || {}).forEach(([k, v]) => setField('plugin_' + k, !!v));
+    if (typeof updatePreview === 'function') updatePreview();
+    goToStep(0);
+  } catch (err) {
+    alert('No se pudo duplicar: ' + err.message);
+  }
+}
+
+function exportConfig(id) {
+  const h = historyCache.find((x) => x.id === id);
+  if (!h || !h.config) { alert('Esta compilación no tiene configuración guardada.'); return; }
+  const blob = new Blob([JSON.stringify(h.config, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'inteebuild-config-' + id + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+async function deleteHistoryItem(id) {
+  if (!confirm('Eliminar esta compilación del historial?')) return;
+  try {
+    const res = await fetch('/api/history/' + id, { method: 'DELETE' });
+    if (!res.ok) throw new Error('No se pudo eliminar');
+    historyCache = historyCache.filter((x) => x.id !== id);
+    renderHistory();
+    loadStats();
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
 async function loadHistory() {
   try {
     const res = await fetch('/api/history');
-    const items = await res.json();
-    if (!items.length) {
-      historyList.innerHTML = '<div class="hempty">No se registran compilaciones previas.</div>';
-      return;
-    }
-    historyList.innerHTML = items
-      .map((h) => {
-        const statusClass = h.status === 'success' ? 'ok' : h.status === 'failed' || h.status === 'error' ? 'fail' : 'pending';
-        const statusText = h.status === 'success' ? 'Completado' : h.status === 'failed' ? 'Fallido' : h.status === 'error' ? 'Error' : 'En progreso';
-        const buttons = [];
-        if (h.status === 'success') {
-          buttons.push('<a class="btn primary sm" href="/api/download/' + h.id + '">APK</a>');
-        }
-        if (h.runUrl) {
-          buttons.push('<a class="btn ghost sm" href="' + h.runUrl + '" target="_blank" rel="noopener">Logs</a>');
-        }
-        return (
-          '<div class="hitem">' +
-          '<div class="hitem-left">' +
-          '<div class="hitem-name">' + (h.appName || 'Aplicación') + '</div>' +
-          '<div class="hitem-meta">' +
-          '<span class="hitem-status ' + statusClass + '">' + statusText + '</span>' +
-          '<span>' + timeAgo(h.createdAt) + '</span>' +
-          '<span>ID: ' + h.id + '</span>' +
-          '</div>' +
-          '</div>' +
-          '<div class="hitem-right">' + buttons.join('') + '</div>' +
-          '</div>'
-        );
-      })
-      .join('');
+    historyCache = await res.json();
+    renderHistory();
   } catch (_) {
     historyList.innerHTML = '<div class="hempty">Error al obtener el historial.</div>';
   }
@@ -936,8 +1027,57 @@ async function loadStats() {
     set('statAab', s.aab);
     set('statBoth', s.both);
     set('statAvg', s.avgSec ? Math.floor(s.avgSec / 60) + 'm ' + (s.avgSec % 60) + 's' : '—');
+    set('statLandTotal', s.total);
+    set('statLandOk', s.ok);
+    set('statLandAvg', s.avgSec ? Math.floor(s.avgSec / 60) + 'm ' + (s.avgSec % 60) + 's' : '—');
   } catch (_) {}
 }
+
+if (historyList) {
+  historyList.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-dup], button[data-exp], button[data-del]');
+    if (!btn) return;
+    if (btn.dataset.dup) duplicateBuild(btn.dataset.dup);
+    else if (btn.dataset.exp) exportConfig(btn.dataset.exp);
+    else if (btn.dataset.del) deleteHistoryItem(btn.dataset.del);
+  });
+}
+const histSearch = document.getElementById('histSearch');
+if (histSearch) histSearch.addEventListener('input', renderHistory);
+const histStatus = document.getElementById('histStatus');
+if (histStatus) histStatus.addEventListener('change', renderHistory);
+
+const EXAMPLE_HTML = '<!DOCTYPE html>\n<html lang="es">\n<head>\n<meta charset="UTF-8" />\n<meta name="viewport" content="width=device-width, initial-scale=1.0" />\n<title>Mi App</title>\n<style>\nbody { font-family: sans-serif; text-align: center; padding: 40px 20px; }\nh1 { color: #4f46e5; }\n</style>\n</head>\n<body>\n<h1>Hola desde mi app</h1>\n<p>Edita este HTML y compilalo como APK.</p>\n</body>\n</html>';
+const exampleHtmlBtn = document.getElementById('exampleHtmlBtn');
+if (exampleHtmlBtn) {
+  exampleHtmlBtn.addEventListener('click', () => {
+    document.querySelector('.toggle-btn[data-input="html"]').click();
+    setField('htmlCode', EXAMPLE_HTML);
+    setField('appName', 'Mi App Ejemplo');
+  });
+}
+
+const PRESETS = {
+  foto: ['cameraMic', 'storage'],
+  ubicacion: ['gps'],
+  audio: ['microphone', 'storage']
+};
+document.querySelectorAll('[data-preset]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const p = btn.dataset.preset;
+    if (p === 'limpiar') {
+      document.querySelectorAll('#permEasy input[type="checkbox"], #permAdvanced input[type="checkbox"]').forEach((el) => {
+        el.checked = false;
+        const tile = el.closest('.perm-tile');
+        if (tile) tile.classList.remove('checked');
+      });
+      return;
+    }
+    (PRESETS[p] || []).forEach((name) => setField(name, true));
+  });
+});
+
+loadStats();
 
 function showError(msg) {
   buildProgress.classList.add('hidden');

@@ -3,7 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>InteeBuild — Conversor Web a Nativo Android (APK/AAB)</title>
+  <title>InteeBuild — Convierte tu web en APK Android gratis</title>
+  <meta name="description" content="InteeBuild convierte cualquier web o HTML en una app Android nativa (APK/AAB) en minutos. 18 permisos, splash personalizado, compilación en la nube. Gratis y open source." />
+  <meta name="theme-color" content="#4f46e5" />
+  <meta property="og:title" content="InteeBuild — Convierte tu web en APK Android" />
+  <meta property="og:description" content="URL o HTML → APK/AAB nativo en minutos. Gratis, sin código, compilación en GitHub Actions." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="InteeBuild — Web a APK gratis" />
+  <meta name="twitter:description" content="Convierte cualquier web en app Android nativa. Gratis y open source." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -28,6 +36,7 @@
         <option value="radio">Radio & Audio Stream</option>
         <option value="ecommerce">Tienda Ecommerce</option>
         <option value="blog">Portal Noticias / Blog</option>
+        <option value="portafolio">Portafolio / CV</option>
         <option value="game">Juego HTML5</option>
         <option value="edu">Educación & Cursos</option>
         <option value="empresa">Corporativa</option>
@@ -51,6 +60,47 @@
     <section class="hero">
       <h1>Convierte tu sitio web en una App Nativa Android.</h1>
       <p class="sub">Construcción automática mediante Capacitor y GitHub Actions. Diagnóstico inteligente, Native Bridge y Plugin Hub profesional.</p>
+      <div class="hero-cta">
+        <a href="#wizard" class="btn primary" onclick="goToStep(0);return false;">Crear mi app ahora</a>
+        <a href="#como-funciona" class="btn ghost">Cómo funciona</a>
+      </div>
+      <div class="stats-strip" id="landingStats">
+        <span><b id="statLandTotal">–</b> APKs compilados</span>
+        <span><b id="statLandOk">–</b> exitosos</span>
+        <span><b id="statLandAvg">–</b> tiempo promedio</span>
+      </div>
+    </section>
+
+    <section class="landing" id="features">
+      <h2>Todo lo que necesitas, gratis</h2>
+      <div class="feat-grid">
+        <div class="card feat"><b>URL o HTML</b><p class="hint">Pega tu sitio o escribe el código directo.</p></div>
+        <div class="card feat"><b>18 permisos</b><p class="hint">Cámara, GPS, notificaciones y más, con presets por caso de uso.</p></div>
+        <div class="card feat"><b>Splash a medida</b><p class="hint">Color, duración e icono adaptativo.</p></div>
+        <div class="card feat"><b>APK + AAB</b><p class="hint">Instalable directo o bundle para Google Play.</p></div>
+        <div class="card feat"><b>Diagnóstico web</b><p class="hint">Puntuación 0-100 antes de compilar.</p></div>
+        <div class="card feat"><b>100% open source</b><p class="hint">Compilación transparente en GitHub Actions.</p></div>
+      </div>
+    </section>
+
+    <section class="landing" id="como-funciona">
+      <h2>Cómo funciona</h2>
+      <div class="steps-explain">
+        <div class="card"><b>1. Elige tu fuente</b><p class="hint">URL de tu sitio o HTML directo. Prueba la URL con el analizador.</p></div>
+        <div class="card"><b>2. Configura</b><p class="hint">Permisos, plugins, SDK, splash e icono. Usa una plantilla para arrancar.</p></div>
+        <div class="card"><b>3. Compila y descarga</b><p class="hint">Sigue el progreso en vivo y descarga tu APK o AAB.</p></div>
+      </div>
+      <div class="hero-cta">
+        <a href="#wizard" class="btn primary" onclick="goToStep(0);return false;">Crear APK gratis</a>
+      </div>
+    </section>
+
+    <section class="landing" id="faq">
+      <h2>Preguntas frecuentes</h2>
+      <details class="card faq"><summary>¿Es gratis?</summary><p class="hint">Sí. La compilación usa GitHub Actions y el proyecto es open source.</p></details>
+      <details class="card faq"><summary>¿Puedo publicar en Google Play?</summary><p class="hint">Sí. Elige salida AAB, firma con tu keystore y sube el bundle a Play Console.</p></details>
+      <details class="card faq"><summary>¿Qué pasa con mis datos?</summary><p class="hint">Las ramas y artefactos se borran automáticamente a los 30 minutos. Ver Política de Privacidad.</p></details>
+      <details class="card faq"><summary>¿Funciona sin programar?</summary><p class="hint">Sí. Plantillas y presets configuran todo por ti; el modo avanzado es opcional.</p></details>
     </section>
 
     <div class="ad-container ad-banner">
@@ -129,17 +179,18 @@
             </div>
             <div id="htmlGroup" class="hidden">
               <label>Código HTML Fuente
-                <textarea name="htmlCode" rows="7" placeholder="<!DOCTYPE html>&#10;<html>&#10;<head><title>Mi App</title></head>&#10;<body>...</body>&#10;</html>"></textarea>
+                <textarea name="htmlCode" rows="7" placeholder="&lt;!DOCTYPE html&gt;&#10;&lt;html&gt;..."></textarea>
               </label>
+              <button type="button" class="btn ghost sm" id="exampleHtmlBtn">Descargar ejemplo HTML</button>
             </div>
-            <label>Nombre de la Aplicación
+            <label title="Nombre visible de la app. Solo letras, números, espacios, guiones y puntos (2-40 caracteres). Ejemplo: Mi Tienda">Nombre de la Aplicación
               <input type="text" name="appName" placeholder="Mi Aplicación Nativa" maxlength="40" id="appNameInput" />
             </label>
             <div class="row">
-              <label>Package ID (Nombre de paquete)
+              <label title="Identificador único. Solo minúsculas, números y puntos, con al menos un punto. Ejemplo: com.miempresa.miapp. Se genera solo si lo dejas vacío.">Package ID (Nombre de paquete)
                 <input type="text" name="packageName" placeholder="com.miempresa.miapp" />
               </label>
-              <label>Versión (Version Name)
+              <label title="Versión visible. Solo números separados por puntos. Ejemplo: 1.0.0">Versión (Version Name)
                 <input type="text" name="versionName" value="1.0.0" />
               </label>
             </div>
@@ -204,6 +255,12 @@
               Permisos del Sistema Android
             </div>
             <p class="hint">Selecciona únicamente los permisos que tu aplicación requerirá para su funcionamiento.</p>
+            <div class="preset-row">
+              <button type="button" class="btn ghost sm" data-preset="foto">Cámara + Foto</button>
+              <button type="button" class="btn ghost sm" data-preset="ubicacion">Ubicación</button>
+              <button type="button" class="btn ghost sm" data-preset="audio">Audio</button>
+              <button type="button" class="btn ghost sm" data-preset="limpiar">Limpiar todo</button>
+            </div>
             <div class="perm-tabs">
               <button type="button" class="perm-tab active" data-ptab="easy">Vista Simplificada</button>
               <button type="button" class="perm-tab" data-ptab="advanced">Manifiesto Técnico</button>
@@ -806,6 +863,16 @@
           </div>
           <div class="card">
             <h2>Registros Recientes</h2>
+            <div class="hist-tools">
+              <input type="text" id="histSearch" placeholder="Buscar por nombre o ID…" />
+              <select id="histStatus">
+                <option value="">Todos los estados</option>
+                <option value="success">Exitosos</option>
+                <option value="failed">Fallidos</option>
+                <option value="error">Errores</option>
+                <option value="building">En progreso</option>
+              </select>
+            </div>
             <div id="historyList" class="history-list"><p class="hint">Cargando datos del servidor…</p></div>
           </div>
           <div class="step-nav"><button type="button" class="btn ghost prev-btn">← Paso anterior</button><span></span></div>

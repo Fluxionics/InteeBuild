@@ -26,6 +26,13 @@ if (!fs.existsSync(HISTORY_FILE)) fs.writeFileSync(HISTORY_FILE, '[]', 'utf-8');
 const ALLOWED_ORIGIN = process.env.CORS_ORIGIN || null;
 app.use(cors(ALLOWED_ORIGIN ? { origin: ALLOWED_ORIGIN } : { origin: true }));
 app.use(express.json({ limit: '10mb' }));
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
 app.use(express.static(ROOT, { index: 'index.html' }));
 
 const builds = new Map();
@@ -174,6 +181,21 @@ app.get('/api/history', (req, res) => {
   res.json(loadHistory().slice(0, 30));
 });
 
+app.get('/api/history/:id', (req, res) => {
+  const h = loadHistory().find(x => x.id === req.params.id);
+  if (!h) return res.status(404).json({ error: 'Build no encontrado en el historial' });
+  res.json(h);
+});
+
+app.delete('/api/history/:id', (req, res) => {
+  const history = loadHistory();
+  const idx = history.findIndex(x => x.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Build no encontrado en el historial' });
+  history.splice(idx, 1);
+  saveHistory(history);
+  res.json({ ok: true });
+});
+
 app.get('/api/stats', (req, res) => {
   const h = loadHistory();
   const total = h.length;
@@ -183,6 +205,7 @@ app.get('/api/stats', (req, res) => {
   const apk = h.filter(x => x.outputType === 'apk').length;
   const aab = h.filter(x => x.outputType === 'aab').length;
   const both = h.filter(x => x.outputType === 'both').length;
+  const ios = h.filter(x => x.platform === 'ios' || x.platform === 'both').length;
   const done = h.filter(x => x.status === 'success' && x.duration);
   const avgSec = done.length ? Math.round(done.reduce((a, b) => a + (b.duration || 0), 0) / done.length) : 0;
   res.json({ total, ok, fail, building, apk, aab, both, ios, avgSec });
@@ -337,9 +360,11 @@ async function startBuild(cfg, ip) {
   };
   builds.set(id, state);
 
+  const { iconBase64, keystoreBase64, iosP12Base64, iosProfileBase64, keystorePassword, keyPassword, iosP12Password, parsed, ...safeCfg } = cfg;
   addHistory({
     id, appName: cfg.appName, status: 'queued', outputType: cfg.outputType,
-    createdAt: state.createdAt, runUrl: null, apkUrl: null, error: null
+    createdAt: state.createdAt, runUrl: null, apkUrl: null, error: null,
+    config: safeCfg
   });
 
   try {
