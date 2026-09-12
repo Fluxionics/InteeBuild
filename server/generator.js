@@ -161,6 +161,10 @@ function normalizeConfig(raw) {
   const notifImportance = ['low','default','high'].includes(raw.notifImportance) ? raw.notifImportance : 'high';
   const notifSound = !!raw.notifSound;
   const notifVibration = !!raw.notifVibration;
+  const notifyOnOpen = !!raw.notifyOnOpen;
+  const notifyOnClose = !!raw.notifyOnClose;
+  const notifyDelayMinutes = Math.max(0, Math.min(1440, Number(raw.notifyDelayMinutes) || 0));
+  const notifySchedEnabled = notifyOnOpen || notifyOnClose || notifyDelayMinutes > 0;
   const appTheme = ['light','dark','system'].includes(raw.appTheme) ? raw.appTheme : 'system';
   const entryAnimation = ['none','fade','slide'].includes(raw.entryAnimation) ? raw.entryAnimation : 'none';
   const userAgent = String(raw.userAgent||'').slice(0,256);
@@ -207,6 +211,9 @@ function normalizeConfig(raw) {
     edgeToEdge, adaptiveIconEnabled, adaptiveIconBg, adaptiveFgBase64,
     deepLinksEnabled, deepLinkDomain, deepLinkPaths,
     notifChannel, notifImportance, notifSound, notifVibration,
+    notifyOnOpen, notifyOnClose, notifyDelayMinutes, notifySchedEnabled,
+    notifyTitle: String(raw.notifyTitle || '').slice(0, 60) || appName,
+    notifyText: String(raw.notifyText || '').slice(0, 200),
     appTheme, entryAnimation, userAgent, jsInjection, cssInjection,
     cacheMode, backButtonBehavior, customHeaders, webhookUrl,
     useCustomSigning, keystoreBase64, keystorePassword, keyAlias, keyPassword,
@@ -222,7 +229,7 @@ function permissionManifestBlocks(cfg) {
   ];
   const p = cfg.permissions;
 
-  if (p.notifications || p.foreground) {
+  if (p.notifications || p.foreground || cfg.notifySchedEnabled) {
     perms.push('android.permission.POST_NOTIFICATIONS');
     perms.push('android.permission.VIBRATE');
   }
@@ -353,7 +360,7 @@ ${cfg.deepLinkPaths.length ? cfg.deepLinkPaths.map(p=>`                <data and
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
-${cfg.permissions.foreground ? `        <service android:name="android.app.ForegroundService" android:exported="false" android:foregroundServiceType="dataSync|mediaPlayback" />` : ''}
+${cfg.permissions.foreground ? `        <service android:name=".RadioService" android:exported="false" android:foregroundServiceType="dataSync|mediaPlayback" />` : ''}
     </application>
 </manifest>
 `;
@@ -443,6 +450,20 @@ jobs:
           echo "--- permisos aplicados ---"
           grep -o 'android:name="[^"]*"' android/app/src/main/AndroidManifest.xml
 
+      - name: Validate manifest XML
+        run: python3 -c "import xml.dom.minidom,sys;xml.dom.minidom.parse('android/app/src/main/AndroidManifest.xml');print('manifest XML OK')"
+
+      - name: Install background audio service
+        if: "hashFiles('RadioService.java') != ''"
+        run: |
+          PKG=$(node -p 'require("./build-config.json").packageName')
+          DST="android/app/src/main/java/$(echo $PKG | tr . /)"
+          mkdir -p "$DST"
+          cp RadioService.java "$DST/RadioService.java"
+          node patch-main-activity.js
+          echo "--- servicio instalado ---"
+          grep -c RadioService "$DST/MainActivity.java"
+
       - name: Apply app icon
         if: "hashFiles('app-icon.png') != ''"
         run: |
@@ -511,7 +532,7 @@ jobs:
         run: |
           cat > android/app/proguard-rules.pro <<'PRO'
           -keep class com.getcapacitor.** { *; }
-          -keep class org.apache.cordova.** { *; }
+          -keep class * extends android.app.Service { *; }
           -keep class android.webkit.** { *; }
           -keepattributes *Annotation*
           -dontwarn javax.annotation.**
@@ -595,6 +616,84 @@ function iconPng(base64) {
   }
 }
 
+function radioServiceSrc(pkg) {
+  return 'package ' + pkg + ';\n'
+    + '\n'
+    + 'import android.app.Notification;\n'
+    + 'import android.app.NotificationChannel;\n'
+    + 'import android.app.NotificationManager;\n'
+    + 'import android.app.Service;\n'
+    + 'import android.content.Intent;\n'
+    + 'import android.os.Build;\n'
+    + 'import android.os.IBinder;\n'
+    + 'import androidx.core.app.NotificationCompat;\n'
+    + '\n'
+    + 'public class RadioService extends Service {\n'
+    + '    private static final String CHANNEL_ID = "inteebuild_radio";\n'
+    + '\n'
+    + '    @Override\n'
+    + '    public void onCreate() {\n'
+    + '        super.onCreate();\n'
+    + '        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);\n'
+    + '        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {\n'
+    + '            NotificationChannel ch = new NotificationChannel(CHANNEL_ID, "Reproduccion en segundo plano", NotificationManager.IMPORTANCE_LOW);\n'
+    + '            nm.createNotificationChannel(ch);\n'
+    + '        }\n'
+    + '        Notification n = new NotificationCompat.Builder(this, CHANNEL_ID)\n'
+    + '                .setContentTitle(getString(getApplicationInfo().labelRes))\n'
+    + '                .setContentText("Reproduciendo en segundo plano")\n'
+    + '                .setSmallIcon(android.R.drawable.ic_media_play)\n'
+    + '                .setOngoing(true)\n'
+    + '                .build();\n'
+    + '        startForeground(1, n);\n'
+    + '    }\n'
+    + '\n'
+    + '    @Override\n'
+    + '    public int onStartCommand(Intent intent, int flags, int startId) {\n'
+    + '        return START_STICKY;\n'
+    + '    }\n'
+    + '\n'
+    + '    @Override\n'
+    + '    public IBinder onBind(Intent intent) {\n'
+    + '        return null;\n'
+    + '    }\n'
+    + '}\n';
+}
+
+function mainActivityPatchSrc() {
+  const NL = String.fromCharCode(10);
+  return [
+    "const fs = require('fs');",
+    "const pkg = JSON.parse(fs.readFileSync('build-config.json', 'utf8')).packageName;",
+    "const mp = 'android/app/src/main/java/' + pkg.split('.').join('/') + '/MainActivity.java';",
+    "let src = fs.readFileSync(mp, 'utf8');",
+    "if (src.indexOf('RadioService') === -1) {",
+    "  src = src.split('import com.getcapacitor.BridgeActivity;').join(['import android.content.Intent;', 'import android.os.Bundle;', 'import com.getcapacitor.BridgeActivity;'].join(NL));",
+    "  src = src.replace(/public class MainActivity extends BridgeActivity\\s*\\{/, function (m) {",
+    "    return m + NL + '  @Override' + NL + '  public void onCreate(Bundle savedInstanceState) {' + NL + '    super.onCreate(savedInstanceState);' + NL + '    try { startForegroundService(new Intent(this, RadioService.class)); } catch (Exception ignored) {}' + NL + '  }' + NL;",
+    "  });",
+    "  fs.writeFileSync(mp, src);",
+    "}",
+    "console.log('RadioService hook present: ' + (src.indexOf('RadioService') !== -1));"
+  ].join(NL) + NL;
+}
+
+function notifyScriptSrc(cfg) {
+  return '(function(){'
+    + 'var TITLE=' + JSON.stringify(cfg.notifyTitle) + ';'
+    + 'var TEXT=' + JSON.stringify(cfg.notifyText || cfg.appName) + ';'
+    + 'var ON_OPEN=' + (cfg.notifyOnOpen ? 'true' : 'false') + ';'
+    + 'var ON_CLOSE=' + (cfg.notifyOnClose ? 'true' : 'false') + ';'
+    + 'var DELAY_MIN=' + cfg.notifyDelayMinutes + ';'
+    + 'function cap(){return (window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.LocalNotifications)||null;}'
+    + 'async function ensure(){var LN=cap();if(!LN)return null;try{var st=await LN.checkPermissions();if(st.display!=="granted"){await LN.requestPermissions();}}catch(e){}return LN;}'
+    + 'async function fire(id){var LN=await ensure();if(!LN)return;try{await LN.schedule({notifications:[{id:id,title:TITLE,body:TEXT,schedule:{at:new Date(Date.now()+2000)}}]});}catch(e){}}'
+    + 'if(ON_OPEN){window.addEventListener("load",function(){fire(101);});}'
+    + 'if(ON_CLOSE){document.addEventListener("visibilitychange",function(){if(document.hidden){fire(102);}});window.addEventListener("pagehide",function(){fire(102);});}'
+    + 'if(DELAY_MIN>0){setTimeout(function(){fire(103);},DELAY_MIN*60000);}'
+    + '})();';
+}
+
 function generateFiles(cfg) {
   const cap = cfg.capMajor;
   const capacitorConfig = {
@@ -649,7 +748,7 @@ function generateFiles(cfg) {
   if (cfg.plugins.clipboard) deps['@capacitor/clipboard'] = pv('clipboard', cap);
   if (cfg.plugins.biometrics) deps['@capacitor/biometrics'] = '^1.0.0';
   if (cfg.plugins.notifications) deps['@capacitor/push-notifications'] = pv('pushNotifications', cap);
-  if (cfg.plugins.localNotifications) deps['@capacitor/local-notifications'] = pv('localNotifications', cap);
+  if (cfg.plugins.localNotifications || cfg.notifySchedEnabled) deps['@capacitor/local-notifications'] = pv('localNotifications', cap);
   if (cfg.plugins.preferences) deps['@capacitor/preferences'] = pv('preferences', cap);
   if (cfg.plugins.browser) deps['@capacitor/browser'] = pv('browser', cap);
   if (cfg.plugins.app) deps['@capacitor/app'] = pv('app', cap);
@@ -697,6 +796,10 @@ function generateFiles(cfg) {
       splashEnabled: cfg.splashEnabled,
       outputType: cfg.outputType,
       hasCustomSigning: !!cfg.useCustomSigning,
+      notifyOnOpen: !!cfg.notifyOnOpen,
+      notifyOnClose: !!cfg.notifyOnClose,
+      notifyDelayMinutes: cfg.notifyDelayMinutes,
+      backgroundAudio: !!cfg.permissions.foreground,
       author: cfg.author,
       description: cfg.description,
       accentColor: cfg.accentColor,
@@ -749,6 +852,19 @@ function generateFiles(cfg) {
   }
   if (cfg.cssInjection) {
     files['www/inject.css'] = cfg.cssInjection;
+  }
+
+  if (cfg.permissions.foreground) {
+    files['RadioService.java'] = radioServiceSrc(cfg.packageName);
+    files['patch-main-activity.js'] = mainActivityPatchSrc();
+  }
+
+  if (cfg.notifySchedEnabled && cfg.inputType === 'html') {
+    const tag = '<script>' + notifyScriptSrc(cfg) + '</scr' + 'ipt>';
+    const html = files['www/index.html'];
+    files['www/index.html'] = /<\/body\s*>/i.test(html)
+      ? html.replace(/<\/body\s*>/i, tag + '</body>')
+      : html + tag;
   }
 
   return files;

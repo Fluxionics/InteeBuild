@@ -615,6 +615,15 @@
                 <label class="switch" style="border:none;padding:4px 0"><input type="checkbox" name="notifVibration" checked /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Activar vibración</b></span></label>
               </div>
             </div>
+            <hr class="section-divider" />
+            <p class="hint" style="font-weight:600;color:var(--text)">Notificaciones programadas (solo modo HTML)</p>
+            <label class="switch"><input type="checkbox" name="notifyOnOpen" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Al abrir la app</b><small>Muestra un aviso cada vez que se abre</small></span></label>
+            <label class="switch"><input type="checkbox" name="notifyOnClose" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Al cerrar / minimizar</b><small>Aviso cuando la app pasa a segundo plano</small></span></label>
+            <div class="row">
+              <label>Después de (minutos, 0 = no)<input type="number" name="notifyDelayMinutes" value="0" min="0" max="1440" /></label>
+              <label>Título del aviso<input type="text" name="notifyTitle" placeholder="El Buen Samaritano 106.5 FM" maxlength="60" /></label>
+            </div>
+            <label>Texto del aviso<input type="text" name="notifyText" placeholder="Sintoniza en vivo las 24 horas" maxlength="200" /></label>
           </div>
 
           <div class="card">

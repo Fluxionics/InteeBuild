@@ -501,6 +501,7 @@ function collect() {
     activityRecognition: !!data.activityRecognition
   };
 
+  data.notifyDelayMinutes = Number(data.notifyDelayMinutes || 0);
   data.versionCode = Number(data.versionCode || 1);
   data.compileSdk = Number(data.compileSdk || 35);
   data.targetSdk = Number(data.targetSdk || 35);
