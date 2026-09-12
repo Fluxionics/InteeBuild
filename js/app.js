@@ -35,17 +35,17 @@ fetch('/api/health')
   .then((r) => r.json())
   .then((h) => {
     if (h.githubReady) {
-      ghBadge.textContent = 'GitHub listo';
+      ghBadge.textContent = 'GitHub Listo';
       ghBadge.className = 'badge badge-ok';
     } else {
-      ghBadge.textContent = 'GitHub sin configurar';
+      ghBadge.textContent = 'GitHub no configurado';
       ghBadge.className = 'badge badge-warn';
       alertConfig.classList.remove('hidden');
-      alertConfig.innerHTML = '<b>Falta configurar GitHub.</b> Agrega <code>GITHUB_TOKEN</code> e <code>INTEE_BUILDS_REPO</code> en Render o en <code>.env</code>.';
+      alertConfig.innerHTML = '<b>Configuración de GitHub pendiente.</b> Agrega <code>GITHUB_TOKEN</code> e <code>INTEE_BUILDS_REPO</code> en Render o en <code>.env</code>.';
     }
   })
   .catch(() => {
-    ghBadge.textContent = 'Servidor no detectado';
+    ghBadge.textContent = 'Servidor Offline';
     ghBadge.className = 'badge badge-warn';
   });
 
@@ -102,7 +102,8 @@ document.querySelectorAll('.perm-tile').forEach((tile) => {
   if (chk) {
     tile.classList.toggle('checked', chk.checked);
     tile.addEventListener('click', (e) => {
-      if (e.target !== chk) chk.checked = !chk.checked;
+      e.stopPropagation();
+      chk.checked = !chk.checked;
       tile.classList.toggle('checked', chk.checked);
     });
   }
@@ -124,7 +125,8 @@ document.querySelectorAll('.plugin-card').forEach((card) => {
   if (chk) {
     card.classList.toggle('checked', chk.checked);
     card.addEventListener('click', (e) => {
-      if (e.target !== chk) chk.checked = !chk.checked;
+      e.stopPropagation();
+      chk.checked = !chk.checked;
       card.classList.toggle('checked', chk.checked);
       if (chk.name === 'plugin_inteebridge') {
         const ibBox = document.getElementById('integridgeInfo');
@@ -134,11 +136,10 @@ document.querySelectorAll('.plugin-card').forEach((card) => {
   }
 });
 
-const splashToggle = document.querySelector('[name="splashEnabled"]');
-if (splashToggle) {
-  splashToggle.addEventListener('change', (e) => {
-    const box = document.getElementById('splashOptions');
-    if (box) box.classList.toggle('hidden', !e.target.checked);
+const splashCheck = document.getElementById('splashCheck');
+if (splashCheck) {
+  splashCheck.addEventListener('change', (e) => {
+    document.getElementById('splashOptions').classList.toggle('hidden', !e.target.checked);
   });
 }
 
@@ -169,7 +170,7 @@ const ksFields = document.getElementById('ksFields');
 if (ksInput) {
   ksInput.addEventListener('change', () => {
     const file = ksInput.files && ksInput.files[0];
-    if (!file) { keystoreBase64 = null; ksLabel.textContent = ' Elegir archivo .jks / .keystore'; ksFields.classList.add('hidden'); return; }
+    if (!file) { keystoreBase64 = null; ksLabel.textContent = 'Seleccionar archivo Keystore (.jks)'; ksFields.classList.add('hidden'); return; }
     const reader = new FileReader();
     reader.onload = () => {
       keystoreBase64 = reader.result;
@@ -239,7 +240,7 @@ const modeToggle = document.getElementById('modeToggle');
 if (modeToggle) {
   modeToggle.addEventListener('click', () => {
     isAdvanced = !isAdvanced;
-    modeToggle.textContent = isAdvanced ? 'Modo fácil' : 'Modo avanzado';
+    modeToggle.textContent = isAdvanced ? 'Modo estándar' : 'Modo avanzado';
     document.querySelectorAll('.advanced').forEach((el) => el.classList.toggle('hidden', !isAdvanced));
   });
 }
@@ -248,7 +249,7 @@ const appNameInput = document.getElementById('appNameInput');
 const urlInput = document.querySelector('[name="url"]');
 
 function updatePreview() {
-  const name = appNameInput && appNameInput.value ? appNameInput.value : 'Mi App';
+  const name = appNameInput && appNameInput.value ? appNameInput.value : 'Mi Aplicación';
   const url = urlInput && urlInput.value ? urlInput.value : 'https://mi-web.com';
 
   const previewBar = document.getElementById('previewBar');
@@ -297,7 +298,7 @@ if (previewTheme) previewTheme.addEventListener('click', () => {
   isDark = !isDark;
   phoneScreen.style.background = isDark ? '#18181b' : '#fff';
   phoneScreen.style.color = isDark ? '#fff' : '#18181b';
-  previewTheme.textContent = isDark ? '☀️ Light' : ' Dark';
+  previewTheme.textContent = isDark ? 'Claro' : 'Oscuro';
 });
 
 const ppRotate = document.getElementById('ppRotate');
@@ -332,7 +333,7 @@ if (ppTheme) ppTheme.addEventListener('click', () => {
 });
 if (ppLive) ppLive.addEventListener('click', () => {
   const url = urlInput ? urlInput.value.trim() : '';
-  if (!url) return alert('Por favor ingresa una URL primero');
+  if (!url) return alert('Por favor ingresa una URL válida primero');
   if (ppIframe.classList.contains('hidden')) {
     ppIframe.innerHTML = `<iframe src="${url}" sandbox="allow-scripts allow-same-origin"></iframe>`;
     ppIframe.classList.remove('hidden');
@@ -355,7 +356,7 @@ const analyzeBtn = document.getElementById('analyzeBtn');
 if (analyzeBtn) {
   analyzeBtn.addEventListener('click', async () => {
     const url = document.querySelector('[name="url"]').value.trim();
-    if (!url) return alert('Ingresa una URL');
+    if (!url) return alert('Ingresa una URL web');
     analyzeBtn.textContent = 'Analizando…';
     analyzeBtn.disabled = true;
 
@@ -376,23 +377,23 @@ if (analyzeBtn) {
       }
 
       document.getElementById('analyzeDiag').textContent = j.diag;
-      document.getElementById('analyzeSubDiag').textContent = `Status: ${j.status} | Recursos inseguros: ${j.insecureCount || 0}`;
+      document.getElementById('analyzeSubDiag').textContent = `Código de estado: ${j.status} | Recursos Http Inseguros: ${j.insecureCount || 0}`;
 
       const grid = document.getElementById('analyzeGrid');
       const checkNames = {
-        https: 'HTTPS seguro', reachable: 'Página accesible', viewport: 'Responsive (Viewport)',
-        manifest: 'Web Manifest', favicon: 'Favicon / Icono', themeColor: 'Theme Color',
-        serviceWorker: 'Service Worker', insecureResources: 'Sin recursos HTTP inseguros', htmlErrors: 'HTML válido'
+        https: 'Conexión HTTPS Segura', reachable: 'Acceso a Servidor Web', viewport: 'Diseño Responsive (Viewport)',
+        manifest: 'Manifiesto Web (Manifest.json)', favicon: 'Icono / Favicon', themeColor: 'Color de Tema (Theme Color)',
+        serviceWorker: 'Service Worker Registrado', insecureResources: 'Recursos 100% Incriptados', htmlErrors: 'Sintaxis HTML Válida'
       };
       grid.innerHTML = Object.entries(j.checks)
         .filter(([k]) => checkNames[k])
-        .map(([k, v]) => `<div class="analyze-check ${v ? 'ok' : 'fail'}"><span>${v ? '✓' : '✗'}</span> ${checkNames[k]}</div>`)
+        .map(([k, v]) => `<div class="analyze-check ${v ? 'ok' : 'fail'}"><span>${v ? '✓' : '✕'}</span> ${checkNames[k]}</div>`)
         .join('');
 
       const fwBox = document.getElementById('analyzeFramework');
       if (j.frameworks && j.frameworks.length) {
         fwBox.classList.remove('hidden');
-        fwBox.innerHTML = '<span style="font-size:11px;color:var(--muted)">Frameworks:</span> ' +
+        fwBox.innerHTML = '<span style="font-size:11px;color:var(--muted)">Tecnología detectada:</span> ' +
           j.frameworks.map((f) => `<span class="fw-badge">${f}</span>`).join(' ');
       }
 
@@ -413,7 +414,7 @@ if (analyzeBtn) {
       if (autoPilotRecommendations.length > 0) {
         autoBox.classList.remove('hidden');
         autoItems.innerHTML = autoPilotRecommendations
-          .map((rec) => `<div class="autopilot-item">Detectamos uso de <b>${rec.api}</b> → Recomendado: <b>${rec.label}</b></div>`)
+          .map((rec) => `<div class="autopilot-item">Uso detectado de <b>${rec.api}</b> → Sugerencia: <b>${rec.label}</b></div>`)
           .join('');
       } else {
         autoBox.classList.add('hidden');
@@ -421,7 +422,7 @@ if (analyzeBtn) {
     } catch (e) {
       alert(e.message);
     }
-    analyzeBtn.textContent = ' Analizar';
+    analyzeBtn.textContent = 'Analizar salud web';
     analyzeBtn.disabled = false;
   });
 }
@@ -444,7 +445,7 @@ if (autopilotApply) {
       (rec.plugins || []).forEach((p) => setCheck('plugin_' + p, true));
     });
 
-    alert('¡Configuración automática aplicada con éxito!');
+    alert('Configuración sugerida aplicada exitosamente');
   });
 }
 
@@ -453,7 +454,7 @@ const buildConsole = document.getElementById('buildConsole');
 if (toggleConsole && buildConsole) {
   toggleConsole.addEventListener('click', () => {
     buildConsole.classList.toggle('hidden');
-    toggleConsole.textContent = buildConsole.classList.contains('hidden') ? 'Ver logs' : 'Ocultar logs';
+    toggleConsole.textContent = buildConsole.classList.contains('hidden') ? 'Ver registros en vivo' : 'Ocultar registros';
   });
 }
 
@@ -565,7 +566,7 @@ async function downloadZip(cfg) {
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'No se pudo generar el proyecto');
+      throw new Error(err.error || 'No se pudo generar el proyecto nativo');
     }
     const blob = await res.blob();
     const a = document.createElement('a');
@@ -593,7 +594,7 @@ buildBtn.addEventListener('click', async () => {
 
   for (let i = 0; i < 7; i++) setProgressStep(i, '');
   setProgressStep(0, 'active');
-  if (buildConsole) { buildConsole.textContent = 'Iniciando build...\nProyecto generado...\n'; buildConsole.classList.remove('hidden'); }
+  if (buildConsole) { buildConsole.textContent = 'Iniciando proceso de compilación...\nGenerando manifiesto y archivos nativos...\n'; buildConsole.classList.remove('hidden'); }
 
   let id;
   try {
@@ -603,7 +604,7 @@ buildBtn.addEventListener('click', async () => {
       body: JSON.stringify(collect())
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'No se pudo iniciar el build');
+    if (!res.ok) throw new Error(data.error || 'No se pudo iniciar el proceso de compilación');
     id = data.id;
     activeBuildId = id;
     setProgressStep(0, 'done');
@@ -648,7 +649,7 @@ buildBtn.addEventListener('click', async () => {
           buildResult.classList.remove('hidden');
           resultAppName.textContent = s.appName || '';
           resultId.textContent = id;
-          if (resultOutput) resultOutput.textContent = s.outputType || 'apk';
+          if (resultOutput) resultOutput.textContent = (s.outputType || 'apk').toUpperCase();
           const elapsed = Math.round((Date.now() - buildStartTime) / 1000);
           const min = Math.floor(elapsed / 60);
           const sec = elapsed % 60;
@@ -661,7 +662,7 @@ buildBtn.addEventListener('click', async () => {
           const aApk = document.createElement('a');
           aApk.href = dlApk;
           aApk.className = 'btn primary';
-          aApk.textContent = '⬇️ Descargar APK';
+          aApk.textContent = 'Descargar APK';
           aApk.download = (s.appName || 'app') + '.apk.zip';
           resultActions.appendChild(aApk);
 
@@ -669,14 +670,14 @@ buildBtn.addEventListener('click', async () => {
             const aAab = document.createElement('a');
             aAab.href = dlAab;
             aAab.className = 'btn ghost';
-            aAab.textContent = ' Descargar AAB';
+            aAab.textContent = 'Descargar AAB';
             aAab.download = (s.appName || 'app') + '.aab.zip';
             resultActions.appendChild(aAab);
           }
         }, 600);
       } else if (s.status === 'failed' || s.status === 'error') {
         clearInterval(timer);
-        showError(s.error || 'El build falló');
+        showError(s.error || 'La compilación ha fallado');
       }
 
       if (buildConsole && s.runUrl) {
@@ -707,7 +708,7 @@ if (showQrBtn) {
   showQrBtn.addEventListener('click', () => {
     if (!activeBuildId) return;
     qrModal.classList.remove('hidden');
-    qrImgBox.innerHTML = `<img src="/api/qr/${activeBuildId}" alt="QR Code" />`;
+    qrImgBox.innerHTML = `<img src="/api/qr/${activeBuildId}" alt="Código QR de Descarga" />`;
     qrDirectLink.href = '/api/download/' + activeBuildId;
   });
 }
@@ -732,14 +733,14 @@ if (showApkInfoBtn) {
       if (!r.ok) throw new Error(info.error);
 
       apkInfoGrid.innerHTML = `
-        <div class="apk-info-item"><div class="ai-label">TAMAÑO</div><div class="ai-value accent">${info.artifactSizeMB} MB</div></div>
-        <div class="apk-info-item"><div class="ai-label">ARTIFACT</div><div class="ai-value" style="font-size:12px;font-weight:600">${info.artifactName}</div></div>
-        <div class="apk-info-item"><div class="ai-label">OUTPUT TYPE</div><div class="ai-value">${info.outputType.toUpperCase()}</div></div>
-        <div class="apk-info-item"><div class="ai-label">STATUS</div><div class="ai-value" style="color:var(--success)">SUCCESS</div></div>
+        <div class="apk-info-item"><div class="ai-label">TAMAÑO FINAL</div><div class="ai-value accent">${info.artifactSizeMB} MB</div></div>
+        <div class="apk-info-item"><div class="ai-label">NOMBRE DE ARTIFACT</div><div class="ai-value" style="font-size:12px;font-weight:600">${info.artifactName}</div></div>
+        <div class="apk-info-item"><div class="ai-label">FORMATO GENERADO</div><div class="ai-value">${info.outputType.toUpperCase()}</div></div>
+        <div class="apk-info-item"><div class="ai-label">ESTADO DE BUILD</div><div class="ai-value" style="color:var(--success)">EXITOSO</div></div>
       `;
       apkInfoBox.classList.remove('hidden');
     } catch (e) {
-      alert('No se pudo obtener info del APK: ' + e.message);
+      alert('No se pudo obtener información del paquete APK: ' + e.message);
     }
   });
 }
@@ -749,7 +750,7 @@ async function loadHistory() {
     const res = await fetch('/api/history');
     const items = await res.json();
     if (!items.length) {
-      historyList.innerHTML = '<div class="hempty">No hay builds aún. ¡Crea tu primera app!</div>';
+      historyList.innerHTML = '<div class="hempty">No se registran compilaciones previas.</div>';
       return;
     }
     historyList.innerHTML = items
@@ -766,7 +767,7 @@ async function loadHistory() {
         return (
           '<div class="hitem">' +
           '<div class="hitem-left">' +
-          '<div class="hitem-name">' + (h.appName || 'App') + '</div>' +
+          '<div class="hitem-name">' + (h.appName || 'Aplicación') + '</div>' +
           '<div class="hitem-meta">' +
           '<span class="hitem-status ' + statusClass + '">' + statusText + '</span>' +
           '<span>' + timeAgo(h.createdAt) + '</span>' +
@@ -779,7 +780,7 @@ async function loadHistory() {
       })
       .join('');
   } catch (_) {
-    historyList.innerHTML = '<div class="hempty">Error cargando historial</div>';
+    historyList.innerHTML = '<div class="hempty">Error al obtener el historial.</div>';
   }
 }
 
