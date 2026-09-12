@@ -182,6 +182,50 @@ if (ksInput) {
   });
 }
 
+let iosP12Base64 = null;
+let iosProfileBase64 = null;
+const iosP12Input = document.getElementById('iosP12Input');
+const iosP12Label = document.getElementById('iosP12Label');
+const iosProfileInput = document.getElementById('iosProfileInput');
+const iosProfileLabel = document.getElementById('iosProfileLabel');
+const iosSignFields = document.getElementById('iosSignFields');
+function refreshIosFields() {
+  if (iosSignFields) iosSignFields.classList.toggle('hidden', !(iosP12Base64 && iosProfileBase64));
+}
+if (iosP12Input) {
+  iosP12Input.addEventListener('change', () => {
+    const file = iosP12Input.files && iosP12Input.files[0];
+    if (!file) { iosP12Base64 = null; iosP12Label.textContent = 'Elegir .p12'; refreshIosFields(); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      iosP12Base64 = reader.result;
+      iosP12Label.textContent = file.name + ' (' + Math.round(file.size / 1024) + ' KB)';
+      refreshIosFields();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+if (iosProfileInput) {
+  iosProfileInput.addEventListener('change', () => {
+    const file = iosProfileInput.files && iosProfileInput.files[0];
+    if (!file) { iosProfileBase64 = null; iosProfileLabel.textContent = 'Elegir .mobileprovision'; refreshIosFields(); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      iosProfileBase64 = reader.result;
+      iosProfileLabel.textContent = file.name + ' (' + Math.round(file.size / 1024) + ' KB)';
+      refreshIosFields();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+const platformSelect = document.getElementById('platformSelect');
+const iosHint = document.getElementById('iosHint');
+if (platformSelect && iosHint) {
+  const syncHint = () => { iosHint.style.display = platformSelect.value === 'android' ? 'none' : 'block'; };
+  platformSelect.addEventListener('change', syncHint);
+  syncHint();
+}
+
 const adaptiveFgInput = document.getElementById('adaptiveFgInput');
 if (adaptiveFgInput) {
   adaptiveFgInput.addEventListener('change', () => {
@@ -501,6 +545,8 @@ function collect() {
   data.inputType = activeToggle ? activeToggle.dataset.input : 'url';
   data.iconBase64 = iconBase64 || undefined;
   data.keystoreBase64 = keystoreBase64 || undefined;
+  data.iosP12Base64 = iosP12Base64 || undefined;
+  data.iosProfileBase64 = iosProfileBase64 || undefined;
 
   data.permissions = {
     notifications: !!data.notifications,
@@ -596,6 +642,9 @@ function runQAChecks() {
   const permCount = Object.values(perms).filter(Boolean).length;
   items.push({ label: 'Permisos mínimos necesarios', state: permCount > 0 && permCount <= 8 ? 'ok' : 'warn', detail: permCount + ' activos' + (permCount > 8 ? ' (revisa políticas de Play Store)' : '') });
   items.push({ label: 'Firma y ofuscación', state: cfg.keystoreBase64 ? 'ok' : 'warn', detail: cfg.keystoreBase64 ? 'Release + ProGuard' : 'Debug (solo pruebas)' });
+  const plat = (cfg.platform === 'ios' || cfg.platform === 'both') ? (cfg.iosP12Base64 && cfg.iosProfileBase64 ? 'ok' : 'warn') : 'ok';
+  const platDetail = cfg.platform === 'android' ? 'Solo Android' : (cfg.iosP12Base64 && cfg.iosProfileBase64 ? 'IPA firmado' : 'iOS sin firma: solo validación en simulador');
+  items.push({ label: 'Plataforma iOS', state: plat, detail: platDetail });
   items.push({ label: 'Sin secretos en el código', state: 'ok', detail: 'Token y keystore via entorno / rama temporal' });
   const fails = items.filter((i) => i.state === 'fail').length;
   list.innerHTML = items.map((i) =>
@@ -757,6 +806,13 @@ buildBtn.addEventListener('click', async () => {
             aAab.textContent = 'Descargar AAB';
             aAab.download = (s.appName || 'app') + '.aab.zip';
             resultActions.appendChild(aAab);
+          }
+          if (s.artifacts && s.artifacts.some((a) => a.name.includes('ipa'))) {
+            const aIpa = document.createElement('a');
+            aIpa.href = '/api/download/' + id + '/ipa';
+            aIpa.className = 'btn primary';
+            aIpa.textContent = 'Descargar IPA (iOS)';
+            resultActions.appendChild(aIpa);
           }
         }, 600);
       } else if (s.status === 'failed' || s.status === 'error') {

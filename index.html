@@ -500,8 +500,13 @@
             </div>
             <div class="row">
               <label>Paquete de salida<select name="outputType"><option value="apk">Instalable APK</option><option value="aab">Google Play Bundle (AAB)</option><option value="both">Ambos (APK + AAB)</option></select></label>
-              <label>Webhook de Notificación (opcional)<input type="url" name="webhookUrl" placeholder="https://..." /></label>
+              <label>Plataforma<select name="platform" id="platformSelect"><option value="android">Android</option><option value="ios">iOS (iPhone)</option><option value="both">Android + iOS</option></select></label>
             </div>
+            <div class="row">
+              <label>Webhook de Notificación (opcional)<input type="url" name="webhookUrl" placeholder="https://..." /></label>
+              <span></span>
+            </div>
+            <p class="hint" id="iosHint" style="display:none">iOS: sin firma solo se valida en simulador. Para IPA instalable sube tu .p12 + .mobileprovision en Firma.</p>
           </div>
 
           <div class="card">
@@ -639,6 +644,24 @@
                 <label>Alias de la clave<input type="text" name="keyAlias" id="ksAlias" /></label>
               </div>
               <label>Contraseña de la clave privada<input type="password" name="keyPassword" id="ksKeyPass" /></label>
+            </div>
+            <hr class="section-divider" />
+            <p class="hint" style="font-weight:600;color:var(--text)">Firma iOS (iPhone / App Store)</p>
+            <p class="hint">Sube tu certificado .p12 y tu perfil .mobileprovision de Apple Developer. Sin esto, iOS solo se valida en simulador. Con cuenta gratuita funciona para tus dispositivos (7 días); con cuenta de pago ($99/año) para App Store.</p>
+            <div class="row">
+              <label>Certificado .p12
+                <div class="file" style="padding:10px"><input type="file" id="iosP12Input" accept=".p12,.pfx" /><span id="iosP12Label" style="font-size:12px">Elegir .p12</span></div>
+              </label>
+              <label>Perfil .mobileprovision
+                <div class="file" style="padding:10px"><input type="file" id="iosProfileInput" accept=".mobileprovision" /><span id="iosProfileLabel" style="font-size:12px">Elegir .mobileprovision</span></div>
+              </label>
+            </div>
+            <div id="iosSignFields" class="hidden">
+              <div class="row">
+                <label>Contraseña del .p12<input type="password" name="iosP12Password" id="iosP12Pass" /></label>
+                <label>Tipo de exportación<select name="iosExportMethod"><option value="development">Development (pruebas)</option><option value="ad-hoc">Ad Hoc (dispositivos)</option><option value="app-store">App Store</option></select></label>
+              </div>
+              <p class="hint">Se usa solo en este build y se auto-borra con la rama temporal (~30 min).</p>
             </div>
           </div>
 

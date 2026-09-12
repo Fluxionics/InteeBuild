@@ -196,6 +196,33 @@ function normalizeConfig(raw) {
     if (!useCustomSigning) keystoreBase64 = null;
   }
 
+  let iosP12Base64 = null;
+  let iosP12Password = '';
+  let iosProfileBase64 = null;
+  let useIosSigning = false;
+  const rawP12 = typeof raw.iosP12Base64 === 'string' ? raw.iosP12Base64.trim() : '';
+  if (rawP12) {
+    const m12 = /^data:.*?;base64,(.+)$/.exec(rawP12);
+    const b12 = m12 ? m12[1] : rawP12;
+    if (b12.length > 100 && b12.length < 200000) {
+      try { Buffer.from(b12, 'base64'); iosP12Base64 = b12; } catch (_) {}
+    }
+  }
+  const rawProf = typeof raw.iosProfileBase64 === 'string' ? raw.iosProfileBase64.trim() : '';
+  if (rawProf) {
+    const mp = /^data:.*?;base64,(.+)$/.exec(rawProf);
+    const bp = mp ? mp[1] : rawProf;
+    if (bp.length > 100 && bp.length < 200000) {
+      try { Buffer.from(bp, 'base64'); iosProfileBase64 = bp; } catch (_) {}
+    }
+  }
+  if (iosP12Base64 && iosProfileBase64) {
+    iosP12Password = String(raw.iosP12Password || '').slice(0, 128);
+    useIosSigning = !!iosP12Password;
+    if (!useIosSigning) { iosP12Base64 = null; iosProfileBase64 = null; }
+  }
+  const iosExportMethod = ['development', 'ad-hoc', 'app-store'].includes(raw.iosExportMethod) ? raw.iosExportMethod : 'development';
+
   return {
     appName, inputType, htmlCode, url,
     parsed: inputType === 'url' ? new URL(url) : { protocol: 'https:', href: 'https://localhost' },
@@ -217,6 +244,7 @@ function normalizeConfig(raw) {
     appTheme, entryAnimation, userAgent, jsInjection, cssInjection,
     cacheMode, backButtonBehavior, customHeaders, webhookUrl,
     useCustomSigning, keystoreBase64, keystorePassword, keyAlias, keyPassword,
+    useIosSigning, iosP12Base64, iosP12Password, iosProfileBase64, iosExportMethod,
     iconBase64: typeof raw.iconBase64 === 'string' && (raw.iconBase64.startsWith('data:image/png') || raw.iconBase64.startsWith('data:image/jpeg') || raw.iconBase64.startsWith('data:image/webp')) ? raw.iconBase64 : null
   };
 }
@@ -613,12 +641,26 @@ jobs:
         run: npx cap sync ios
 
       - name: Validate iOS build (simulador)
+        if: \${{ hashFiles('ios-cert.p12') == '' }}
         run: |
           cd ios/App
           xcodebuild -project App.xcodeproj -scheme App -sdk iphonesimulator -configuration Debug build CODE_SIGNING_ALLOWED=NO
 
       - name: Note App Store
-        run: echo 'Proyecto iOS validado. El IPA para App Store requiere firma Apple: abre ios/ en Xcode con tu cuenta de desarrollador.'
+        if: \${{ hashFiles('ios-cert.p12') == '' }}
+        run: echo 'Proyecto iOS validado. Para IPA instalable sube tu certificado .p12 + perfil .mobileprovision en el paso Firma.'
+
+      - name: Sign and export IPA
+        if: \${{ hashFiles('ios-cert.p12') != '' }}
+        run: node ios-sign.js
+
+      - name: Upload IPA
+        if: \${{ hashFiles('ios-cert.p12') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-ipa
+          path: /tmp/ib-export/*.ipa
+          if-no-files-found: error
 `;
 
 const MINIMAL_WWW = `<!DOCTYPE html>
@@ -726,6 +768,49 @@ function notifyScriptSrc(cfg) {
     + '})();';
 }
 
+function iosSignScriptSrc() {
+  return "const fs = require('fs');\n"
+    + "const os = require('os');\n"
+    + "const path = require('path');\n"
+    + "const cp = require('child_process');\n"
+    + "function run(cmd) { console.log('> ' + cmd); cp.execSync(cmd, { stdio: 'inherit' }); }\n"
+    + "function escXml(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }\n"
+    + "const cfg = JSON.parse(fs.readFileSync('build-config.json', 'utf8'));\n"
+    + "const sign = JSON.parse(fs.readFileSync('ios-sign.json', 'utf8'));\n"
+    + "const bundleId = cfg.packageName;\n"
+    + "const method = cfg.iosExportMethod || 'development';\n"
+    + "run('security cms -D -i ios-profile.mobileprovision -o /tmp/ib-profile.plist');\n"
+    + "const uuid = cp.execSync('/usr/libexec/PlistBuddy -c \"Print :UUID\" /tmp/ib-profile.plist').toString().trim();\n"
+    + "const profName = cp.execSync('/usr/libexec/PlistBuddy -c \"Print :Name\" /tmp/ib-profile.plist').toString().trim();\n"
+    + "console.log('Perfil: ' + profName + ' (' + uuid + ')');\n"
+    + "run('security create-keychain -p actions ib-build.keychain');\n"
+    + "run('security set-keychain-settings -lut 21600 ib-build.keychain');\n"
+    + "run('security unlock-keychain -p actions ib-build.keychain');\n"
+    + "run('security import ios-cert.p12 -k ib-build.keychain -P ' + JSON.stringify(sign.p12Password) + ' -T /usr/bin/codesign');\n"
+    + "run('security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k actions ib-build.keychain');\n"
+    + "run('security list-keychains -d user -s ib-build.keychain login.keychain');\n"
+    + "const identLine = cp.execSync('security find-identity -v -p codesigning ib-build.keychain | head -1').toString().trim();\n"
+    + "console.log('Identidad: ' + identLine);\n"
+    + "const mm = identLine.match(/\"([^\"]+)\"/);\n"
+    + "const identity = mm ? mm[1] : '';\n"
+    + "if (!identity) { throw new Error('No se encontro identidad de firma en el .p12 (revisa la contrasena)'); }\n"
+    + "const provDir = path.join(os.homedir(), 'Library', 'MobileDevice', 'Provisioning Profiles');\n"
+    + "fs.mkdirSync(provDir, { recursive: true });\n"
+    + "fs.copyFileSync('ios-profile.mobileprovision', path.join(provDir, uuid + '.mobileprovision'));\n"
+    + "const plist = '<?xml version=\"1.0\" encoding=\"UTF-8\"?>' + '\\n'\n"
+    + "  + '<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">' + '\\n'\n"
+    + "  + '<plist version=\"1.0\"><dict>' + '\\n'\n"
+    + "  + '<key>method</key><string>' + escXml(method) + '</string>' + '\\n'\n"
+    + "  + '<key>signingStyle</key><string>manual</string>' + '\\n'\n"
+    + "  + '<key>stripSwiftSymbols</key><true/>' + '\\n'\n"
+    + "  + '<key>provisioningProfiles</key><dict><key>' + escXml(bundleId) + '</key><string>' + escXml(profName) + '</string></dict>' + '\\n'\n"
+    + "  + '</dict></plist>';\n"
+    + "fs.writeFileSync('/tmp/ib-export.plist', plist);\n"
+    + "run('xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release -archivePath /tmp/ib-app.xcarchive archive CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=' + JSON.stringify(identity) + ' PROVISIONING_PROFILE=' + uuid);\n"
+    + "run('xcodebuild -exportArchive -archivePath /tmp/ib-app.xcarchive -exportPath /tmp/ib-export -exportOptionsPlist /tmp/ib-export.plist');\n"
+    + "console.log('Exportado: ' + fs.readdirSync('/tmp/ib-export').join(', '));\n";
+}
+
 function generateFiles(cfg) {
   const cap = cfg.capMajor;
   const capacitorConfig = {
@@ -828,6 +913,8 @@ function generateFiles(cfg) {
       splashEnabled: cfg.splashEnabled,
       outputType: cfg.outputType,
       hasCustomSigning: !!cfg.useCustomSigning,
+      hasIosSigning: !!cfg.useIosSigning,
+      iosExportMethod: cfg.iosExportMethod,
       notifyOnOpen: !!cfg.notifyOnOpen,
       notifyOnClose: !!cfg.notifyOnClose,
       notifyDelayMinutes: cfg.notifyDelayMinutes,
@@ -866,6 +953,13 @@ function generateFiles(cfg) {
   if (cfg.useCustomSigning) {
     files['user-keystore.jks'] = Buffer.from(cfg.keystoreBase64, 'base64');
     files['signing.properties'] = `storePassword=${cfg.keystorePassword}\nkeyAlias=${cfg.keyAlias}\nkeyPassword=${cfg.keyPassword}\nstoreFile=release.jks\n`;
+  }
+
+  if (cfg.useIosSigning) {
+    files['ios-cert.p12'] = Buffer.from(cfg.iosP12Base64, 'base64');
+    files['ios-profile.mobileprovision'] = Buffer.from(cfg.iosProfileBase64, 'base64');
+    files['ios-sign.json'] = JSON.stringify({ p12Password: cfg.iosP12Password }, null, 2);
+    files['ios-sign.js'] = iosSignScriptSrc();
   }
 
   if (cfg.plugins.inteebridge) {

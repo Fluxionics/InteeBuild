@@ -431,6 +431,7 @@ app.get('/api/v1/build/:id', (req, res) => {
     buildId: state.id, status: state.status, step: state.step,
     apkUrl: state.apkUrl ? `/api/download/${state.id}` : null,
     aabUrl: state.artifacts && state.artifacts.some(a => a.name.includes('aab')) ? `/api/download/${state.id}/aab` : null,
+    ipaUrl: state.artifacts && state.artifacts.some(a => a.name.includes('ipa')) ? `/api/download/${state.id}/ipa` : null,
     runUrl: state.runUrl, error: state.error, appName: state.appName
   });
 });
@@ -481,8 +482,8 @@ app.get('/api/apk-info/:id', async (req, res) => {
       runUrl: state.runUrl,
       artifacts: (state.artifacts || []).map(a => ({
         name: a.name,
-        type: a.name.includes('aab') ? 'AAB' : 'APK',
-        download: `/api/download/${state.id}${a.name.includes('aab') ? '/aab' : ''}`
+        type: a.name.includes('aab') ? 'AAB' : (a.name.includes('ipa') ? 'IPA' : 'APK'),
+        download: `/api/download/${state.id}${a.name.includes('aab') ? '/aab' : (a.name.includes('ipa') ? '/ipa' : '')}`
       }))
     };
 
@@ -606,6 +607,35 @@ app.get('/api/download/:id/aab', async (req, res) => {
     }
     res.setHeader('Content-Type', 'application/zip');
     res.setHeader('Content-Disposition', `attachment; filename="${state.appName || 'app'}.aab.zip"`);
+    res.send(buf);
+  } catch (err) {
+    if (!res.headersSent) res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/download/:id/ipa', async (req, res) => {
+  const state = builds.get(req.params.id);
+  if (!state) return res.status(404).json({ error: 'Build no encontrado' });
+  if (!state.runId) return res.status(404).json({ error: 'Build aun en progreso' });
+  const g = gh.config();
+  if (!g.ready) return res.status(503).json({ error: 'GitHub no configurado' });
+  try {
+    const arts = await gh.getArtifacts(g.owner, g.repo, state.runId);
+    const art = arts.find(a => a.name.includes('ipa'));
+    if (!art) return res.status(404).json({ error: 'IPA no encontrado (firma iOS requerida)' });
+    const response = await gh.downloadArtifact(g.owner, g.repo, art.id);
+    const buf = Buffer.from(await response.arrayBuffer());
+    const zip = await JSZip.loadAsync(buf);
+    const ipaEntry = Object.keys(zip.files).find(n => n.endsWith('.ipa'));
+    if (ipaEntry) {
+      const ipaBuf = await zip.files[ipaEntry].async('nodebuffer');
+      const safe = (state.appName || 'app').replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+      res.setHeader('Content-Type', 'application/octet-stream');
+      res.setHeader('Content-Disposition', `attachment; filename="${safe}.ipa"`);
+      return res.send(ipaBuf);
+    }
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="${state.appName || 'app'}.ipa.zip"`);
     res.send(buf);
   } catch (err) {
     if (!res.headersSent) res.status(500).json({ error: err.message });
