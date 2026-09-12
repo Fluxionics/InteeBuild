@@ -805,8 +805,24 @@
   <footer>
     <span>InteeBuild Studio</span><span class="sep">·</span>
     <span>Web to Native Converter</span><span class="sep">·</span>
-    <a href="/api/v1/build" style="color:var(--faint);font-size:11px;text-decoration:none">API REST v1</a>
+    <a href="/api/v1/build" style="color:var(--faint);font-size:11px;text-decoration:none">API REST v1</a><span class="sep">·</span>
+    <a href="#" onclick="document.getElementById('legalModal').classList.remove('hidden');return false;" style="color:var(--muted);font-size:11px;text-decoration:underline">Términos & Legal</a>
   </footer>
+
+  <!-- Modal de Términos Legales -->
+  <div class="qr-modal hidden" id="legalModal">
+    <div class="qr-box" style="max-width:540px;text-align:left">
+      <h3 style="margin-bottom:10px">Términos de Servicio y Exención de Responsabilidad</h3>
+      <div style="max-height:260px;overflow-y:auto;font-size:12px;color:var(--muted);line-height:1.6;padding-right:6px">
+        <p><b>1. Propiedad Intelectual:</b> InteeBuild es una herramienta de conversión técnica. El usuario declara y garantiza ser el propietario o contar con las licencias correspondientes sobre la URL o el contenido HTML introducido.</p>
+        <p><b>2. Responsabilidad de Contenido:</b> InteeBuild no se hace responsable por las marcas, derechos de autor o aplicaciones generadas por los usuarios que infrinjan derechos de terceros o las políticas de Google Play Store.</p>
+        <p><b>3. Uso del Servicio:</b> El servicio se proporciona "tal cual" (AS IS) sin garantías explícitas sobre la publicación final en tiendas de aplicaciones.</p>
+      </div>
+      <div style="margin-top:16px;text-align:right">
+        <button type="button" class="btn primary sm" onclick="document.getElementById('legalModal').classList.add('hidden')">Entendido y Aceptar</button>
+      </div>
+    </div>
+  </div>
 
   <script src="./js/app.js"></script>
 </body>
