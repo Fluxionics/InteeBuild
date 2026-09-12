@@ -177,6 +177,75 @@ app.get('/api/health', (req, res) => {
   res.json({ ok: true, service: 'InteeBuild', version: VERSION, githubReady: g.ready });
 });
 
+app.get('/api/diag', async (req, res) => {
+  const g = gh.config();
+  const out = {
+    ok: false,
+    env: { hasToken: !!g.token, hasRepo: !!(g.owner && g.repo), defaultBranch: g.defaultBranch },
+    token: { valid: false, hint: 'Sin token configurado' },
+    repo: { reachable: false, hint: '' },
+    branch: { exists: false, hint: '' },
+    workflow: { registered: false, hint: '' }
+  };
+  if (!g.ready) {
+    out.repo.hint = 'Configura GITHUB_TOKEN e INTEE_BUILDS_REPO en .env o en Render > Environment.';
+    return res.json(out);
+  }
+  const headers = {
+    Authorization: `Bearer ${g.token}`,
+    Accept: 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'User-Agent': 'InteeBuild-diag'
+  };
+  const get = async (p) => {
+    const r = await fetch(`https://api.github.com${p}`, { headers, signal: AbortSignal.timeout(10000) });
+    return r;
+  };
+  try {
+    const u = await get('/user');
+    if (u.status === 401) { out.token.hint = 'Token inválido o revocado. Genera uno nuevo.'; return res.json(out); }
+    if (!u.ok) { out.token.hint = `GitHub respondió ${u.status}. Reintenta en un momento.`; return res.json(out); }
+    out.token.valid = true;
+    out.token.hint = 'Token válido.';
+  } catch (_) { out.token.hint = 'Sin conexión a api.github.com desde el servidor.'; return res.json(out); }
+  try {
+    const r = await get(`/repos/${g.owner}/${g.repo}`);
+    if (r.status === 404) { out.repo.hint = 'Repo no existe o el token no tiene acceso. Revisa INTEE_BUILDS_REPO (formato usuario/repo) y los permisos del token.'; return res.json(out); }
+    if (!r.ok) { out.repo.hint = `GitHub respondió ${r.status}.`; return res.json(out); }
+    const info = await r.json();
+    out.repo.reachable = true;
+    out.repo.hint = 'Repo accesible.';
+    if (info.default_branch && info.default_branch !== g.defaultBranch) {
+      out.branch.hint = `La rama por defecto del repo es "${info.default_branch}" pero usas "${g.defaultBranch}". Ajusta INTEE_DEFAULT_BRANCH.`;
+    }
+  } catch (_) { out.repo.hint = 'Error de red consultando el repo.'; return res.json(out); }
+  try {
+    const b = await get(`/repos/${g.owner}/${g.repo}/branches/${g.defaultBranch}`);
+    if (b.status === 404) { out.branch.hint = `La rama "${g.defaultBranch}" no existe en el repo. Créala o ajusta INTEE_DEFAULT_BRANCH.`; return res.json(out); }
+    if (!b.ok) { out.branch.hint = `GitHub respondió ${b.status}.`; return res.json(out); }
+    out.branch.exists = true;
+    if (!out.branch.hint) out.branch.hint = 'Rama base OK.';
+  } catch (_) { out.branch.hint = 'Error de red consultando la rama.'; return res.json(out); }
+  try {
+    const w = await get(`/repos/${g.owner}/${g.repo}/contents/.github/workflows/build-app.yml?ref=${g.defaultBranch}`);
+    if (w.status === 404) {
+      out.workflow.hint = 'Aún no hay workflow en la rama base. Se creará solo con el próximo build (syncWorkflow).';
+      return res.json(out);
+    }
+    if (!w.ok) { out.workflow.hint = `GitHub respondió ${w.status}.`; return res.json(out); }
+    const body = await w.json();
+    const text = Buffer.from(body.content || '', 'base64').toString('utf-8');
+    if (text.includes('workflow_dispatch')) {
+      out.workflow.registered = true;
+      out.workflow.hint = 'Workflow registrado con trigger workflow_dispatch.';
+      out.ok = true;
+    } else {
+      out.workflow.hint = 'El archivo existe pero no tiene trigger workflow_dispatch. Se reescribirá en el próximo build.';
+    }
+  } catch (_) { out.workflow.hint = 'Error de red consultando el workflow.'; }
+  return res.json(out);
+});
+
 app.get('/api/history', (req, res) => {
   res.json(loadHistory().slice(0, 30));
 });
@@ -679,7 +748,8 @@ function runCleanup(g) {
 
 const CLEANUP_SECRET = process.env.CLEANUP_SECRET || '';
 app.get('/api/cleanup', (req, res) => {
-  if (CLEANUP_SECRET && req.query.secret !== CLEANUP_SECRET) return res.status(403).json({ error: 'Secret requerido' });
+  if (!CLEANUP_SECRET) return res.status(403).json({ error: 'Limpieza manual desactivada. Configura CLEANUP_SECRET para activarla.' });
+  if (req.query.secret !== CLEANUP_SECRET) return res.status(403).json({ error: 'Secret requerido' });
   const g = gh.config();
   if (!g.ready) return res.status(503).json({ error: 'GitHub no esta configurado' });
   gh.cleanup(g.owner, g.repo).then(
