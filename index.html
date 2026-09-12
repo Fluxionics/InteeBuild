@@ -181,7 +181,12 @@
               <label>Código HTML Fuente
                 <textarea name="htmlCode" rows="7" placeholder="&lt;!DOCTYPE html&gt;&#10;&lt;html&gt;..."></textarea>
               </label>
-              <button type="button" class="btn ghost sm" id="exampleHtmlBtn">Descargar ejemplo HTML</button>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button type="button" class="btn ghost sm" id="exampleHtmlBtn">Descargar ejemplo HTML</button>
+                <label class="btn ghost sm" style="cursor:pointer">Importar archivo .html
+                  <input type="file" id="htmlFileInput" accept=".html,.htm,text/html" class="hidden" />
+                </label>
+              </div>
             </div>
             <label title="Nombre visible de la app. Solo letras, números, espacios, guiones y puntos (2-40 caracteres). Ejemplo: Mi Tienda">Nombre de la Aplicación
               <input type="text" name="appName" placeholder="Mi Aplicación Nativa" maxlength="40" id="appNameInput" />

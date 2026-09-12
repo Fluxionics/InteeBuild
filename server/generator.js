@@ -880,6 +880,7 @@ function generateFiles(cfg) {
   if (cfg.plugins.device) deps['@capacitor/device'] = pv('device', cap);
   if (cfg.plugins.network) deps['@capacitor/network'] = pv('network', cap);
   if (cfg.plugins.statusBar || cfg.edgeToEdge) deps['@capacitor/status-bar'] = pv('statusBar', cap);
+  if (cfg.splashEnabled) deps['@capacitor/splash-screen'] = pv('splashScreen', cap);
   if (cfg.plugins.toast) deps['@capacitor/toast'] = pv('toast', cap);
   if (cfg.plugins.dialog) deps['@capacitor/dialog'] = pv('dialog', cap);
   if (cfg.plugins.screenReader) deps['@capacitor/screen-reader'] = pv('screenReader', cap);
@@ -999,6 +1000,27 @@ function generateFiles(cfg) {
     files['www/index.html'] = /<\/body\s*>/i.test(html)
       ? html.replace(/<\/body\s*>/i, tag + '</body>')
       : html + tag;
+  }
+
+  if (cfg.inputType === 'html') {
+    let html = files['www/index.html'];
+    if (!/<meta\s+charset/i.test(html)) {
+      const cs = '<meta charset="UTF-8" />';
+      const before = html;
+      html = html.replace(/<head([^>]*)>/i, '<head$1>' + cs);
+      if (html === before) {
+        html = /<!doctype[^>]*>/i.test(html)
+          ? html.replace(/<!doctype[^>]*>/i, (m) => m + cs)
+          : cs + html;
+      }
+    }
+    if (!/<meta\s+[^>]*viewport/i.test(html)) {
+      const vp = '<meta name="viewport" content="width=device-width, initial-scale=1.0" />';
+      html = /<head([^>]*)>/i.test(html)
+        ? html.replace(/<head([^>]*)>/i, '<head$1>' + vp)
+        : vp + html;
+    }
+    files['www/index.html'] = html;
   }
 
   return files;

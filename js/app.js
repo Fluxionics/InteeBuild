@@ -406,10 +406,22 @@ if (ppTheme) ppTheme.addEventListener('click', () => {
   ppScreen.style.color = dark ? '#18181b' : '#fff';
 });
 if (ppLive) ppLive.addEventListener('click', () => {
-  const url = urlInput ? urlInput.value.trim() : '';
-  if (!url) return alert('Por favor ingresa una URL válida primero');
+  const activeToggle = document.querySelector('.toggle-btn.active');
+  const mode = activeToggle ? activeToggle.dataset.input : 'url';
   if (ppIframe.classList.contains('hidden')) {
-    ppIframe.innerHTML = `<iframe src="${url}" sandbox="allow-scripts allow-same-origin"></iframe>`;
+    if (mode === 'html') {
+      const code = document.querySelector('[name="htmlCode"]') ? document.querySelector('[name="htmlCode"]').value : '';
+      if (!code.trim()) return alert('Pega tu código HTML o importa un archivo primero');
+      const frame = document.createElement('iframe');
+      frame.setAttribute('sandbox', 'allow-scripts');
+      frame.srcdoc = code;
+      ppIframe.innerHTML = '';
+      ppIframe.appendChild(frame);
+    } else {
+      const url = urlInput ? urlInput.value.trim() : '';
+      if (!url) return alert('Por favor ingresa una URL válida primero');
+      ppIframe.innerHTML = `<iframe src="${url}" sandbox="allow-scripts allow-same-origin"></iframe>`;
+    }
     ppIframe.classList.remove('hidden');
     document.getElementById('previewIconMain').classList.add('hidden');
     document.getElementById('previewUrlMain').classList.add('hidden');
@@ -1054,6 +1066,23 @@ if (exampleHtmlBtn) {
     document.querySelector('.toggle-btn[data-input="html"]').click();
     setField('htmlCode', EXAMPLE_HTML);
     setField('appName', 'Mi App Ejemplo');
+  });
+}
+const htmlFileInput = document.getElementById('htmlFileInput');
+if (htmlFileInput) {
+  htmlFileInput.addEventListener('change', () => {
+    const file = htmlFileInput.files && htmlFileInput.files[0];
+    if (!file) return;
+    if (file.size > 500 * 1024) { alert('El archivo supera 500 KB.'); htmlFileInput.value = ''; return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setField('htmlCode', String(reader.result || ''));
+      if (!document.querySelector('[name="appName"]').value) {
+        setField('appName', file.name.replace(/\.(html?|txt)$/i, '').replace(/[_-]+/g, ' ').trim() || 'Mi App');
+      }
+      if (typeof updatePreview === 'function') updatePreview();
+    };
+    reader.readAsText(file);
   });
 }
 
