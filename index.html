@@ -52,7 +52,7 @@
 
     <div class="ad-container ad-banner">
       <script>atOptions={'key':'f782587ac8395b4bfe62f052ed3b33b5','format':'iframe','height':250,'width':300,'params':{}};</script>
-      <script src="https://www.highrevenueformat.com/f782587ac8395b4bfe62f052ed3b33b5/invoke.js"></script>
+      <script src="https://www.highrevenueformat.com/f782587ac8395b4bfe62f052ed3b33b5/invoke.js" onerror="this.parentElement.style.display='none'"></script>
     </div>
 
     <div id="alertConfig" class="alert hidden"></div>
@@ -431,6 +431,18 @@
         <!-- STEP 3: Configuración -->
         <div class="step" data-step="3">
           <div class="card">
+            <div class="card-title"><span class="card-icon"><svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></span> Plataforma</div>
+            <p class="hint">Elige para que sistema compilar. iOS requiere Mac con Xcode para compilar, pero puedes descargar el proyecto y compilar local.</p>
+            <label>Plataforma
+              <select name="platform">
+                <option value="android">Android (APK/AAB)</option>
+                <option value="ios">iOS (IPA - requiere Mac)</option>
+                <option value="both">Android + iOS (proyectos)</option>
+              </select>
+            </label>
+            <p class="hint" style="margin-top:6px;font-size:11px;color:var(--warn)">iOS: se genera el proyecto Xcode en el ZIP. Compilacion en la nube para iOS proximamente (requiere runner macOS).</p>
+          </div>
+          <div class="card">
             <div class="card-title"><span class="card-icon">⚙️</span> SDK Android</div>
             <div class="row-3">
               <label>compileSdk<select name="compileSdk"><option>33</option><option>34</option><option selected>35</option><option>36</option></select></label>
@@ -680,7 +692,7 @@
             <div class="phone-icon" id="previewIcon">📱</div>
             <div class="phone-url" id="previewUrl">https://mi-web.com</div>
             <div class="phone-splash hidden" id="previewSplash">Splash Screen</div>
-            <div class="phone-iframe-wrap hidden" id="phoneIframeWrap"><iframe id="phoneIframe" sandbox="allow-scripts allow-same-origin allow-popups"></iframe></div>
+            <div class="phone-iframe-wrap hidden" id="phoneIframeWrap"><iframe id="phoneIframe" sandbox="allow-scripts allow-popups allow-forms"></iframe></div>
           </div>
           <div class="phone-nav"><span>◁</span><span>○</span><span>□</span></div>
         </div>
@@ -710,7 +722,7 @@
 
   <div class="ad-container ad-mobile">
     <script>atOptions={'key':'43ebfe1e4238ce12d9f5d3aef4789066','format':'iframe','height':50,'width':320,'params':{}};</script>
-    <script src="https://www.highrevenueformat.com/43ebfe1e4238ce12d9f5d3aef4789066/invoke.js"></script>
+    <script src="https://www.highrevenueformat.com/43ebfe1e4238ce12d9f5d3aef4789066/invoke.js" onerror="this.parentElement.style.display='none'"></script>
   </div>
 
   <footer>

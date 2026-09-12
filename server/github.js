@@ -119,10 +119,10 @@ async function pushProject(owner, repo, branch, files, baseBranch) {
   return commit.sha;
 }
 
-async function dispatchBuild(owner, repo, branch, id, outputType = 'apk') {
+async function dispatchBuild(owner, repo, branch, id, outputType = 'apk', platform = 'android') {
   await api(`/repos/${owner}/${repo}/actions/workflows/build-app.yml/dispatches`, {
     method: 'POST',
-    body: { ref: branch, inputs: { id, outputType } }
+    body: { ref: branch, inputs: { id, outputType, platform } }
   });
 }
 

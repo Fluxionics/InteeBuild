@@ -185,7 +185,7 @@ app.get('/api/stats', (req, res) => {
   const both = h.filter(x => x.outputType === 'both').length;
   const done = h.filter(x => x.status === 'success' && x.duration);
   const avgSec = done.length ? Math.round(done.reduce((a, b) => a + (b.duration || 0), 0) / done.length) : 0;
-  res.json({ total, ok, fail, building, apk, aab, both, avgSec });
+  res.json({ total, ok, fail, building, apk, aab, both, ios, avgSec });
 });
 
 app.get('/api/analyze', async (req, res) => {
@@ -349,7 +349,7 @@ async function startBuild(cfg, ip) {
     await gh.pushProject(g.owner, g.repo, branch, files, g.defaultBranch);
     state.status = 'building';
     state.step = 'Lanzando compilacion en GitHub Actions';
-    await gh.dispatchBuild(g.owner, g.repo, branch, id, cfg.outputType);
+    await gh.dispatchBuild(g.owner, g.repo, branch, id, cfg.outputType, cfg.platform);
     updateHistory(id, { status: 'building' });
     pollBuild(g, state);
   } catch (err) {

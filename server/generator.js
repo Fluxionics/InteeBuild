@@ -143,6 +143,7 @@ function normalizeConfig(raw) {
   const splashColor = typeof raw.splashColor === 'string' ? raw.splashColor.slice(0, 10) : '#ffffff';
   const splashDuration = Math.max(500, Math.min(5000, Number(raw.splashDuration) || 2000));
   const outputType = ['apk', 'aab', 'both'].includes(raw.outputType) ? raw.outputType : 'apk';
+  const platform = ['android','ios','both'].includes(raw.platform) ? raw.platform : 'android';
   const useCleartext = raw.useCleartext === undefined ? true : !!raw.useCleartext;
   const author = String(raw.author || '').slice(0, 60);
   const description = String(raw.description || '').slice(0, 200);
@@ -368,6 +369,11 @@ on:
         type: string
       outputType:
         description: 'Output type (apk/aab/both)'
+      platform:
+        description: 'Platform (android/ios/both)'
+        required: false
+        type: string
+        default: 'android'
         required: false
         type: string
         default: 'apk'
@@ -410,7 +416,12 @@ jobs:
         run: npm install
 
       - name: Add Capacitor Android platform
+        if: \${{ github.event.inputs.platform != 'ios' }}
         run: npx cap add android
+
+      - name: Add Capacitor iOS platform
+        if: \${{ github.event.inputs.platform == 'ios' || github.event.inputs.platform == 'both' }}
+        run: npx cap add ios
 
       - name: Suppress compileSdk warning
         run: echo 'android.suppressUnsupportedCompileSdk=36' >> android/gradle.properties
@@ -435,7 +446,11 @@ jobs:
           done
 
       - name: Sync Capacitor
-        run: npx cap sync android
+        run: npx cap sync
+
+      - name: Note iOS
+        if: \${{ github.event.inputs.platform == 'ios' || github.event.inputs.platform == 'both' }}
+        run: echo 'iOS project generated in ios/ - compile requires macOS with Xcode'
 
       - name: Apply adaptive icon
         if: \${{ hashFiles('adaptive-foreground.png') != '' }}
