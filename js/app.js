@@ -215,6 +215,14 @@ if (templateSelect) {
 
     setCheck('notifications', true);
     setCheck('foreground', true);
+    setVal('orientation', 'any');
+
+    const names = {
+      web: 'Web estándar', pwa: 'PWA Nativa', radio: 'Radio', ecommerce: 'Tienda',
+      blog: 'Blog', game: 'Juego', edu: 'Educación', empresa: 'Corporativa',
+      comunidad: 'Comunidad', streaming: 'Streaming', dashboard: 'Panel',
+      ai: 'AI Web App', maps: 'Mapas', finanzas: 'Finanzas', eventos: 'Eventos'
+    };
 
     if (v === 'radio') {
       setCheck('foreground', true); setCheck('wakeLock', true); setCheck('plugin_statusBar', true); setCheck('plugin_inteebridge', true);
@@ -233,7 +241,24 @@ if (templateSelect) {
       setCheck('microphone', true); setCheck('cameraMic', true); setCheck('plugin_clipboard', true); setCheck('plugin_inteebridge', true);
     } else if (v === 'comunidad') {
       setCheck('notifications', true); setCheck('cameraMic', true); setCheck('storage', true); setCheck('plugin_share', true); setCheck('plugin_camera', true);
+    } else if (v === 'pwa') {
+      setCheck('notifications', true); setCheck('storage', true); setCheck('plugin_notifications', true); setCheck('plugin_filesystem', true);
+    } else if (v === 'blog') {
+      setCheck('notifications', true); setCheck('storage', true); setCheck('plugin_share', true);
+    } else if (v === 'edu') {
+      setCheck('notifications', true); setCheck('storage', true); setCheck('cameraMic', true); setCheck('plugin_filesystem', true); setCheck('plugin_camera', true);
+    } else if (v === 'empresa') {
+      setCheck('notifications', true); setCheck('storage', true); setCheck('plugin_biometrics', true); setCheck('biometric', true);
+    } else if (v === 'dashboard') {
+      setCheck('notifications', true);
+    } else if (v === 'finanzas') {
+      setCheck('plugin_biometrics', true); setCheck('biometric', true); setCheck('notifications', true);
+    } else if (v === 'eventos') {
+      setCheck('cameraMic', true); setCheck('gps', true); setCheck('plugin_camera', true); setCheck('plugin_geolocation', true);
     }
+
+    if (typeof updatePreview === 'function') updatePreview();
+    alert('Plantilla aplicada: ' + (names[v] || v) + '. Revisa los pasos 2 y 3.');
   });
 }
 

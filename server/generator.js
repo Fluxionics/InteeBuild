@@ -540,11 +540,12 @@ jobs:
           PRO
 
       - name: Compile APK
+        if: \${{ github.event.inputs.outputType == 'apk' || github.event.inputs.outputType == 'both' }}
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon
 
       - name: Compile Release APK
-        if: \${{ hashFiles('user-keystore.jks') != '' }}
+        if: \${{ hashFiles('user-keystore.jks') != '' && (github.event.inputs.outputType == 'apk' || github.event.inputs.outputType == 'both') }}
         working-directory: android
         run: ./gradlew assembleRelease --no-daemon
 
@@ -559,6 +560,7 @@ jobs:
         run: ./gradlew bundleRelease --no-daemon
 
       - name: Upload APK
+        if: \${{ github.event.inputs.outputType == 'apk' || github.event.inputs.outputType == 'both' }}
         uses: actions/upload-artifact@v4
         with:
           name: inteebuild-\${{ github.event.inputs.id }}-apk
@@ -566,7 +568,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload Release APK
-        if: \${{ hashFiles('user-keystore.jks') != '' }}
+        if: \${{ hashFiles('user-keystore.jks') != '' && (github.event.inputs.outputType == 'apk' || github.event.inputs.outputType == 'both') }}
         uses: actions/upload-artifact@v4
         with:
           name: inteebuild-\${{ github.event.inputs.id }}-release-apk
@@ -588,6 +590,35 @@ jobs:
           name: inteebuild-\${{ github.event.inputs.id }}-release-aab
           path: android/app/build/outputs/bundle/release/*.aab
           if-no-files-found: error
+
+  ios-check:
+    if: \${{ github.event.inputs.platform == 'ios' || github.event.inputs.platform == 'both' }}
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Add iOS platform
+        run: npx cap add ios
+
+      - name: Sync iOS
+        run: npx cap sync ios
+
+      - name: Validate iOS build (simulador)
+        run: |
+          cd ios/App
+          xcodebuild -project App.xcodeproj -scheme App -sdk iphonesimulator -configuration Debug build CODE_SIGNING_ALLOWED=NO
+
+      - name: Note App Store
+        run: echo 'Proyecto iOS validado. El IPA para App Store requiere firma Apple: abre ios/ en Xcode con tu cuenta de desarrollador.'
 `;
 
 const MINIMAL_WWW = `<!DOCTYPE html>
@@ -664,6 +695,7 @@ function mainActivityPatchSrc() {
   const NL = String.fromCharCode(10);
   return [
     "const fs = require('fs');",
+    "const NL = String.fromCharCode(10);",
     "const pkg = JSON.parse(fs.readFileSync('build-config.json', 'utf8')).packageName;",
     "const mp = 'android/app/src/main/java/' + pkg.split('.').join('/') + '/MainActivity.java';",
     "let src = fs.readFileSync(mp, 'utf8');",
