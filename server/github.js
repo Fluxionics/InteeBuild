@@ -120,10 +120,23 @@ async function pushProject(owner, repo, branch, files, baseBranch) {
 }
 
 async function dispatchBuild(owner, repo, branch, id, outputType = 'apk', platform = 'android') {
-  await api(`/repos/${owner}/${repo}/actions/workflows/build-app.yml/dispatches`, {
-    method: 'POST',
-    body: { ref: branch, inputs: { id, outputType, platform } }
-  });
+  const body = { ref: branch, inputs: { id, outputType, platform } };
+  let lastErr = null;
+  for (let attempt = 0; attempt < 6; attempt++) {
+    try {
+      await api(`/repos/${owner}/${repo}/actions/workflows/build-app.yml/dispatches`, {
+        method: 'POST',
+        body
+      });
+      return;
+    } catch (err) {
+      lastErr = err;
+      const retryable = err.status === 422 && /workflow_dispatch/i.test(String(err.message || ''));
+      if (!retryable || attempt === 5) throw err;
+      await new Promise((r) => setTimeout(r, 5000 * (attempt + 1)));
+    }
+  }
+  throw lastErr;
 }
 
 async function findRun(owner, repo, branch, { tries = 12, delayMs = 3000 } = {}) {
