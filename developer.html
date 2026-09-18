@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>InteeBuild — Developer API Panel</title>
+<meta name="description" content="API completa para compilar APK/AAB, decompilar, analizar y automatizar. Panel para desarrolladores."/>
+<link rel="stylesheet" href="./css/style.css"/>
+<link rel="icon" href="./assets/icon.svg" type="image/svg+xml"/>
+<style>
+.dev-wrap{max-width:1080px;margin:0 auto;padding:24px;}
+.dev-hero{padding:20px 0 10px;}
+.dev-hero h1{font-size:28px;margin:0;}
+.dev-hero p{color:var(--muted);margin:6px 0 14px;}
+.dev-grid{display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start;}
+@media(max-width:900px){.dev-grid{grid-template-columns:1fr}}
+.code{background:#0f172a;border:1px solid var(--border);border-radius:8px;padding:12px;font-family:monospace;font-size:12px;color:#38bdf8;white-space:pre-wrap;word-break:break-all;overflow:auto}
+.kbd{font-family:monospace;background:var(--surface-2);border:1px solid var(--border);padding:2px 6px;border-radius:6px;font-size:11px}
+.endpoint{border:1px solid var(--border);border-radius:10px;padding:14px;background:var(--surface);margin-bottom:12px}
+.endpoint b{color:#fff}
+.badge-api{font-size:10px;padding:3px 7px;border-radius:999px;background:var(--accent-soft);border:1px solid rgba(99,102,241,.3);color:var(--accent);font-weight:700}
+.try{border:1px solid var(--border);border-radius:10px;padding:14px;background:var(--surface-2)}
+.try input,.try textarea,.try select{width:100%;margin-top:6px}
+</style>
+</head>
+<body>
+<header class="topbar">
+<div class="brand"><span class="logo"><img src="./assets/icon.svg" width="22" height="22"/></span><div class="brand-txt"><strong>InteeBuild</strong><small>Developer API</small></div></div>
+<div class="topbar-right"><a href="./index.html" class="btn ghost sm">← Volver al Studio</a><a href="/api/docs" class="btn ghost sm">JSON /api/docs</a><a href="/api/health" class="btn ghost sm">Health</a></div>
+</header>
+<main class="dev-wrap">
+<section class="dev-hero">
+<h1>Panel para Desarrolladores</h1>
+<p>Compila, descompila, analiza y automatiza sin tocar la UI. Todo es <b>API-first</b> + `X-API-Key` opcional. Base URL: <span class="kbd" id="baseUrl"></span></p>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<span class="badge-api">REST JSON</span>
+<span class="badge-api">CORS abierto</span>
+<span class="badge-api">Rate 10/h por IP</span>
+<span class="badge-api">Webhook + Polling</span>
+</div>
+</section>
+
+<div class="dev-grid">
+<div>
+<div class="card">
+<div class="card-title">Autenticación</div>
+<p class="hint">Si no hay keys, la API es pública. Si creas al menos una key, <b>POST /api/v1/build</b> exige <code>X-API-Key</code> o <code>Authorization: Bearer ib_...</code>. Genera y gestiona keys abajo. Las keys se guardan en <code>data/apikeys.json</code> (ignorado en git, no se sube).</p>
+<div class="code">curl -H "X-API-Key: ib_xxx" https://TU_DOMINIO/api/v1/build -d '{"url":"https://example.com","name":"MiApp"}'</div>
+</div>
+
+<div class="card">
+<div class="card-title">Endpoints</div>
+
+<div class="endpoint"><b>POST /api/build</b> <span class="badge-api">compilar</span>
+<p class="hint">Body `appName, url|htmlCode, packageName, permissions{}, plugins{}, compileSdk, outputType (apk/aab/both), platform` → <code>{id, branch, status}</code> 202. Usa `token GitHub` en servidor.</p>
+<div class="code">curl -X POST /api/build -H "Content-Type: application/json" -d '{"appName":"Mi Tienda","url":"https://mi-tienda.com","packageName":"com.miempresa.miapp","permissions":{"gps":true,"cameraMic":true}}'</div>
+</div>
+
+<div class="endpoint"><b>POST /api/v1/build</b> <span class="badge-api">API key</span>
+<p class="hint">Alias de `/api/build` con auth si hay keys. Campos `url, name, package, output, permissions, plugins, webhookUrl`.</p>
+<div class="code">curl -X POST /api/v1/build -H "X-API-Key: ib_xxx" -H "Content-Type: application/json" -d '{"url":"https://example.com","name":"MiApp","package":"com.example.app"}'</div>
+</div>
+
+<div class="endpoint"><b>GET /api/build/:id</b> + <b>GET /api/v1/build/:id</b>
+<p class="hint">Polling cada 3s: `status queued|building|success|failed`, `step`, `runUrl`, `apkUrl`.</p>
+<div class="code">curl /api/build/abc123
+# → {"id":"abc123","status":"success","apkUrl":"/api/download/abc123"}</div>
+</div>
+
+<div class="endpoint"><b>GET /api/download/:id</b> <span class="badge-api">APK</span> <b>/aab</b> <b>/ipa</b>
+<p class="hint">Descarga directa ZIP→APK/AAB. Si no hay `runId` → 404 aún en progreso.</p>
+</div>
+
+<div class="endpoint"><b>POST /api/project</b> <span class="badge-api">ZIP</span>
+<p class="hint">Genera proyecto nativo ZIP sin compilar en GitHub. Útil para CI local.</p>
+<div class="code">curl -X POST /api/project -H "Content-Type: application/json" -d '{"appName":"Test","url":"https://example.com"}' --output proyecto.zip</div>
+</div>
+
+<div class="endpoint"><b>GET /api/analyze?url=</b> + <b>POST /api/analyze/html</b> + <b>POST /api/analyze/fix</b>
+<p class="hint">Security `score/level/issues`, `errors/warnings`, `optimization grade/tips`, `autoFix preview`. Para HTML directo usa `POST`.</p>
+<div class="code">curl "/api/analyze?url=https://example.com"
+curl -X POST /api/analyze/html -d '{"html":"<html>...</html>"}'</div>
+</div>
+
+<div class="endpoint"><b>POST /api/decompile</b> <span class="badge-api">APK</span>
+<p class="hint">Sube APK (`apkBase64` dataURL/base64 o `octet-stream` raw, max 30MB) → extrae `packageName, permissions, hasDex, fileCount, manifestPreview, importConfig` (re-importable en Studio).</p>
+<div class="code">curl -X POST /api/decompile -H "Content-Type: application/json" -d '{"apkBase64":"data:application/vnd.android.package-archive;base64,UEs..."}'</div>
+</div>
+
+<div class="endpoint"><b>API Keys</b> `GET /api/keys` `POST /api/keys {name}` `DELETE /api/keys/:id` <span class="badge-api">panel</span>
+<p class="hint">Máx 10 keys. `keyMask` en listado, `key` solo al crear (cópiala).</p>
+</div>
+
+<div class="endpoint"><b>Git</b> `POST /api/git/connect {repo, branch}` `GET /api/git/integrations` `POST /api/git/webhook`
+<p class="hint">Conecta `usuario/repo#branch` → cada `push` dispara `startBuild`. Webhook: `{"repository":{"full_name":"u/r"},"ref":"refs/heads/main"}`</p>
+</div>
+
+<div class="endpoint"><b>Otros</b> `GET /api/health`, `GET /api/diag`, `GET /api/stats`, `GET /api/history`, `GET /api/qr/:id`, `GET /api/apk-info/:id`, `GET /api/docs`
+</div>
+</div>
+
+<div class="card">
+<div class="card-title">Ejemplos</div>
+<p class="hint"><b>Node.js</b></p>
+<div class="code">const r=await fetch(base+'/api/v1/build',{method:'POST',headers:{'Content-Type':'application/json','X-API-Key':key},body:JSON.stringify({url:'https://example.com',name:'MiApp'})});
+const {buildId}=await r.json();
+let s; do{ await new Promise(r=>setTimeout(r,3000)); s=await (await fetch(base+'/api/v1/build/'+buildId)).json(); console.log(s.status, s.step);}while(s.status==='building')
+console.log(s.apkUrl)</div>
+<p class="hint"><b>Python</b></p>
+<div class="code">import requests, time
+r=requests.post(base+"/api/v1/build", headers={"X-API-Key":key}, json={"url":"https://example.com","name":"MiApp"})
+bid=r.json()["buildId"]
+while True:
+  s=requests.get(base+f"/api/v1/build/{bid}").json()
+  print(s["status"]); 
+  if s["status"] not in ("queued","building"): break
+  time.sleep(3)</div>
+</div>
+</div>
+
+<div>
+<div class="card try">
+<div class="card-title">🔑 API Keys</div>
+<p class="hint">Crea hasta 10. Si existe al menos una, `v1/build` exige key.</p>
+<label>Nombre<input id="keyName" placeholder="ci, backend, zapier"/></label>
+<button class="btn primary sm" id="keyCreate" style="margin-top:8px;width:100%">Generar Key</button>
+<button class="btn ghost sm" id="keyList" style="margin-top:6px;width:100%">Listar Keys</button>
+<div id="keyOut" style="margin-top:10px;font-size:12px;word-break:break-all"></div>
+</div>
+
+<div class="card try" style="margin-top:14px">
+<div class="card-title">🧪 Try API (compilar)</div>
+<label>URL<input id="tryUrl" placeholder="https://example.com"/></label>
+<label>Nombre App<input id="tryName" placeholder="MiApp"/></label>
+<label>API Key (si hay)<input id="tryKey" placeholder="ib_... opcional"/></label>
+<button class="btn primary sm" id="tryBuild" style="margin-top:8px;width:100%">POST /api/v1/build</button>
+<pre id="tryOut" class="code" style="margin-top:10px;max-height:220px;overflow:auto">...</pre>
+</div>
+
+<div class="card try" style="margin-top:14px">
+<div class="card-title">📦 Decompilar APK</div>
+<p class="hint">Sube APK ≤30MB, extrae package/permisos y genera `importConfig`.</p>
+<input type="file" id="apkFile" accept=".apk,.zip"/>
+<button class="btn primary sm" id="apkBtn" style="margin-top:8px;width:100%">Descompilar</button>
+<pre id="apkOut" class="code" style="margin-top:10px;max-height:260px;overflow:auto">...</pre>
+</div>
+
+<div class="card" style="margin-top:14px">
+<div class="card-title">Límites</div>
+<p class="hint" style="margin:0">• Rate 10 builds/h por IP<br/>• HTML ≤500KB, icono ≤7MB, APK decompile ≤30MB<br/>• CORS abierto (o `CORS_ORIGIN` en env)<br/>• Webhook firma no requerida (valida repo/branch)<br/>• `data/` y `.env` nunca se suben a git</p>
+</div>
+</div>
+</div>
+</main>
+<footer style="max-width:1080px;margin:0 auto;padding:0 24px 30px;display:flex;gap:8px;color:var(--faint);font-size:12px;justify-content:center">
+<span>Developer Panel</span><span class="sep">·</span><a href="./index.html">Studio</a><span class="sep">·</span><a href="/api/docs">/api/docs</a>
+</footer>
+<script>
+const base=location.origin;
+document.getElementById('baseUrl').textContent=base;
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+async function jfetch(u,o){const r=await fetch(u,o);const t=await r.text();let j=null;try{j=JSON.parse(t)}catch{};return {status:r.status,j,t};}
+document.getElementById('keyCreate').onclick=async()=>{
+  const name=document.getElementById('keyName').value||'default';
+  const r=await jfetch('/api/keys',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
+  if(r.status!==200) return document.getElementById('keyOut').innerHTML='<span style="color:var(--danger)">'+esc(r.j?.error||r.t)+'</span>';
+  document.getElementById('keyOut').innerHTML='<div style="background:var(--success-soft);border:1px solid rgba(16,185,129,.3);padding:8px;border-radius:8px"><b>Key:</b><br><code style="font-size:11px;word-break:break-all">'+esc(r.j.key)+'</code><br><small>ID '+esc(r.j.id)+' — cópiala ahora</small></div>';
+};
+document.getElementById('keyList').onclick=async()=>{
+  const r=await jfetch('/api/keys'); if(!r.j) return;
+  if(!r.j.length) return document.getElementById('keyOut').innerHTML='<small>Sin keys</small>';
+  document.getElementById('keyOut').innerHTML=r.j.map(k=>'<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)"><span><b>'+esc(k.name)+'</b> <code style="font-size:10px">'+esc(k.keyMask)+'</code> <small>usos:'+(k.uses||0)+'</small></span><button class="btn ghost sm" onclick="fetch(\'/api/keys/'+k.id+'\',{method:\'DELETE\'}).then(()=>alert(\'Borrada\'))">Borrar</button></div>').join('');
+};
+document.getElementById('tryBuild').onclick=async()=>{
+  const url=document.getElementById('tryUrl').value.trim();
+  const name=document.getElementById('tryName').value.trim()||'MiApp';
+  const key=document.getElementById('tryKey').value.trim();
+  if(!url) return alert('Pon URL');
+  const headers={'Content-Type':'application/json'}; if(key) headers['X-API-Key']=key;
+  const r=await jfetch('/api/v1/build',{method:'POST',headers,body:JSON.stringify({url,name})});
+  document.getElementById('tryOut').textContent=JSON.stringify(r.j||r.t,null,2);
+};
+document.getElementById('apkBtn').onclick=async()=>{
+  const f=document.getElementById('apkFile').files[0];
+  if(!f) return alert('Elige APK');
+  const reader=new FileReader();
+  reader.onload=async()=>{
+    const r=await jfetch('/api/decompile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apkBase64:reader.result})});
+    document.getElementById('apkOut').textContent=JSON.stringify(r.j||r.t,null,2).slice(0,4000);
+  };
+  reader.readAsDataURL(f);
+};
+</script>
+</body>
+</html>
