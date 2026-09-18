@@ -1,22 +1,34 @@
-# InteeBuild
+![InteeBuild](assets/social-preview.svg)
 
-Convierte cualquier sitio web o codigo HTML en una aplicacion nativa de Android (APK y AAB). Sin registro, compilacion en la nube con GitHub Actions y control total sobre permisos, firma y personalizacion.
+![Version](https://img.shields.io/badge/version-4.1.0-6366f1?style=for-the-badge)
+![License](https://img.shields.io/badge/license-MIT-10b981?style=for-the-badge)
+![Node](https://img.shields.io/badge/node-%3E%3D18-10b981?style=for-the-badge)
+![Platform](https://img.shields.io/badge/platform-Android%20APK%20%2F%20AAB-6366f1?style=for-the-badge)
+![PRs](https://img.shields.io/badge/PRs-welcome-22d3a7?style=for-the-badge)
 
-**Documentación:** [Inicio rápido](./docs/quickstart.md) · [Solución de problemas](./docs/troubleshooting.md) · [Guía de permisos](./docs/permissions.md) · [Producción gratis y segura](./docs/production.md)
+# InteeBuild — Web a App Nativa Android
+
+Convierte cualquier sitio web o código HTML en una aplicación nativa de Android (APK y AAB). Permission Engine con permisos granulares reales, 7 motores WebView, API para developers, decompiler con código fuente y compilación en la nube con GitHub Actions.
+
+**Studio:** `index.html` · **Developer API:** `developer.html` · **Docs:** [Inicio rápido](./docs/quickstart.md) · [Solución de problemas](./docs/troubleshooting.md) · [Guía de permisos](./docs/permissions.md) · [Producción](./docs/production.md)
+
+> Para que GitHub muestre la tarjeta visual al compartir el repo: Settings → General → Social preview → Upload an image → sube `assets/social-preview.svg` (1280×640, el archivo ya está en el repo).
 
 ## Caracteristicas
 
-- **Entrada flexible:** URL publica o codigo HTML directo.
-- **18 permisos Android configurables:** notificaciones, foreground service (mediaPlayback para audio en segundo plano), camara y microfono, almacenamiento, GPS, Bluetooth, telefono, SMS, calendario, contactos, sensores, NFC, system alert, instalacion de paquetes, alarmas, WiFi cercano, vibracion, wake lock y biometria.
-- **Icono e icono adaptativo:** PNG, JPG y WebP, generacion de `mipmap-anydpi-v26` con fondo y foreground.
-- **Apariencia:** tema claro, oscuro o sistema, color de acento, status bar y navigation bar, edge-to-edge, splash screen con color y duracion, animacion de entrada y orientacion.
-- **Analizador web:** verifica HTTPS, viewport movil, manifest, favicon, theme-color, service worker, recursos inseguros, errores HTML y detecta PWA y frameworks. Puntuacion 0-100 con recomendaciones automaticas.
-- **Plantillas:** Web, PWA, Radio, Tienda, Blog, Juego, Educacion, Empresa, Comunidad, Streaming, Dashboard, AI, Maps, Finanzas y Eventos.
-- **Plugins nativos:** camara, geolocalizacion, compartir, archivos, haptics, clipboard, notificaciones push y locales, biometria, Bluetooth LE, NFC y puente InteeBridge para llamar APIs nativas desde la web.
-- **Salida:** APK para instalacion directa, AAB para Google Play o ambos, mas proyecto ZIP completo y firma personalizada por usuario con ofuscacion ProGuard.
-- **Preview realista:** marco de telefono con status bar y navigation bar, rotacion, pantalla completa, simulacion de splash y modo claro u oscuro. Vista previa en vivo con iframe de la URL real.
-- **Compilacion:** diagnostico en siete pasos con barra de progreso, consola de logs en vivo y descarga directa del APK y AAB sin pasar por GitHub.
-- **Historial y estadisticas:** ultimos 30 builds con estado, tiempo y enlaces, y panel con totales, exitosos, fallidos y tiempo promedio.
+- **Entrada flexible:** URL pública o código HTML directo.
+- **Permission Engine:** 27 permisos granulares (GPS preciso / segundo plano separado, Bluetooth Scan / Connect / Advertise, alarmas Schedule / Use, storage multimedia API 33). Solo se genera lo seleccionado. Audit con Manifest + Runtime + Native + Bridge + Provider y Build Readiness 0-100 que bloquea builds rotos.
+- **Providers WebView:** Capacitor 7 (READY), Native WebView ligero (READY), TWA Chrome (EXPERIMENTAL), GeckoView (EXPERIMENTAL), Cordova (EXPERIMENTAL), Flutter / Tauri (PLANNED).
+- **Icono e icono adaptativo:** PNG, JPG y WebP, generación de `mipmap-anydpi-v26` con fondo y foreground.
+- **Apariencia:** tema claro, oscuro o sistema, color de acento, status bar y navigation bar, edge-to-edge, splash screen con color y duración, animación de entrada y orientación. Drawer lateral, bottom tabs, pull-to-refresh, offline screen, loading y FLAG_SECURE.
+- **Analizador web:** HTTPS, viewport móvil, manifest, favicon, theme-color, service worker, recursos inseguros, CSP, eval, errores HTML, optimización y PWA. Puntuación 0-100 con auto-fix.
+- **Plantillas:** Web, PWA, Radio, Tienda, Blog, Juego, Educación, Empresa, Comunidad, Streaming, Dashboard, AI, Maps, Finanzas y Eventos.
+- **Plugins nativos:** cámara, geolocalización, compartir, archivos, haptics, clipboard, notificaciones push y locales, biometría, Bluetooth LE, NFC y puente InteeBridge.
+- **Salida:** APK instalable, AAB para Play Store o ambos, proyecto ZIP, firma con keystore propio y ofuscación ProGuard.
+- **Decompiler:** sube un APK y recupera package, permisos, manifest preview y ZIP con código fuente + config re-importable.
+- **API developers:** `POST /api/v1/build` con `X-API-Key` (hash sha256, scopes, revocación), `GET /api/docs`, panel en `developer.html`.
+- **Compilación:** workflow en 7 pasos con logs en vivo y descarga directa sin pasar por GitHub.
+- **Historial y estadísticas:** últimos 30 builds con estado, tiempo y enlaces.
 
 ## Requisitos
 
@@ -80,15 +92,22 @@ Para que el audio continue con la pantalla apagada activa Foreground Service y W
 ## API
 
 - `GET /api/health` — estado del servidor
-- `GET /api/analyze?url=` — analisis web
-- `POST /api/build` — iniciar compilacion
+- `GET /api/analyze?url=` — análisis web
+- `POST /api/analyze/html` — análisis de HTML directo
+- `POST /api/build` — iniciar compilación
+- `POST /api/v1/build` — compilación con API Key (`X-API-Key` o `Authorization: Bearer`)
 - `GET /api/build/:id` — estado del build
-- `GET /api/build/:id/logs` — logs del runner
+- `GET /api/permissions/spec` — catálogo de permisos granulares
+- `POST /api/permissions/audit` — audit Manifest + Runtime + Native + Bridge
+- `POST /api/permissions/suggest` — sugerencia desde Web APIs detectadas
+- `POST /api/build-readiness` — readiness 0-100 con checks
+- `POST /api/decompile` — decompila APK y devuelve código fuente en ZIP
+- `GET /api/keys` — gestión de API Keys (hash, scopes, revocación)
 - `GET /api/download/:id` — descarga directa del APK
 - `GET /api/download/:id/aab` — descarga directa del AAB
 - `POST /api/project` — descarga del proyecto ZIP
-- `GET /api/history` — ultimos builds
-- `GET /api/stats` — estadisticas
+- `GET /api/history` — últimos builds
+- `GET /api/stats` — estadísticas
 
 ## Estructura
 
