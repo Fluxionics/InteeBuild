@@ -592,7 +592,7 @@ app.post('/api/git/webhook', async (req,res)=>{
   }catch(e){ res.status(500).json({error:e.message}); }
 });
 
-// APK Decompiler
+// APK Decompiler - mejorado para APK reales y ZIPs InteeBuild
 app.post('/api/decompile', async (req,res)=>{
   try{
     let buf=null;
@@ -603,48 +603,60 @@ app.post('/api/decompile', async (req,res)=>{
     } else if(req.body.buffer) buf=Buffer.from(req.body.buffer,'base64');
     if(!buf || buf.length<100) return res.status(400).json({error:'Envía apkBase64 (data:...;base64,xxx o solo base64) o raw octet-stream. Tamaño min 100 bytes'});
     if(buf.length>30*1024*1024) return res.status(400).json({error:'APK demasiado grande (max 30MB)'});
-    const zip=await JSZip.loadAsync(buf);
+    let zip;
+    try{ zip=await JSZip.loadAsync(buf); }catch{ return res.status(400).json({error:'Archivo no es ZIP/APK válido (JSZip falló)'}); }
     const entries=Object.keys(zip.files);
-    // Try to read manifest and config
     let manifestStr='';
+    let manifestBuf=null;
     let buildConfig=null;
     let packageName='desconocido';
     let permissions=[];
     let appName='App';
-    // Look for build-config
+    let versionName='';
+    let versionCode='';
     if(zip.files['build-config.json']){
-      try{ buildConfig=JSON.parse(await zip.files['build-config.json'].async('string')); packageName=buildConfig.packageName||packageName; appName=buildConfig.appName||appName; permissions=Object.keys(buildConfig.permissions||{}).filter(k=>buildConfig.permissions[k]); }catch{}
+      try{ buildConfig=JSON.parse(await zip.files['build-config.json'].async('string')); packageName=buildConfig.packageName||packageName; appName=buildConfig.appName||appName; permissions=Object.keys(buildConfig.permissions||{}).filter(k=>buildConfig.permissions[k]); versionName=buildConfig.versionName||''; }catch{}
     }
-    // Try AndroidManifest.xml text or binary strings
     if(zip.files['AndroidManifest.xml']){
-      try{ manifestStr=await zip.files['AndroidManifest.xml'].async('string'); }catch{ manifestStr='(binary)'; }
+      try{ manifestBuf=await zip.files['AndroidManifest.xml'].async('nodebuffer'); manifestStr=manifestBuf.toString('utf8'); }catch{ manifestStr=''; }
+      if(!manifestStr || manifestStr.length<50){
+        try{ manifestStr=await zip.files['AndroidManifest.xml'].async('string'); }catch{ manifestStr=''; }
+      }
       if(manifestStr.includes('package="')){ const m=manifestStr.match(/package="([^"]+)"/); if(m) packageName=m[1]; }
-      // extract permissions via string scan
-      const perms=[...manifestStr.matchAll(/android\.permission\.([A-Z_]+)/g)].map(m=>m[1]);
-      if(perms.length) permissions=[...new Set([...permissions,...perms.map(p=>p.toLowerCase())])];
-    }
-    // Fallback binary string extraction from any file
-    if(permissions.length===0){
-      const allStrings= manifestStr + entries.join(' ');
-      // scan for urls inside zip files (capacitor config)
-      if(zip.files['capacitor.config.json']){
-        try{ const cap=JSON.parse(await zip.files['capacitor.config.json'].async('string')); if(cap.server?.url) appName=cap.appId||appName; }catch{}
+      if(!packageName || packageName==='desconocido'){
+        const pkgMatch=manifestStr.match(/[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+/g);
+        if(pkgMatch){ const cand=pkgMatch.find(s=>s.includes('.') && s.startsWith('com.') && s.length<50); if(cand) packageName=cand; }
       }
-      if(zip.files['www/index.html']){
-        try{ const html=await zip.files['www/index.html'].async('string'); const m=html.match(/https?:\/\/[^"'\s]+/); if(m) appName+=' -> '+m[0].slice(0,40); }catch{}
+      const verMatch=manifestStr.match(/versionName="([^"]+)"/); if(verMatch) versionName=verMatch[1];
+      const codeMatch=manifestStr.match(/versionCode="([^"]+)"/); if(codeMatch) versionCode=codeMatch[1];
+      const perms=[...manifestStr.matchAll(/android\.permission\.([A-Z_\.]+)/g)].map(m=>m[1].replace(/\./g,'').toLowerCase());
+      if(perms.length) permissions=[...new Set([...permissions,...perms])];
+      if(manifestBuf){
+        const rawStr=manifestBuf.toString('latin1');
+        const extraPerms=[...rawStr.matchAll(/android\.permission\.([A-Z_]+)/g)].map(m=>m[1].toLowerCase());
+        if(extraPerms.length) permissions=[...new Set([...permissions,...extraPerms])];
       }
     }
-    const hasIcon=entries.some(e=>/ic_launcher|app-icon/.test(e));
-    const fileList=entries.slice(0,50);
-    // Generate importable config for InteeBuild
-    const importConfig= buildConfig ? buildConfig : { appName, packageName, url: 'https://example.com', permissions:Object.fromEntries(permissions.map(p=>[p,true])) };
+    if(zip.files['capacitor.config.json']){
+      try{ const cap=JSON.parse(await zip.files['capacitor.config.json'].async('string')); if(cap.appId && packageName==='desconocido') packageName=cap.appId; if(cap.appName) appName=cap.appName; if(cap.server && cap.server.url) appName+=' ('+cap.server.url.slice(0,30)+')'; }catch{}
+    }
+    if(zip.files['www/index.html']){
+      try{ const html=await zip.files['www/index.html'].async('string'); const m=html.match(/https?:\/\/[^"'\s<]+/); if(m) appName+=' -> '+m[0].slice(0,40); }catch{}
+    }
+    if(zip.files['assets/www/index.html']){
+      try{ const html=await zip.files['assets/www/index.html'].async('string'); const m=html.match(/https?:\/\/[^"'\s<]+/); if(m) appName+=' -> '+m[0].slice(0,40); }catch{}
+    }
+    const hasIcon=entries.some(e=>/ic_launcher|app-icon|mipmap.*\.png/i.test(e));
+    const hasDex=entries.some(e=>e.endsWith('.dex'));
+    const fileList=entries.slice(0,60);
+    const importConfig= buildConfig ? buildConfig : { appName: appName.slice(0,40), packageName: packageName==='desconocido'?'com.example.app':packageName, url: 'https://example.com', versionName: versionName||'1.0.0', permissions:Object.fromEntries(permissions.map(p=>[p,true])) };
     res.json({
       ok:true,
-      meta:{ packageName, appName, permissions, hasIcon, fileCount:entries.length, sizeKB:Math.round(buf.length/1024) },
+      meta:{ packageName, appName, permissions, hasIcon, hasDex, fileCount:entries.length, sizeKB:Math.round(buf.length/1024), versionName, versionCode },
       entries: fileList,
-      manifestPreview: manifestStr.slice(0,4000),
+      manifestPreview: manifestStr.slice(0,5000) || '(binario, ver permisos extraídos)',
       importConfig,
-      note: buildConfig? 'APK generado por InteeBuild - config recuperada 100%' : 'APK externo - heurística aplicada, revisa permisos extraídos'
+      note: buildConfig? 'APK InteeBuild - 100% recuperable' : hasDex ? 'APK real descompilado (heurística, revisa package/permisos)' : 'ZIP/APK genérico'
     });
   }catch(e){ res.status(500).json({error:'No se pudo descompilar: '+e.message}); }
 });

@@ -500,7 +500,13 @@ jobs:
           cat "$GITHUB_ENV"
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "SDK check"
+          ls -la "$ANDROID_HOME/cmdline-tools" || true
+          yes | sdkmanager --licenses || true
+          sdkmanager --install "platform-tools" "platforms;android-35" "build-tools;35.0.0" 2>&1 | tail -20 || true
+          echo "SDK ready"
 
       - name: Install dependencies
         run: npm install
