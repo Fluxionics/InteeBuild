@@ -12,7 +12,7 @@ Convierte cualquier sitio web o código HTML en una aplicación nativa de Androi
 
 **Studio:** `index.html` · **Developer API:** `developer.html` · **Docs:** [Inicio rápido](./docs/quickstart.md) · [Solución de problemas](./docs/troubleshooting.md) · [Guía de permisos](./docs/permissions.md) · [Producción](./docs/production.md)
 
-> Para que GitHub muestre la tarjeta visual al compartir el repo: Settings → General → Social preview → Upload an image → sube `assets/social-preview.svg` (1280×640, el archivo ya está en el repo).
+
 
 ## Caracteristicas
 
