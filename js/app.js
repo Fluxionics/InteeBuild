@@ -127,6 +127,7 @@ document.querySelectorAll('.plugin-tab').forEach((tab) => {
 
 document.querySelectorAll('.plugin-card').forEach((card) => {
   const chk = card.querySelector('input[type="checkbox"]');
+  const rad = card.querySelector('input[type="radio"]');
   if (chk) {
     card.classList.toggle('checked', chk.checked);
     card.addEventListener('click', (e) => {
@@ -137,6 +138,15 @@ document.querySelectorAll('.plugin-card').forEach((card) => {
         const ibBox = document.getElementById('integridgeInfo');
         if (ibBox) ibBox.classList.toggle('hidden', !chk.checked);
       }
+    });
+  } else if (rad) {
+    card.classList.toggle('checked', rad.checked);
+    card.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('input[name="provider"]').forEach(r=>r.checked=false);
+      document.querySelectorAll('.plugin-card input[name="provider"]').forEach(r=> r.closest('.plugin-card').classList.remove('checked'));
+      rad.checked=true;
+      card.classList.add('checked');
     });
   }
 });
@@ -564,6 +574,67 @@ if(applyFixBtn){
   });
 }
 
+// Permission Engine
+const runAuditBtn=document.getElementById('runAuditBtn');
+const autoSuggestBtn=document.getElementById('autoSuggestBtn');
+const auditBox=document.getElementById('auditBox');
+const readinessBox=document.getElementById('buildReadinessBox');
+async function runAudit(){
+  if(!auditBox) return;
+  auditBox.innerHTML='<small style="color:var(--muted)">🛡️ Auditando permisos...</small>';
+  try{
+    const cfg=collect();
+    const r=await fetch('/api/permissions/audit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(cfg)});
+    const j=await r.json();
+    if(!r.ok) throw new Error(j.error || 'Audit falló');
+    const items=j.items.map(i=>{
+      const icon=i.status==='ok'?'✓':i.status==='warn'?'⚠':'✕';
+      return `<div class="audit-item ${i.status}"><span class="audit-ico">${icon}</span><div class="audit-main"><b>${escHtml(i.title)}</b> <small>(${escHtml(i.key)})</small><div class="audit-meta"><span class="audit-chip ${i.manifest==='OK'?'ok':'fail'}">Manifest ${escHtml(i.manifest)}</span><span class="audit-chip ${i.runtime==='OK'?'ok':(i.runtime||'').startsWith('REQUIRES')?'warn':'fail'}">Runtime ${escHtml(i.runtime)}</span><span class="audit-chip ${i.handler==='OK'?'ok':'fail'}">Handler ${escHtml(i.handler)}</span>${i.version!=='OK'?`<span class="audit-chip warn">${escHtml(i.version)} · minSdk ${i.minSdk}</span>`:''}</div></div><span class="audit-badge ${i.status}">${i.status}</span></div>`;
+    }).join('');
+    auditBox.innerHTML = j.total? items + `<div class="audit-summary ${j.canBuild?'good':'bad'}"><b>${j.ok}/${j.total} OK</b> · Readiness ${j.readiness}% ${j.canBuild?'· ✓ Listo para compilar':'· ✕ Bloqueado: revisa permisos'}</div>` : '<small style="color:var(--muted)">Selecciona al menos un permiso para auditar. Sin permisos el APK solo usa INTERNET.</small>';
+    if(readinessBox){
+      const br=await fetch('/api/build-readiness',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(collect())}).then(rr=>rr.json());
+      const barColor=br.readiness>=90?'linear-gradient(90deg,var(--success),#34d399)':br.readiness>=70?'linear-gradient(90deg,var(--warn),#fbbf24)':'linear-gradient(90deg,var(--danger),#f87171)';
+      readinessBox.innerHTML=`<div class="readiness-card"><div class="readiness-top"><span>BUILD READINESS</span><span class="readiness-pct">${br.readiness}%</span></div><div class="readiness-bar"><div class="readiness-fill" style="width:${br.readiness}%;background:${barColor}"></div></div><small style="color:var(--muted)">${escHtml(br.message||'')}</small>${(br.warnings||[]).length?'<div style="margin-top:6px;font-size:11px;color:var(--warn)">⚠ '+br.warnings.map(w=>escHtml(w)).join('<br>⚠ ')+'</div>':''}<div class="readiness-checks">${Object.entries(br.checks||{}).map(([k,v])=>`<span class="readiness-check ${v?'yes':'no'}">${v?'✓':'✕'} ${escHtml(k)}</span>`).join('')}</div></div>`;
+      const buildBtnEl=document.getElementById('buildBtn');
+      if(buildBtnEl) { buildBtnEl.disabled=!br.canBuild; buildBtnEl.title=br.canBuild?'Listo para compilar':'Corrige audit antes de compilar'; }
+    }
+  }catch(e){ auditBox.innerHTML='<span style="color:var(--danger)">'+escHtml(e.message)+'</span>'; }
+}
+if(runAuditBtn) runAuditBtn.addEventListener('click', runAudit);
+if(autoSuggestBtn) autoSuggestBtn.addEventListener('click', async()=>{
+  const mode=document.querySelector('input[name="permMode"]:checked')?.value||'manual';
+  let html=''; let url='';
+  const active=document.querySelector('.toggle-btn.active')?.dataset.input;
+  if(active==='html') html=document.querySelector('[name="htmlCode"]')?.value||'';
+  else url=document.querySelector('[name="url"]')?.value||'';
+  if(!html && !url) return alert('Pon URL o HTML para sugerir');
+  const r=await fetch('/api/permissions/suggest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({html,url})});
+  const j=await r.json();
+  if(!j.suggested.length) return alert('No se detectaron APIs que requieran permisos');
+  const msg=j.suggested.map(s=>`${s.spec.title} (${s.key})`).join(', ');
+  if(mode==='manual'){
+    if(auditBox) auditBox.innerHTML='<div class="suggest-banner">Sugerido por Web API: <b>'+escHtml(msg)+'</b><br><small>Actívalo manualmente si lo necesitas. Detección ≠ uso real.</small></div>'+auditBox.innerHTML;
+  } else if(mode==='recommended'){
+    if(confirm('Sugerido: '+msg+'\n¿Activar automáticamente?')){
+      j.suggested.forEach(s=>{ const el=document.querySelector(`[name="${s.key}"]`); if(el){ el.checked=true; const tile=el.closest('.perm-tile, .switch'); if(tile) tile.classList.add('checked'); } });
+      if(auditBox) auditBox.innerHTML='<div class="suggest-banner good">✓ Activados: '+escHtml(msg)+'</div>';
+      runAudit();
+    }
+  } else if(mode==='auto'){
+    document.querySelectorAll('#permEasy input[type="checkbox"], #permAdvanced input[type="checkbox"]').forEach(el=>{ el.checked=false; const t=el.closest('.perm-tile'); if(t) t.classList.remove('checked'); });
+    j.suggested.forEach(s=>{ const el=document.querySelector(`[name="${s.key}"]`); if(el){ el.checked=true; const t=el.closest('.perm-tile'); if(t) t.classList.add('checked'); } });
+    if(auditBox) auditBox.innerHTML='<div class="suggest-banner good">🤖 Auto: '+escHtml(msg)+' — solo lo detectado, sin extras.</div>';
+    runAudit();
+  }
+});
+document.querySelectorAll('input[name="permMode"]').forEach(r=> r.addEventListener('change', e=>{
+  if(e.target.value==='auto' || e.target.value==='recommended'){
+    // trigger suggest automatically when mode changes to auto/recommended
+    if(document.querySelector('[name="url"]')?.value || document.querySelector('[name="htmlCode"]')?.value) autoSuggestBtn.click();
+  }
+}));
+
 const autopilotApply = document.getElementById('autopilotApply');
 if (autopilotApply) {
   autopilotApply.addEventListener('click', () => {
@@ -601,6 +672,8 @@ function collect() {
     if (!el.name) return;
     if (el.type === 'checkbox') {
       data[el.name] = el.checked;
+    } else if (el.type === 'radio') {
+      if (el.checked) data[el.name] = el.value;
     } else if (el.type === 'file') {
       return;
     } else {
@@ -1023,14 +1096,17 @@ if(decompileBtn){
       const r=await fetch('/api/decompile',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({apkBase64})});
       const j=await r.json();
       if(!r.ok) throw new Error(j.error);
-      decompileOut.innerHTML='<div style="background:var(--surface-2);padding:12px;border-radius:8px;border:1px solid var(--border)">'
-        +'<div><b>Package:</b> '+escHtml(j.meta.packageName)+'</div>'
-        +'<div><b>App:</b> '+escHtml(j.meta.appName)+'</div>'
-        +'<div><b>Permisos:</b> '+escHtml((j.meta.permissions||[]).join(', ')||'ninguno')+'</div>'
-        +'<div><b>Archivos:</b> '+j.meta.fileCount+' ('+j.meta.sizeKB+'KB) '+ (j.meta.hasIcon?'· con icono':'')+'</div>'
-        +'<div style="margin-top:8px"><b>ImportConfig:</b><pre style="font-size:10px;white-space:pre-wrap;word-break:break-all;background:#090d16;padding:8px;border-radius:6px">'+escHtml(JSON.stringify(j.importConfig,null,2))+'</pre></div>'
-        +'<button type="button" class="btn primary sm" id="importDecompiled">Importar como proyecto</button>'
-        +'<div style="margin-top:8px;font-size:10px;color:var(--muted)">'+escHtml(j.note)+'</div></div>';
+      decompileOut.innerHTML='<div class="decompile-result">'
+        +'<div class="decompile-row"><b>Package</b><span>'+escHtml(j.meta.packageName)+'</span></div>'
+        +'<div class="decompile-row"><b>App</b><span>'+escHtml(j.meta.appName)+'</span></div>'
+        +'<div class="decompile-row"><b>Versión</b><span>'+escHtml(j.meta.versionName||'1.0.0')+' '+(j.meta.versionCode?'('+escHtml(j.meta.versionCode)+')':'')+'</span></div>'
+        +'<div class="decompile-row"><b>Permisos</b><span>'+escHtml((j.meta.permissions||[]).join(', ')||'ninguno')+'</span></div>'
+        +'<div class="decompile-row"><b>Archivos</b><span>'+j.meta.fileCount+' ('+j.meta.sizeKB+'KB) '+ (j.meta.hasIcon?'· 🎨 icono':'') + (j.meta.hasDex?'· ⚙️ dex':'')+'</span></div>'
+        +'<div style="margin-top:8px"><b style="font-size:12px">📦 Código fuente recuperado</b><pre class="code" style="margin-top:6px;max-height:160px;overflow:auto">'+escHtml(JSON.stringify(j.importConfig,null,2))+'</pre></div>'
+        +'<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button type="button" class="btn primary sm" id="importDecompiled">📥 Importar como proyecto</button>' + (j.sourceZipBase64 ? '<a class="btn ghost sm" href="data:application/zip;base64,'+j.sourceZipBase64+'" download="inteebuild-source-'+escHtml(j.meta.packageName||'app')+'.zip">📦 Descargar ZIP fuente ('+j.sourceZipSizeKB+'KB)</a>' : '') + '</div>'
+        +'<div style="margin-top:8px;font-size:11px;color:var(--muted)">'+escHtml(j.note)+'</div>'
+        + (j.manifestPreview ? '<details style="margin-top:8px"><summary style="font-size:11px;cursor:pointer;color:var(--accent)">Manifest preview</summary><pre class="code" style="margin-top:6px;max-height:200px;overflow:auto">'+escHtml((j.manifestPreview||'').slice(0,3000))+'</pre></details>' : '')
+        +'</div>';
       setTimeout(()=>{
         const imp=document.getElementById('importDecompiled');
         if(imp) imp.addEventListener('click',()=>{

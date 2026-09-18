@@ -233,6 +233,23 @@
 
           <div class="card">
             <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+              Proveedor de Compilación <span class="pro-badge">PRO</span>
+            </div>
+            <p class="hint">Elige el motor WebView. Cambia el rendimiento, tamaño y compatibilidad. Capacitor es el default.</p>
+            <div class="provider-grid">
+              <label class="plugin-card" style="cursor:pointer"><input type="radio" name="provider" value="capacitor" checked style="display:none"/><div class="pi">⚡</div><div class="pl"><b>Capacitor 7</b><small>Plugins + InteeBridge</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" style="cursor:pointer"><input type="radio" name="provider" value="native" style="display:none"/><div class="pi">📦</div><div class="pl"><b>Native WebView</b><small>APK ultra ligero ~1.5MB</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" style="cursor:pointer"><input type="radio" name="provider" value="twa" style="display:none"/><div class="pi">🌐</div><div class="pl"><b>TWA Chrome</b><small>Usa Chrome, instantáneo</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" style="cursor:pointer"><input type="radio" name="provider" value="gecko" style="display:none"/><div class="pi">🦊</div><div class="pl"><b>GeckoView</b><small>Motor Firefox</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" style="cursor:pointer"><input type="radio" name="provider" value="cordova" style="display:none"/><div class="pi">📱</div><div class="pl"><b>Cordova</b><small>Legacy compat</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" style="cursor:pointer"><input type="radio" name="provider" value="flutter" style="display:none"/><div class="pi">💙</div><div class="pl"><b>Flutter</b><small>Experimental</small></div><div class="plugin-check"></div></label>
+            </div>
+            <p class="hint" style="margin-top:8px;font-size:11px">Native = APK más chico y rápido sin Capacitor. TWA requiere Chrome y assetlinks. GeckoView evita bugs Chromium.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
               <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
               Logotipo e Icono
             </div>
@@ -372,6 +389,24 @@
               <label class="switch"><input type="checkbox" name="vibration" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Vibración Háptica</b><small>VIBRATE</small></span></label>
             </div>
           </div>
+            <div class="card engine-card" style="margin-top:14px">
+              <div class="card-title">
+                <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Permission Engine <span class="pro-badge">PRO</span>
+              </div>
+              <p class="hint">Manifest + Runtime + Handler + Android version. Solo se genera lo necesario, nada de más.</p>
+              <div class="perm-mode-group">
+                <label><input type="radio" name="permMode" value="manual" checked> Manual</label>
+                <label><input type="radio" name="permMode" value="recommended"> Recomendado</label>
+                <label><input type="radio" name="permMode" value="auto"> Automático</label>
+              </div>
+              <div class="engine-actions">
+                <button type="button" class="btn primary sm" id="runAuditBtn">🛡️ Ejecutar Audit</button>
+                <button type="button" class="btn ghost sm" id="autoSuggestBtn">✨ Sugerir por Web API</button>
+              </div>
+              <div id="auditBox" class="audit-list"></div>
+              <div id="buildReadinessBox"></div>
+            </div>
           <div class="step-nav"><button type="button" class="btn ghost prev-btn">← Paso anterior</button><button type="button" class="btn primary next-btn">Siguiente paso →</button></div>
         </div>
 

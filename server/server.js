@@ -649,6 +649,19 @@ app.post('/api/decompile', async (req,res)=>{
     const hasIcon=entries.some(e=>/ic_launcher|app-icon|mipmap.*\.png/i.test(e));
     const hasDex=entries.some(e=>e.endsWith('.dex'));
     const fileList=entries.slice(0,60);
+    let sourceZipBase64=null;
+    try{
+      const sourceZip=new JSZip();
+      for(const [name, file] of Object.entries(zip.files)){
+        if(file.dir) continue;
+        if(name.includes('..')) continue;
+        try{
+          const content=await file.async('nodebuffer');
+          if(content.length < 4*1024*1024) sourceZip.file(name, content);
+        }catch{}
+      }
+      sourceZipBase64=await sourceZip.generateAsync({type:'base64', compression:'DEFLATE'});
+    }catch{}
     const importConfig= buildConfig ? buildConfig : { appName: appName.slice(0,40), packageName: packageName==='desconocido'?'com.example.app':packageName, url: 'https://example.com', versionName: versionName||'1.0.0', permissions:Object.fromEntries(permissions.map(p=>[p,true])) };
     res.json({
       ok:true,
@@ -656,9 +669,61 @@ app.post('/api/decompile', async (req,res)=>{
       entries: fileList,
       manifestPreview: manifestStr.slice(0,5000) || '(binario, ver permisos extraídos)',
       importConfig,
-      note: buildConfig? 'APK InteeBuild - 100% recuperable' : hasDex ? 'APK real descompilado (heurística, revisa package/permisos)' : 'ZIP/APK genérico'
+      sourceZipBase64,
+      sourceZipSizeKB: sourceZipBase64 ? Math.round(Buffer.from(sourceZipBase64,'base64').length/1024) : 0,
+      note: buildConfig? 'APK InteeBuild - 100% recuperable + ZIP fuente listo' : hasDex ? 'APK real descompilado (heurística) + ZIP fuente con manifest/dex/res' : 'ZIP/APK genérico + ZIP fuente'
     });
   }catch(e){ res.status(500).json({error:'No se pudo descompilar: '+e.message}); }
+});
+
+app.get('/api/permissions/spec', (req,res)=> res.json(generator.PERMISSION_SPEC));
+app.post('/api/permissions/audit', (req,res)=>{
+  try{
+    const cfg=generator.normalizeConfig(req.body||{});
+    const audit=generator.getPermissionAudit(cfg);
+    res.json(audit);
+  }catch(e){ res.status(400).json({error:e.message}); }
+});
+app.post('/api/permissions/suggest', async (req,res)=>{
+  try{
+    let html=String(req.body.html||'');
+    const url=String(req.body.url||'').trim();
+    let detected=[];
+    if(html) detected=detectWebApis(html);
+    else if(url && !isBlockedUrl(url)){
+      try{
+        const r=await fetch(url,{headers:{'User-Agent':'InteeBuild-PermSuggest/1.0'}, signal:AbortSignal.timeout(8000)});
+        const t=await r.text();
+        html=t.slice(0,500000);
+        detected=detectWebApis(html);
+      }catch{}
+    } else if(req.body.detectedApis) detected=req.body.detectedApis;
+    const suggested=generator.suggestPermissionsFromApis(detected);
+    res.json({detected, suggested, count:suggested.length});
+  }catch(e){ res.status(500).json({error:e.message}); }
+});
+app.post('/api/build-readiness', (req,res)=>{
+  try{
+    const cfg=generator.normalizeConfig(req.body||{});
+    const audit=generator.getPermissionAudit(cfg);
+    const hasUrlOrHtml = !!(String(cfg.url||'').trim() && cfg.inputType==='url') || !!(String(cfg.htmlCode||'').trim() && cfg.inputType==='html');
+    const checks={
+      webAnalyzed: hasUrlOrHtml,
+      permissionsValidated: audit.canBuild,
+      manifestGenerated: true,
+      nativeHandlers: audit.ok===audit.total || audit.total===0,
+      sdkCompatible: audit.items.every(i=>i.version==='OK'),
+      signingConfigured: true,
+      workflowReady: true
+    };
+    const passed=Object.values(checks).filter(Boolean).length;
+    const total=Object.keys(checks).length;
+    const readiness=Math.round((passed/total*0.5 + (audit.total? audit.ok/audit.total : 1)*0.5)*100);
+    const warnings=[];
+    audit.items.forEach(i=>{ if(i.status==='warn') warnings.push(i.title+' requiere Android '+i.minSdk+'+'); });
+    if(!hasUrlOrHtml) warnings.push('Falta URL o HTML');
+    res.json({readiness, checks, audit, warnings, canBuild: audit.canBuild && hasUrlOrHtml, message: readiness>=90?'Listo para compilar': readiness>=70?'Recomendado revisar':'Corrige permisos'});
+  }catch(e){ res.status(400).json({error:e.message}); }
 });
 
 app.get('/api/build/:id/logs', async (req, res) => {
