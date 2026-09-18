@@ -31,6 +31,10 @@ let activeBuildId = null;
 let isAdvanced = false;
 let autoPilotRecommendations = null;
 
+function escHtml(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 fetch('/api/health')
   .then((r) => r.json())
   .then((h) => {
@@ -240,6 +244,10 @@ const adaptiveCheck = document.getElementById('adaptiveCheck');
 if (adaptiveCheck) adaptiveCheck.addEventListener('change', (e) => document.getElementById('adaptiveBox').classList.toggle('hidden', !e.target.checked));
 const dlCheck = document.getElementById('dlCheck');
 if (dlCheck) dlCheck.addEventListener('change', (e) => document.getElementById('dlBox').classList.toggle('hidden', !e.target.checked));
+const drawerCheck=document.getElementById('drawerCheck');
+if(drawerCheck) drawerCheck.addEventListener('change', e=> document.getElementById('drawerBox').classList.toggle('hidden', !e.target.checked));
+const bottomCheck=document.getElementById('bottomCheck');
+if(bottomCheck) bottomCheck.addEventListener('change', e=> document.getElementById('bottomBox').classList.toggle('hidden', !e.target.checked));
 
 const templateSelect = document.getElementById('templateSelect');
 if (templateSelect) {
@@ -505,11 +513,54 @@ if (analyzeBtn) {
       } else {
         autoBox.classList.add('hidden');
       }
+
+      // Security box
+      const secBox=document.getElementById('securityBox');
+      const secScore=document.getElementById('secScore');
+      const secIssues=document.getElementById('secIssues');
+      if(secBox && j.security){
+        secBox.classList.remove('hidden');
+        secScore.textContent=j.security.score+'/100 '+j.security.level;
+        secScore.style.background=j.security.score>=80?'var(--success)':j.security.score>=50?'var(--warn)':'var(--danger)';
+        secIssues.innerHTML=j.security.issues.length ? j.security.issues.map(i=>`<div style="display:flex;gap:6px"><span style="color:${i.severity==='critical'?'var(--danger)':i.severity==='high'?'var(--danger)':i.severity==='medium'?'var(--warn)':'var(--muted)'}">●</span><span><b>${i.msg}</b> — <small style="color:var(--muted)">${i.fix}</small></span></div>`).join('') : '<span style="color:var(--success)">Sin problemas críticos</span>';
+      }
+      const errBox=document.getElementById('errorsBox');
+      const errList=document.getElementById('errorsList');
+      if(errBox && j.errors){
+        errBox.classList.remove('hidden');
+        const all=[...j.errors.errors.map(e=>`<span style="color:var(--danger)">✕ ${e.msg} → ${e.fix}</span>`), ...j.errors.warnings.map(w=>`<span style="color:var(--warn)">⚠ ${w.msg} → ${w.fix}</span>`)];
+        errList.innerHTML = all.length? all.join('<br>') : '<span style="color:var(--success)">Sin errores detectados</span>';
+      }
+      const optBox=document.getElementById('optBox');
+      const optTips=document.getElementById('optTips');
+      const optScore=document.getElementById('optScore');
+      if(optBox && j.optimization){
+        optBox.classList.remove('hidden');
+        optScore.textContent=j.optimization.grade+' ('+j.optimization.score+'/100) - '+j.optimization.sizeKB+'KB, '+j.optimization.images+' imgs';
+        optTips.innerHTML=j.optimization.tips.map(t=>`<div>• ${t.msg} <small style="color:var(--muted)">→ ${t.fix}</small> <span style="font-size:10px;padding:1px 5px;border-radius:999px;background:${t.impact==='high'?'var(--danger-soft)':t.impact==='medium'?'var(--warn-soft)':'var(--accent-soft)'}">${t.impact}</span></div>`).join('');
+        // store fixed html for apply
+        optBox.dataset.fixed=j.autoFix && j.autoFix.preview ? j.autoFix.preview : '';
+        window._lastFixedHtml=j.autoFix && j.autoFix.preview ? j.autoFix.preview : null;
+        if(j.autoFix && j.autoFix.available) document.getElementById('applyFixBtn').style.display='';
+        else document.getElementById('applyFixBtn').style.display='none';
+      }
     } catch (e) {
       alert(e.message);
     }
     analyzeBtn.textContent = 'Analizar salud web';
     analyzeBtn.disabled = false;
+  });
+}
+const applyFixBtn=document.getElementById('applyFixBtn');
+if(applyFixBtn){
+  applyFixBtn.addEventListener('click',()=>{
+    const html=window._lastFixedHtml;
+    if(!html) return alert('No hay fix disponible. Analiza una URL primero.');
+    // switch to HTML mode and inject
+    const htmlToggle=document.querySelector('.toggle-btn[data-input="html"]');
+    if(htmlToggle) htmlToggle.click();
+    const ta=document.querySelector('[name="htmlCode"]');
+    if(ta){ ta.value=html; alert('HTML optimizado aplicado en el editor. Revisa el paso 1.'); }
   });
 }
 
@@ -596,6 +647,10 @@ function collect() {
   data.splashDuration = Number(data.splashDuration || 2000);
   data.adaptiveFgBase64 = adaptiveFgBase64 || undefined;
   data.deepLinkPaths = data.deepLinkPaths ? String(data.deepLinkPaths).split(',').map((s) => s.trim()).filter(Boolean) : [];
+  // Catalogo: parse drawer/bottom JSON
+  try{ data.drawerItems = data.drawerItems ? JSON.parse(String(data.drawerItems)) : []; if(!Array.isArray(data.drawerItems)) data.drawerItems=[]; }catch{ data.drawerItems=[]; }
+  try{ data.bottomNavItems = data.bottomNavItems ? JSON.parse(String(data.bottomNavItems)) : []; if(!Array.isArray(data.bottomNavItems)) data.bottomNavItems=[]; }catch{ data.bottomNavItems=[]; }
+  data.iapProducts = data.iapProducts ? String(data.iapProducts).split(',').map(s=>s.trim()).filter(Boolean) : [];
 
   data.plugins = {
     camera: !!data.plugin_camera,
@@ -901,11 +956,99 @@ if (showApkInfoBtn) {
   });
 }
 
-let historyCache = [];
-
-function escHtml(s) {
-  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+// API Keys handlers
+const createKeyBtn=document.getElementById('createKeyBtn');
+const listKeysBtn=document.getElementById('listKeysBtn');
+const apiKeysList=document.getElementById('apiKeysList');
+if(createKeyBtn){
+  createKeyBtn.addEventListener('click', async()=>{
+    const name=document.getElementById('apiKeyName').value||'default';
+    const r=await fetch('/api/keys',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name})});
+    const j=await r.json();
+    if(!r.ok) return alert(j.error);
+    apiKeysList.innerHTML='<div style="padding:8px;background:var(--success-soft);border-radius:8px;border:1px solid rgba(16,185,129,.3);word-break:break-all"><b>Key generada:</b><br><code style="font-size:11px">'+j.key+'</code><br><small>Copia ahora, luego se muestra enmascarada. ID: '+j.id+'</small></div>'+apiKeysList.innerHTML;
+  });
 }
+if(listKeysBtn){
+  listKeysBtn.addEventListener('click', async()=>{
+    const r=await fetch('/api/keys');
+    const list=await r.json();
+    if(!list.length) apiKeysList.innerHTML='<small>Sin keys. Genera una.</small>';
+    else apiKeysList.innerHTML=list.map(k=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)"><span><b>${escHtml(k.name)}</b> <code style="font-size:10px">${escHtml(k.keyMask)}</code> <small>usos:${k.uses||0}</small></span><button type="button" class="btn ghost sm" onclick="fetch('/api/keys/${k.id}',{method:'DELETE'}).then(()=>alert('Eliminada')).catch(()=>{})">Eliminar</button></div>`).join('');
+  });
+}
+// Git handlers
+const gitConnectBtn=document.getElementById('gitConnectBtn');
+const gitListBtn=document.getElementById('gitListBtn');
+const gitList=document.getElementById('gitList');
+if(gitConnectBtn){
+  gitConnectBtn.addEventListener('click', async()=>{
+    const repo=document.getElementById('gitRepo').value.trim();
+    const branch=document.getElementById('gitBranch').value.trim()||'main';
+    if(!repo) return alert('Escribe usuario/repo');
+    const r=await fetch('/api/git/connect',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({repo,branch})});
+    const j=await r.json();
+    if(!r.ok) return alert(j.error);
+    alert('Conectado: '+j.repo+'#'+j.branch);
+    if(gitListBtn) gitListBtn.click();
+  });
+}
+if(gitListBtn){
+  gitListBtn.addEventListener('click', async()=>{
+    const r=await fetch('/api/git/integrations');
+    const list=await r.json();
+    if(!list.length) gitList.innerHTML='<small>Sin integraciones</small>';
+    else gitList.innerHTML=list.map(g=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)"><span><b>${escHtml(g.repo)}</b>#${escHtml(g.branch)} <small>${new Date(g.createdAt).toLocaleString()}</small></span><button type="button" class="btn ghost sm" onclick="fetch('/api/git/${g.id}',{method:'DELETE'}).then(()=>location.reload())">Quitar</button></div>`).join('');
+  });
+}
+// Decompiler
+const apkInput=document.getElementById('apkInput');
+const decompileBtn=document.getElementById('decompileBtn');
+const decompileOut=document.getElementById('decompileOut');
+let apkBase64=null;
+if(apkInput){
+  apkInput.addEventListener('change',()=>{
+    const f=apkInput.files&&apkInput.files[0];
+    if(!f) return;
+    const reader=new FileReader();
+    reader.onload=()=>{ apkBase64=reader.result; decompileOut.textContent='APK cargado: '+f.name+' ('+Math.round(f.size/1024)+'KB) listo para descompilar.'; };
+    reader.readAsDataURL(f);
+  });
+}
+if(decompileBtn){
+  decompileBtn.addEventListener('click', async()=>{
+    if(!apkBase64) return alert('Selecciona un APK primero');
+    decompileBtn.textContent='Descompilando...'; decompileBtn.disabled=true;
+    try{
+      const r=await fetch('/api/decompile',{method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({apkBase64})});
+      const j=await r.json();
+      if(!r.ok) throw new Error(j.error);
+      decompileOut.innerHTML='<div style="background:var(--surface-2);padding:12px;border-radius:8px;border:1px solid var(--border)">'
+        +'<div><b>Package:</b> '+escHtml(j.meta.packageName)+'</div>'
+        +'<div><b>App:</b> '+escHtml(j.meta.appName)+'</div>'
+        +'<div><b>Permisos:</b> '+escHtml((j.meta.permissions||[]).join(', ')||'ninguno')+'</div>'
+        +'<div><b>Archivos:</b> '+j.meta.fileCount+' ('+j.meta.sizeKB+'KB) '+ (j.meta.hasIcon?'· con icono':'')+'</div>'
+        +'<div style="margin-top:8px"><b>ImportConfig:</b><pre style="font-size:10px;white-space:pre-wrap;word-break:break-all;background:#090d16;padding:8px;border-radius:6px">'+escHtml(JSON.stringify(j.importConfig,null,2))+'</pre></div>'
+        +'<button type="button" class="btn primary sm" id="importDecompiled">Importar como proyecto</button>'
+        +'<div style="margin-top:8px;font-size:10px;color:var(--muted)">'+escHtml(j.note)+'</div></div>';
+      setTimeout(()=>{
+        const imp=document.getElementById('importDecompiled');
+        if(imp) imp.addEventListener('click',()=>{
+          const c=j.importConfig;
+          if(c.appName) setField('appName', c.appName);
+          if(c.packageName) setField('packageName', c.packageName);
+          if(c.url) setField('url', c.url);
+          if(c.permissions) Object.entries(c.permissions).forEach(([k,v])=> setField(k, !!v));
+          alert('Config importada. Revisa el paso 1 y compila.');
+          goToStep(0);
+        });
+      },100);
+    }catch(e){ decompileOut.textContent='Error: '+e.message; }
+    decompileBtn.textContent='Descompilar'; decompileBtn.disabled=false;
+  });
+}
+
+let historyCache = [];
 
 function renderHistory() {
   const q = (document.getElementById('histSearch') && document.getElementById('histSearch').value || '').toLowerCase();

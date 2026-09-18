@@ -175,6 +175,19 @@
                     Aplicar recomendados automáticamente
                   </button>
                 </div>
+                <div id="securityBox" class="hidden" style="margin-top:14px;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--surface)">
+                  <div style="font-weight:700;font-size:13px;margin-bottom:8px;display:flex;align-items:center;gap:8px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Seguridad <span id="secScore" style="margin-left:auto;background:var(--accent);color:#fff;padding:2px 8px;border-radius:999px;font-size:11px"></span></div>
+                  <div id="secIssues" style="font-size:12px;line-height:1.6"></div>
+                </div>
+                <div id="errorsBox" class="hidden" style="margin-top:12px;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--surface)">
+                  <div style="font-weight:700;font-size:13px;margin-bottom:8px">🔍 Detección de errores</div>
+                  <div id="errorsList" style="font-size:12px"></div>
+                </div>
+                <div id="optBox" class="hidden" style="margin-top:12px;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--surface)">
+                  <div style="font-weight:700;font-size:13px;margin-bottom:8px">⚡ Optimización <span id="optScore" style="margin-left:6px;color:var(--muted)"></span></div>
+                  <div id="optTips" style="font-size:12px"></div>
+                  <button type="button" class="btn ghost sm" id="applyFixBtn" style="margin-top:10px">✨ Aplicar Auto-Fix y previsualizar HTML optimizado</button>
+                </div>
               </div>
             </div>
             <div id="htmlGroup" class="hidden">
@@ -695,6 +708,57 @@
 
           <div class="card">
             <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h6"/></svg>
+              Catálogo Consolidado — Funciones Nativas Completas
+            </div>
+            <p class="hint">Activa todas las capacidades del catálogo. Todo genera código nativo real (Java/JS) y se incluye en el APK/AAB.</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <label class="switch" style="border:none;padding:8px 0"><input type="checkbox" name="pullRefresh" checked /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Pull-to-Refresh</b><small>Deslizar para recargar</small></span></label>
+              <label class="switch" style="border:none;padding:8px 0"><input type="checkbox" name="offlineScreen" checked /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Offline Screen</b><small>Pantalla sin conexión</small></span></label>
+              <label class="switch" style="border:none;padding:8px 0"><input type="checkbox" name="flagSecure" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>FLAG_SECURE</b><small>Bloquea screenshots</small></span></label>
+              <label class="switch" style="border:none;padding:8px 0"><input type="checkbox" name="blockSelection" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Bloqueo selección</b><small>Sin copiar texto</small></span></label>
+              <label class="switch" style="border:none;padding:8px 0"><input type="checkbox" name="downloadManager" checked /><span class="trk"><span class="knob"></span></span><span class="txt"><b>DownloadManager</b><small>Descargas nativas</small></span></label>
+              <label class="switch" style="border:none;padding:8px 0"><input type="checkbox" name="encryptedStorage" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Encrypted Storage</b><small>Storage cifrado</small></span></label>
+              <label class="switch" style="border:none;padding:8px 0"><input type="checkbox" name="rootDetection" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Root/Jailbreak detect</b></span></label>
+              <label class="switch" style="border:none;padding:8px 0"><input type="checkbox" name="firebaseEnabled" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Firebase Analytics</b></span></label>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <label>Mensaje offline<input type="text" name="offlineMessage" value="Sin conexión. Revisa tu internet." /></label>
+              <label>Loading indicator<select name="loadingIndicator"><option value="spinner">Spinner nativo</option><option value="bar">Barra superior</option><option value="none">Ninguno</option></select></label>
+            </div>
+            <hr class="section-divider" />
+            <label class="switch"><input type="checkbox" name="drawerEnabled" id="drawerCheck" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Navigation Drawer (menú lateral)</b><small>Ej: Inicio, Tienda, Blog</small></span></label>
+            <div id="drawerBox" class="hidden" style="padding:8px 0">
+              <label>Items Drawer (JSON: [{label,url,icon}])<textarea name="drawerItems" rows="3" placeholder='[{"label":"Inicio","url":"https://miweb.com/"},{"label":"Tienda","url":"https://miweb.com/tienda"}]'></textarea></label>
+            </div>
+            <label class="switch"><input type="checkbox" name="bottomNavEnabled" id="bottomCheck" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Bottom Navigation (tabs inferior)</b><small>Máx 5 tabs</small></span></label>
+            <div id="bottomBox" class="hidden" style="padding:8px 0">
+              <label>Items Bottom Nav (JSON)<textarea name="bottomNavItems" rows="3" placeholder='[{"label":"Inicio","url":"https://miweb.com/","icon":"🏠"},{"label":"Ofertas","url":"https://miweb.com/ofertas","icon":"🏷️"}]'></textarea></label>
+            </div>
+            <hr class="section-divider" />
+            <div class="row">
+              <label>AdMob App ID<input type="text" name="admobAppId" placeholder="ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy" /></label>
+              <label>IAP Product IDs (comma)<input type="text" name="iapProducts" placeholder="premium,coins_100" /></label>
+            </div>
+            <div style="display:flex;gap:12px">
+              <label class="switch" style="flex:1;border:none"><input type="checkbox" name="admobInterstitial" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Intersticial</b></span></label>
+              <label class="switch" style="flex:1;border:none"><input type="checkbox" name="admobRewarded" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Rewarded</b></span></label>
+              <label class="switch" style="flex:1;border:none"><input type="checkbox" name="iapEnabled" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>IAP Billing</b></span></label>
+            </div>
+            <hr class="section-divider" />
+            <div class="row">
+              <label>TWA Domain (para Trusted Web Activity)<input type="text" name="twaDomain" placeholder="miweb.com" /></label>
+              <label>Desktop export<select name="desktopPlatform"><option value="both">Win + Mac</option><option value="win">Solo Windows</option><option value="mac">Solo macOS</option></select></label>
+            </div>
+            <div style="display:flex;gap:12px">
+              <label class="switch" style="flex:1;border:none"><input type="checkbox" name="twaEnabled" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>TWA Mode</b></span></label>
+              <label class="switch" style="flex:1;border:none"><input type="checkbox" name="desktopEnabled" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Desktop .EXE/.APP</b></span></label>
+            </div>
+            <label>Firebase config JSON (opcional)<textarea name="firebaseConfig" rows="3" placeholder='{"project_id":"mi-proyecto"}'></textarea></label>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
               <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><key><path d="M21 2l-2 2m-2 2l-2 2m7-2l-3 3m-3 3l-3 3M3 21l9-9m0 0l2 2m-2-2l-2-2"/></key></svg>
               Firma Digital Keystore (.JKS)
             </div>
@@ -879,6 +943,37 @@
               </select>
             </div>
             <div id="historyList" class="history-list"><p class="hint">Cargando datos del servidor…</p></div>
+          </div>
+          <div class="card" style="margin-top:16px">
+            <div class="card-title"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg> API Keys & Integración</div>
+            <p class="hint">Genera una API Key para compilar desde tu backend, CI o automatizaciones. <a href="/api/docs" target="_blank">Ver docs</a></p>
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <input type="text" id="apiKeyName" placeholder="Nombre ej: mi-backend" style="flex:1" />
+              <button type="button" class="btn primary sm" id="createKeyBtn">Generar Key</button>
+              <button type="button" class="btn ghost sm" id="listKeysBtn">Listar</button>
+            </div>
+            <div id="apiKeysList" style="font-size:12px;color:var(--muted)"></div>
+          </div>
+          <div class="card" style="margin-top:12px">
+            <div class="card-title"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg> Integración Git (Auto-build on push)</div>
+            <p class="hint">Conecta un repo GitHub: cada push a la rama dispara una compilación automática.</p>
+            <div class="row">
+              <label>Repo (usuario/repo)<input type="text" id="gitRepo" placeholder="tu-usuario/tu-repo" /></label>
+              <label>Rama<input type="text" id="gitBranch" value="main" /></label>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button type="button" class="btn primary sm" id="gitConnectBtn">Conectar Repo</button>
+              <button type="button" class="btn ghost sm" id="gitListBtn">Ver conexiones</button>
+            </div>
+            <div id="gitList" style="font-size:12px;margin-top:10px;color:var(--muted)"></div>
+            <div style="margin-top:10px;padding:10px;background:var(--surface-2);border-radius:8px;font-size:11px;color:var(--muted)">Webhook URL para GitHub: <code id="gitWebhookUrl" style="word-break:break-all">POST /api/git/webhook  { "repository":{"full_name":"usuario/repo"}, "ref":"refs/heads/main" }</code></div>
+          </div>
+          <div class="card" style="margin-top:12px">
+            <div class="card-title"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Descompilador APK</div>
+            <p class="hint">Sube un APK (máx 30MB) y extrae su config para re-importarla en InteeBuild.</p>
+            <div class="file" style="padding:16px;margin-bottom:8px"><input type="file" id="apkInput" accept=".apk,.zip" /><span>Seleccionar APK</span></div>
+            <button type="button" class="btn primary sm" id="decompileBtn">Descompilar</button>
+            <div id="decompileOut" style="margin-top:12px;font-size:12px;white-space:pre-wrap;word-break:break-all"></div>
           </div>
           <div class="step-nav"><button type="button" class="btn ghost prev-btn">← Paso anterior</button><span></span></div>
         </div>

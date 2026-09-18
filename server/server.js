@@ -22,10 +22,15 @@ const HISTORY_FILE = path.join(DATA_DIR, 'builds.json');
 
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 if (!fs.existsSync(HISTORY_FILE)) fs.writeFileSync(HISTORY_FILE, '[]', 'utf-8');
+const APIKEYS_FILE = path.join(DATA_DIR, 'apikeys.json');
+const GIT_FILE = path.join(DATA_DIR, 'git-integrations.json');
+if (!fs.existsSync(APIKEYS_FILE)) fs.writeFileSync(APIKEYS_FILE, '[]', 'utf-8');
+if (!fs.existsSync(GIT_FILE)) fs.writeFileSync(GIT_FILE, '[]', 'utf-8');
 
 const ALLOWED_ORIGIN = process.env.CORS_ORIGIN || null;
 app.use(cors(ALLOWED_ORIGIN ? { origin: ALLOWED_ORIGIN } : { origin: true }));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '15mb' }));
+app.use(express.raw({ type: 'application/octet-stream', limit: '30mb' }));
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
@@ -172,6 +177,128 @@ function buildRecommendations(detectedApis) {
     .map(api => ({ api, ...map[api] }));
 }
 
+// ========== API KEYS ==========
+function loadKeys(){ try{ return JSON.parse(fs.readFileSync(APIKEYS_FILE,'utf-8')); }catch{ return []; } }
+function saveKeys(a){ fs.writeFileSync(APIKEYS_FILE, JSON.stringify(a,null,2),'utf-8'); }
+function createApiKey(name){
+  const keys=loadKeys();
+  const id=crypto.randomBytes(4).toString('hex');
+  const key='ib_'+crypto.randomBytes(24).toString('hex');
+  const entry={id,key,name:name||'default',createdAt:Date.now(),lastUsed:null,uses:0};
+  keys.push(entry); saveKeys(keys); return entry;
+}
+function verifyApiKey(req){
+  const header = req.headers['x-api-key'] || req.headers['authorization'] || '';
+  let token = String(header).replace(/^Bearer\s+/i,'').trim();
+  if(!token) return { valid:false, reason:'missing' };
+  const keys=loadKeys();
+  if(!keys.length) return { valid:true, isPublic:true };
+  const found=keys.find(k=>k.key===token);
+  if(found){ found.lastUsed=Date.now(); found.uses=(found.uses||0)+1; saveKeys(keys); return {valid:true, key:found}; }
+  return { valid:false };
+}
+function requireApiKey(req,res,next){
+  const keys=loadKeys();
+  if(!keys.length) return next();
+  const v=verifyApiKey(req);
+  if(!v.valid) return res.status(401).json({error:'API Key requerida. Envía X-API-Key o Authorization: Bearer ib_... Genera una en POST /api/keys'});
+  next();
+}
+
+// ========== SECURITY / ERROR / OPTIMIZATION ANALYZERS ==========
+function securityScan(html, headers, url){
+  const issues=[];
+  let score=100;
+  if(!url.startsWith('https://')){ issues.push({severity:'critical', msg:'No usa HTTPS', fix:'Migrar a https://'}); score-=25; }
+  const hasCSP = /content-security-policy/i.test(headers['content-security-policy']||'') || /http-equiv=["']content-security-policy/i.test(html);
+  if(!hasCSP){ issues.push({severity:'medium', msg:'Sin Content-Security-Policy', fix:'Agregar CSP header'}); score-=8; }
+  const insecure = (html.match(/src=["']http:\/\//gi)||[]).length + (html.match(/href=["']http:\/\//gi)||[]).length;
+  if(insecure){ issues.push({severity:'high', msg: insecure+' recursos inseguros http://', fix:'Cambiar a https://'}); score-= Math.min(20,insecure*4); }
+  if(/eval\s*\(/.test(html)) { issues.push({severity:'high', msg:'Uso de eval() detectado', fix:'Evitar eval, usar JSON.parse'}); score-=10; }
+  if(/innerHTML\s*=/.test(html)) { issues.push({severity:'low', msg:'innerHTML sin sanitizar', fix:'Usar textContent o DOMPurify'}); score-=3; }
+  if(/document\.cookie/.test(html) && !/Secure/.test(headers['set-cookie']||'')) { issues.push({severity:'medium', msg:'Cookies sin flag Secure', fix:'Agregar Secure; HttpOnly'}); score-=5; }
+  if(/<script[^>]*>.*http:\/\//i.test(html)) { issues.push({severity:'high', msg:'Script externo sin HTTPS', fix:'Usar https'}); score-=10; }
+  if(!/X-Content-Type-Options/i.test(headers['x-content-type-options']||'')) { issues.push({severity:'low', msg:'Falta X-Content-Type-Options: nosniff', fix:'Header nosniff'}); score-=2; }
+  if(/jquery.*1\./i.test(html) || /jquery.*2\./i.test(html)) { issues.push({severity:'medium', msg:'jQuery obsoleto detectado', fix:'Actualizar a 3.x'}); score-=5; }
+  score=Math.max(0,Math.min(100,score));
+  const level= score>=90?'Excelente':score>=70?'Bueno':score>=50?'Riesgo medio':'Crítico';
+  return {score, level, issues, hasCSP, insecureCount: insecure};
+}
+function errorDetection(html){
+  const errors=[];
+  const warnings=[];
+  // Duplicate IDs
+  const ids=[...html.matchAll(/id=["']([^"']+)["']/gi)].map(m=>m[1]);
+  const dup=[...new Set(ids.filter((v,i,a)=>a.indexOf(v)!==i))];
+  if(dup.length) warnings.push({type:'duplicate-id', msg:'IDs duplicados: '+dup.slice(0,3).join(', '), fix:'IDs deben ser únicos'});
+  // Unclosed tags heuristic
+  const openTags=(html.match(/<(div|section|main|header|footer|ul|li|p|span|a)[^>]*>/gi)||[]).length;
+  const closeTags=(html.match(/<\/(div|section|main|header|footer|ul|li|p|span|a)>/gi)||[]).length;
+  if(Math.abs(openTags-closeTags)>5) warnings.push({type:'unclosed', msg:'Posibles etiquetas sin cerrar', fix:'Validar con https://validator.w3.org'});
+  // Missing alt
+  const imgs=(html.match(/<img[^>]*>/gi)||[]);
+  const noAlt=imgs.filter(t=>!/alt=/.test(t)).length;
+  if(noAlt) warnings.push({type:'accessibility', msg: noAlt+' imágenes sin alt', fix:'Agregar alt descriptivo'});
+  // Inline styles excess
+  const inline=(html.match(/style=["'][^"']*["']/gi)||[]).length;
+  if(inline>15) warnings.push({type:'maintainability', msg:'Muchos estilos inline', fix:'Mover a CSS externo'});
+  // JS syntax heuristic
+  if(/<script[^>]*>([\s\S]*?)<\/script>/i.test(html)){
+    const scripts=[...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]);
+    scripts.forEach((code,i)=>{
+      if(/=\s*[^=]/.test(code) && /if\s*\(.*=.*\)/.test(code)) warnings.push({type:'js-logic', msg:'Posible asignación en if (script '+(i+1)+')', fix:'Usar ==='});
+      if(/var\s+\w+/.test(code)) warnings.push({type:'js-legacy', msg:'Uso de var en lugar de let/const', fix:'Modernizar'});
+    });
+  }
+  // Broken links check count
+  const links=[...html.matchAll(/href=["']([^"']+)["']/gi)].map(m=>m[1]);
+  const emptyLinks=links.filter(h=>h==='#' || h==='').length;
+  if(emptyLinks) warnings.push({type:'links', msg: emptyLinks+' enlaces vacíos (#)', fix:'Agregar href válido'});
+  // Mixed errors vs warnings
+  if(!/<!DOCTYPE/i.test(html)) errors.push({type:'doctype', msg:'Falta <!DOCTYPE html>', fix:'Agregar doctype'});
+  if(!/<html/i.test(html)) errors.push({type:'html', msg:'Falta tag <html>', fix:'Envolver contenido'});
+  return {errors, warnings, total: errors.length+warnings.length, altMissing:noAlt, duplicateIds:dup};
+}
+function optimizationReport(html){
+  const tips=[];
+  let score=100;
+  const sizeKB=Math.round(Buffer.byteLength(html,'utf8')/1024);
+  if(sizeKB>200){ tips.push({msg:'HTML pesado '+sizeKB+'KB', fix:'Minificar y comprimir', impact:'high'}); score-=15; }
+  else if(sizeKB>100){ tips.push({msg:'HTML mediano '+sizeKB+'KB', fix:'Optimizar imágenes', impact:'medium'}); score-=5; }
+  const images=(html.match(/<img[^>]*>/gi)||[]).length;
+  if(images>20){ tips.push({msg:images+' imágenes, muchas sin lazy', fix:'Agregar loading="lazy"', impact:'medium'}); score-=8; }
+  const noLazy=(html.match(/<img[^>]*>/gi)||[]).filter(t=>!/loading=/.test(t)).length;
+  if(noLazy>3){ tips.push({msg:noLazy+' imágenes sin lazy loading', fix:'Agregar loading="lazy"', impact:'low'}); score-=4; }
+  const scripts=(html.match(/<script[^>]*src=/gi)||[]).length;
+  if(scripts>6){ tips.push({msg:scripts+' scripts externos (bloquean render)', fix:'Defer/async', impact:'high'}); score-=10; }
+  if(/<link[^>]*rel=["']stylesheet["']/i.test(html) && !/media=/.test(html)) { tips.push({msg:'CSS bloqueante', fix:'Agregar media o preload', impact:'medium'}); score-=3; }
+  if(!/\.webp/i.test(html) && images>5){ tips.push({msg:'No usa WebP', fix:'Convertir imágenes a WebP', impact:'low'}); score-=3; }
+  const inlineCSS=(html.match(/<style[^>]*>/gi)||[]).length;
+  if(inlineCSS>3){ tips.push({msg:'Múltiples <style> inline', fix:'Unificar en archivo externo', impact:'low'}); score-=2; }
+  score=Math.max(0,Math.min(100,score));
+  const grade= score>=85?'A':score>=70?'B':score>=50?'C':'D';
+  return {score, grade, tips, sizeKB, images, scripts};
+}
+function autoFixHtml(html){
+  let out=html;
+  // force https for http resources
+  out=out.replace(/src=["']http:\/\//gi,'src="https://');
+  out=out.replace(/href=["']http:\/\//gi,'href="https://');
+  // add lazy to img without loading
+  out=out.replace(/<img([^>]*?)>/gi,(m,attrs)=> /loading=/.test(attrs)? m : '<img'+attrs+' loading="lazy">');
+  // add viewport if missing
+  if(!/<meta[^>]*viewport/i.test(out)){
+    out=out.replace(/<head([^>]*)>/i,'<head$1><meta name="viewport" content="width=device-width, initial-scale=1.0" />');
+  }
+  // add alt if missing
+  out=out.replace(/<img([^>]*?)>/gi,(m,attrs)=> /alt=/.test(attrs)? m : '<img'+attrs+' alt="">');
+  return out;
+}
+
+// Git integrations helpers
+function loadGits(){ try{ return JSON.parse(fs.readFileSync(GIT_FILE,'utf-8')); }catch{ return []; } }
+function saveGits(a){ fs.writeFileSync(GIT_FILE, JSON.stringify(a,null,2),'utf-8'); }
+
 app.get('/api/health', (req, res) => {
   const g = gh.config();
   res.json({ ok: true, service: 'InteeBuild', version: VERSION, githubReady: g.ready });
@@ -302,7 +429,8 @@ app.get('/api/analyze', async (req, res) => {
 
     const html = await r.text();
     if (html.length > 500000) return res.status(400).json({ error: 'HTML demasiado grande' });
-
+    const headersObj={};
+    r.headers.forEach((v,k)=>headersObj[k.toLowerCase()]=v);
     const insecure = (html.match(/src=["']http:\/\//gi) || []).length + (html.match(/href=["']http:\/\//gi) || []).length;
     const contentType = r.headers.get('content-type') || '';
     const isHtml = /text\/html/.test(contentType) || /<html/i.test(html);
@@ -342,6 +470,11 @@ app.get('/api/analyze', async (req, res) => {
     const frameworks = detectFramework(html);
     const detectedApis = detectWebApis(html);
     const recommendations = buildRecommendations(detectedApis);
+    const security = securityScan(html, headersObj, url);
+    const errors = errorDetection(html);
+    const optimization = optimizationReport(html);
+    const fixedHtml = autoFixHtml(html);
+    const hasFixes = fixedHtml !== html;
 
     let pwaData = null;
     if (checks.manifest) {
@@ -361,10 +494,159 @@ app.get('/api/analyze', async (req, res) => {
       } catch (_) {}
     }
 
-    res.json({ url, status: r.status, checks, score, diag, pwa: pwaData, insecureCount: insecure, frameworks, detectedApis, recommendations });
+    res.json({ url, status: r.status, checks, score, diag, pwa: pwaData, insecureCount: insecure, frameworks, detectedApis, recommendations, security, errors, optimization, autoFix:{available:hasFixes, preview: fixedHtml.slice(0,8000)} });
   } catch (e) {
     res.status(500).json({ error: 'No se pudo analizar: ' + e.message });
   }
+});
+
+// Enhanced analyze: POST for HTML direct + auto-fix download
+app.post('/api/analyze/html', async (req,res)=>{
+  const html=String(req.body.html||'');
+  if(!html) return res.status(400).json({error:'Falta html'});
+  if(html.length>600000) return res.status(400).json({error:'HTML demasiado grande'});
+  const security=securityScan(html, {}, 'https://html-direct');
+  const errors=errorDetection(html);
+  const optimization=optimizationReport(html);
+  const fixed=autoFixHtml(html);
+  res.json({security,errors,optimization, autoFix:{available:fixed!==html, preview:fixed.slice(0,8000), full:fixed}});
+});
+app.post('/api/analyze/fix', async (req,res)=>{
+  const html=String(req.body.html||'');
+  if(!html) return res.status(400).json({error:'Falta html'});
+  const fixed=autoFixHtml(html);
+  res.json({fixed, originalLength:html.length, fixedLength:fixed.length});
+});
+
+// API Keys management
+app.get('/api/keys', (req,res)=>{ const keys=loadKeys().map(k=>({id:k.id,name:k.name,createdAt:k.createdAt,lastUsed:k.lastUsed,uses:k.uses,keyMask:k.key.slice(0,8)+'...'+k.key.slice(-4)})); res.json(keys); });
+app.post('/api/keys', (req,res)=>{
+  const name=String(req.body.name||'').slice(0,40)||'default';
+  const keys=loadKeys();
+  if(keys.length>=10) return res.status(400).json({error:'Máximo 10 API keys'});
+  const entry=createApiKey(name);
+  res.json(entry);
+});
+app.delete('/api/keys/:id', (req,res)=>{
+  let keys=loadKeys();
+  const before=keys.length;
+  keys=keys.filter(k=>k.id!==req.params.id);
+  if(keys.length===before) return res.status(404).json({error:'Key no encontrada'});
+  saveKeys(keys); res.json({ok:true});
+});
+app.get('/api/docs', (req,res)=>{
+  res.json({
+    version:VERSION,
+    endpoints:{
+      health:'GET /api/health',
+      analyze:'GET /api/analyze?url= & POST /api/analyze/html',
+      fix:'POST /api/analyze/fix',
+      build:'POST /api/build (o /api/v1/build con X-API-Key)',
+      download:'GET /api/download/:id',
+      keys:'GET/POST /api/keys, DELETE /api/keys/:id',
+      gitConnect:'POST /api/git/connect {repo,branch,token}',
+      gitWebhook:'POST /api/git/webhook',
+      decompile:'POST /api/decompile (JSON {apkBase64} o raw octet-stream)'
+    },
+    auth:'Header X-API-Key o Authorization: Bearer ib_... (opcional si no hay keys, obligatorio si existen)',
+    permissions:'Todos los 21 permisos son nativos: runtime request + manifest + WebChromeClient grant + plugins Capacitor auto-inyectados'
+  });
+});
+
+// Git integration - connect repo to auto-build on push
+app.get('/api/git/integrations', (req,res)=> res.json(loadGits()));
+app.post('/api/git/connect', (req,res)=>{
+  const repo=String(req.body.repo||'').trim();
+  const branch=String(req.body.branch||'main').trim();
+  const token=String(req.body.token||'').trim();
+  const webhookUrl=String(req.body.webhookUrl||'').trim();
+  if(!/^[^/]+\/[^/]+$/.test(repo)) return res.status(400).json({error:'Repo debe ser usuario/repo'});
+  const gits=loadGits();
+  const id=crypto.randomBytes(4).toString('hex');
+  const entry={id, repo, branch, hasToken:!!token, token: token? crypto.createHash('sha256').update(token).digest('hex').slice(0,12)+'...':null, rawToken: token||null, webhookUrl, createdAt:Date.now()};
+  gits.push(entry); saveGits(gits);
+  res.json({ok:true, id, repo, branch});
+});
+app.delete('/api/git/:id', (req,res)=>{
+  let gits=loadGits();
+  const before=gits.length;
+  gits=gits.filter(g=>g.id!==req.params.id);
+  if(gits.length===before) return res.status(404).json({error:'No encontrado'});
+  saveGits(gits); res.json({ok:true});
+});
+app.post('/api/git/webhook', async (req,res)=>{
+  // GitHub push webhook simulation - expects {repo, branch, commits}
+  const repo=String(req.body.repository?.full_name || req.body.repo||'').trim();
+  const ref=String(req.body.ref||'').trim();
+  const branch = ref.replace('refs/heads/','') || String(req.body.branch||'main');
+  if(!repo) return res.status(400).json({error:'Falta repo'});
+  const gits=loadGits();
+  const match=gits.find(g=>g.repo===repo && g.branch===branch);
+  if(!match) return res.status(404).json({error:'No hay integración para '+repo+'#'+branch});
+  // trigger a build using stored config or minimal
+  try{
+    const cfg=req.body.config ? generator.normalizeConfig(req.body.config) : generator.normalizeConfig({url:'https://'+repo, appName: repo.split('/')[1]||'App'});
+    const ip=req.ip||'webhook';
+    const result=await startBuild(cfg, ip);
+    res.json({ok:true, buildId: result.id, branch});
+  }catch(e){ res.status(500).json({error:e.message}); }
+});
+
+// APK Decompiler
+app.post('/api/decompile', async (req,res)=>{
+  try{
+    let buf=null;
+    if (req.is('application/octet-stream') && Buffer.isBuffer(req.body)) buf=req.body;
+    else if(req.body.apkBase64){
+      const b64=String(req.body.apkBase64).replace(/^data:.*?;base64,/, '');
+      buf=Buffer.from(b64,'base64');
+    } else if(req.body.buffer) buf=Buffer.from(req.body.buffer,'base64');
+    if(!buf || buf.length<100) return res.status(400).json({error:'Envía apkBase64 (data:...;base64,xxx o solo base64) o raw octet-stream. Tamaño min 100 bytes'});
+    if(buf.length>30*1024*1024) return res.status(400).json({error:'APK demasiado grande (max 30MB)'});
+    const zip=await JSZip.loadAsync(buf);
+    const entries=Object.keys(zip.files);
+    // Try to read manifest and config
+    let manifestStr='';
+    let buildConfig=null;
+    let packageName='desconocido';
+    let permissions=[];
+    let appName='App';
+    // Look for build-config
+    if(zip.files['build-config.json']){
+      try{ buildConfig=JSON.parse(await zip.files['build-config.json'].async('string')); packageName=buildConfig.packageName||packageName; appName=buildConfig.appName||appName; permissions=Object.keys(buildConfig.permissions||{}).filter(k=>buildConfig.permissions[k]); }catch{}
+    }
+    // Try AndroidManifest.xml text or binary strings
+    if(zip.files['AndroidManifest.xml']){
+      try{ manifestStr=await zip.files['AndroidManifest.xml'].async('string'); }catch{ manifestStr='(binary)'; }
+      if(manifestStr.includes('package="')){ const m=manifestStr.match(/package="([^"]+)"/); if(m) packageName=m[1]; }
+      // extract permissions via string scan
+      const perms=[...manifestStr.matchAll(/android\.permission\.([A-Z_]+)/g)].map(m=>m[1]);
+      if(perms.length) permissions=[...new Set([...permissions,...perms.map(p=>p.toLowerCase())])];
+    }
+    // Fallback binary string extraction from any file
+    if(permissions.length===0){
+      const allStrings= manifestStr + entries.join(' ');
+      // scan for urls inside zip files (capacitor config)
+      if(zip.files['capacitor.config.json']){
+        try{ const cap=JSON.parse(await zip.files['capacitor.config.json'].async('string')); if(cap.server?.url) appName=cap.appId||appName; }catch{}
+      }
+      if(zip.files['www/index.html']){
+        try{ const html=await zip.files['www/index.html'].async('string'); const m=html.match(/https?:\/\/[^"'\s]+/); if(m) appName+=' -> '+m[0].slice(0,40); }catch{}
+      }
+    }
+    const hasIcon=entries.some(e=>/ic_launcher|app-icon/.test(e));
+    const fileList=entries.slice(0,50);
+    // Generate importable config for InteeBuild
+    const importConfig= buildConfig ? buildConfig : { appName, packageName, url: 'https://example.com', permissions:Object.fromEntries(permissions.map(p=>[p,true])) };
+    res.json({
+      ok:true,
+      meta:{ packageName, appName, permissions, hasIcon, fileCount:entries.length, sizeKB:Math.round(buf.length/1024) },
+      entries: fileList,
+      manifestPreview: manifestStr.slice(0,4000),
+      importConfig,
+      note: buildConfig? 'APK generado por InteeBuild - config recuperada 100%' : 'APK externo - heurística aplicada, revisa permisos extraídos'
+    });
+  }catch(e){ res.status(500).json({error:'No se pudo descompilar: '+e.message}); }
 });
 
 app.get('/api/build/:id/logs', async (req, res) => {
@@ -477,7 +759,7 @@ app.post('/api/build', async (req, res) => {
   }
 });
 
-app.post('/api/v1/build', async (req, res) => {
+app.post('/api/v1/build', requireApiKey, async (req, res) => {
   const ip = req.ip || req.connection.remoteAddress || 'unknown';
   const body = req.body || {};
 

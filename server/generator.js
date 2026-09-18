@@ -143,6 +143,20 @@ function normalizeConfig(raw) {
     inteebridge: !!raw?.plugins?.inteebridge
   };
 
+  // Auto-enable native plugins when permission is checked -> permissions now truly native
+  if (permissions.gps) plugins.geolocation = true;
+  if (permissions.cameraMic) { plugins.camera = true; plugins.haptics = true; }
+  if (permissions.microphone) plugins.haptics = true;
+  if (permissions.storage) plugins.filesystem = true;
+  if (permissions.bluetooth) plugins.bluetooth = true;
+  if (permissions.nfc) plugins.nfc = true;
+  if (permissions.vibration) plugins.haptics = true;
+  if (permissions.biometric) plugins.biometrics = true;
+  if (permissions.notifications || permissions.foreground || raw?.notifySchedEnabled) { plugins.localNotifications = true; plugins.notifications = true; }
+  if (permissions.wakeLock) { plugins.device = true; }
+  if (permissions.contacts) plugins.contacts = true;
+  if (permissions.calendar) plugins.calendar = true;
+
   const orientation = ['portrait', 'landscape', 'any', 'sensor'].includes(raw.orientation) ? raw.orientation : 'any';
   const fullscreen = !!raw.fullscreen;
   const hideNavBar = !!raw.hideNavBar;
@@ -182,6 +196,31 @@ function normalizeConfig(raw) {
   const backButtonBehavior = ['back','exit','confirm','none'].includes(raw.backButtonBehavior) ? raw.backButtonBehavior : 'back';
   const customHeaders = typeof raw.customHeaders === 'string' ? raw.customHeaders.slice(0,2000) : '';
   const webhookUrl = typeof raw.webhookUrl === 'string' && /^https?:\/\//.test(raw.webhookUrl.trim()) ? raw.webhookUrl.trim().slice(0,500) : '';
+  // === Catalogo Consolidado: nuevas capacidades ===
+  const pullRefresh = !!raw.pullRefresh;
+  const offlineScreen = raw.offlineScreen !== undefined ? !!raw.offlineScreen : true;
+  const offlineMessage = String(raw.offlineMessage || 'Sin conexión. Revisa tu internet.').slice(0,120);
+  const flagSecure = !!raw.flagSecure;
+  const blockSelection = !!raw.blockSelection;
+  const downloadManager = raw.downloadManager !== undefined ? !!raw.downloadManager : true;
+  const drawerEnabled = !!raw.drawerEnabled;
+  const drawerItems = Array.isArray(raw.drawerItems) ? raw.drawerItems.slice(0,8).map(i=>({label:String(i.label||'').slice(0,30), url:String(i.url||'').slice(0,500), icon:String(i.icon||'').slice(0,20)})) : [];
+  const bottomNavEnabled = !!raw.bottomNavEnabled;
+  const bottomNavItems = Array.isArray(raw.bottomNavItems) ? raw.bottomNavItems.slice(0,5).map(i=>({label:String(i.label||'').slice(0,20), url:String(i.url||'').slice(0,500), icon:String(i.icon||'').slice(0,20)})) : [];
+  const loadingIndicator = ['none','spinner','bar'].includes(raw.loadingIndicator) ? raw.loadingIndicator : 'spinner';
+  const admobAppId = String(raw.admobAppId||'').slice(0,100);
+  const admobInterstitial = !!raw.admobInterstitial;
+  const admobRewarded = !!raw.admobRewarded;
+  const iapEnabled = !!raw.iapEnabled;
+  const iapProducts = Array.isArray(raw.iapProducts) ? raw.iapProducts.slice(0,10).map(s=>String(s).slice(0,80)) : [];
+  const encryptedStorage = !!raw.encryptedStorage;
+  const rootDetection = !!raw.rootDetection;
+  const firebaseEnabled = !!raw.firebaseEnabled;
+  const firebaseConfig = typeof raw.firebaseConfig === 'string' ? raw.firebaseConfig.slice(0,5000) : '';
+  const twaEnabled = !!raw.twaEnabled;
+  const twaDomain = String(raw.twaDomain||'').slice(0,120).replace(/^https?:\/\//,'');
+  const desktopEnabled = !!raw.desktopEnabled;
+  const desktopPlatform = ['win','mac','both'].includes(raw.desktopPlatform) ? raw.desktopPlatform : 'both';
 
   let keystoreBase64 = null;
   let keystorePassword = '';
@@ -251,6 +290,11 @@ function normalizeConfig(raw) {
     notifyText: String(raw.notifyText || '').slice(0, 200),
     appTheme, entryAnimation, userAgent, jsInjection, cssInjection,
     cacheMode, backButtonBehavior, customHeaders, webhookUrl,
+    pullRefresh, offlineScreen, offlineMessage, flagSecure, blockSelection, downloadManager,
+    drawerEnabled, drawerItems, bottomNavEnabled, bottomNavItems, loadingIndicator,
+    admobAppId, admobInterstitial, admobRewarded, iapEnabled, iapProducts,
+    encryptedStorage, rootDetection, firebaseEnabled, firebaseConfig,
+    twaEnabled, twaDomain, desktopEnabled, desktopPlatform,
     useCustomSigning, keystoreBase64, keystorePassword, keyAlias, keyPassword,
     useIosSigning, iosP12Base64, iosP12Password, iosProfileBase64, iosExportMethod,
     iconBase64: typeof raw.iconBase64 === 'string' && (raw.iconBase64.startsWith('data:image/png') || raw.iconBase64.startsWith('data:image/jpeg') || raw.iconBase64.startsWith('data:image/webp')) ? raw.iconBase64 : null
@@ -334,6 +378,8 @@ function permissionManifestBlocks(cfg) {
   if (p.wakeLock) perms.push('android.permission.WAKE_LOCK');
   if (p.biometric) perms.push('android.permission.USE_BIOMETRIC');
   if (p.activityRecognition) perms.push('android.permission.ACTIVITY_RECOGNITION');
+  if (cfg.iapEnabled) perms.push('com.android.vending.BILLING');
+  if (cfg.encryptedStorage) { perms.push('android.permission.USE_BIOMETRIC'); }
 
   const seen = new Set();
   return perms.filter(x => { if (seen.has(x)) return false; seen.add(x); return true; })
@@ -396,6 +442,7 @@ ${cfg.deepLinkPaths.length ? cfg.deepLinkPaths.map(p=>`                <data and
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
+${cfg.admobAppId ? `        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="${cfg.admobAppId}" />` : ''}
 ${cfg.permissions.foreground ? `        <service android:name=".RadioService" android:exported="false" android:foregroundServiceType="dataSync|mediaPlayback" />` : ''}
     </application>
 </manifest>
@@ -489,6 +536,25 @@ jobs:
       - name: Validate manifest XML
         run: python3 -c "import xml.dom.minidom,sys;xml.dom.minidom.parse('android/app/src/main/AndroidManifest.xml');print('manifest XML OK')"
 
+      - name: Install native permissions runtime
+        if: "hashFiles('NativePermissions.java') != ''"
+        run: |
+          PKG=$(node -p 'require("./build-config.json").packageName')
+          DST="android/app/src/main/java/$(echo $PKG | tr . /)"
+          mkdir -p "$DST"
+          cp NativePermissions.java "$DST/NativePermissions.java"
+          node patch-permissions.js
+          echo "--- permisos nativos instalados ---"
+          grep -c NativePermissions "$DST/MainActivity.java" || true
+
+      - name: Install catalog native patches
+        if: "hashFiles('patch-catalog.js') != ''"
+        run: |
+          node patch-catalog.js
+          echo "--- catalog patches aplicados ---"
+          PKG=$(node -p 'require("./build-config.json").packageName')
+          grep -c "FLAG_SECURE\|DownloadListener" "android/app/src/main/java/$(echo $PKG | tr . /)/MainActivity.java" || true
+
       - name: Install background audio service
         if: "hashFiles('RadioService.java') != ''"
         run: |
@@ -530,6 +596,12 @@ jobs:
         run: |
           mkdir -p android/app/src/main/assets/public
           cp inteebridge-inject.js android/app/src/main/assets/public/inteebridge.js
+
+      - name: Apply catalog assets
+        run: |
+          if [ -f "assetlinks.json" ]; then mkdir -p android/app/src/main/assets/.well-known; cp assetlinks.json android/app/src/main/assets/.well-known/assetlinks.json; echo "assetlinks ok"; fi
+          if [ -f "google-services.json" ]; then cp google-services.json android/app/google-services.json; echo "firebase ok"; fi
+          if [ -f "www/catalog.js" ]; then mkdir -p android/app/src/main/assets/public; cp www/catalog.js android/app/src/main/assets/public/catalog.js; echo "catalog js ok"; fi
 
       - name: Configure custom signing
         if: \${{ hashFiles('user-keystore.jks') != '' }}
@@ -741,6 +813,122 @@ function radioServiceSrc(pkg) {
     + '}\n';
 }
 
+function nativePermissionsJavaSrc(pkg) {
+  return 'package ' + pkg + ';\n'
+    + '\n'
+    + 'import android.Manifest;\n'
+    + 'import android.content.pm.PackageManager;\n'
+    + 'import android.os.Build;\n'
+    + 'import androidx.core.app.ActivityCompat;\n'
+    + 'import androidx.core.content.ContextCompat;\n'
+    + 'import java.util.ArrayList;\n'
+    + 'import java.util.List;\n'
+    + '\n'
+    + 'public class NativePermissions {\n'
+    + '    public static String[] getRequiredPermissions(android.content.Context ctx) {\n'
+    + '        List<String> perms = new ArrayList<>();\n'
+    + '        try {\n'
+    + '            String[] declared = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), android.content.pm.PackageManager.GET_PERMISSIONS).requestedPermissions;\n'
+    + '            if (declared == null) return new String[0];\n'
+    + '            for (String p : declared) {\n'
+    + '                if (p.equals(Manifest.permission.INTERNET) || p.equals(Manifest.permission.ACCESS_NETWORK_STATE) || p.equals(Manifest.permission.ACCESS_WIFI_STATE) || p.equals(Manifest.permission.VIBRATE) || p.equals(Manifest.permission.WAKE_LOCK) || p.equals(Manifest.permission.FOREGROUND_SERVICE) || p.equals(Manifest.permission.FOREGROUND_SERVICE_DATA_SYNC) || p.equals(Manifest.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK) || p.equals(Manifest.permission.USE_BIOMETRIC) || p.equals(Manifest.permission.NFC) || p.equals(Manifest.permission.REQUEST_INSTALL_PACKAGES) || p.equals(Manifest.permission.SYSTEM_ALERT_WINDOW)) {\n'
+    + '                    // not runtime or handled separately, but still need check for some\n'
+    + '                    if (p.equals(Manifest.permission.NFC) || p.equals(Manifest.permission.USE_BIOMETRIC)) perms.add(p);\n'
+    + '                    continue;\n'
+    + '                }\n'
+    + '                if (p.startsWith("android.permission.")) {\n'
+    + '                    if (ContextCompat.checkSelfPermission(ctx, p) != PackageManager.PERMISSION_GRANTED) perms.add(p);\n'
+    + '                    else if (p.equals(Manifest.permission.POST_NOTIFICATIONS) || p.equals(Manifest.permission.ACCESS_FINE_LOCATION) || p.equals(Manifest.permission.CAMERA) || p.equals(Manifest.permission.RECORD_AUDIO)) perms.add(p);\n'
+    + '                }\n'
+    + '            }\n'
+    + '        } catch (Exception ignored) {}\n'
+    + '        // dedup\n'
+    + '        java.util.LinkedHashSet<String> set=new java.util.LinkedHashSet<>(perms);\n'
+    + '        return set.toArray(new String[0]);\n'
+    + '    }\n'
+    + '    public static void requestAll(android.app.Activity act, int code) {\n'
+    + '        String[] req = getRequiredPermissions(act);\n'
+    + '        List<String> need = new ArrayList<>();\n'
+    + '        for (String p : req) if (ContextCompat.checkSelfPermission(act, p) != PackageManager.PERMISSION_GRANTED) need.add(p);\n'
+    + '        if (!need.isEmpty()) ActivityCompat.requestPermissions(act, need.toArray(new String[0]), code);\n'
+    + '    }\n'
+    + '}\n';
+}
+
+function patchPermissionsSrc() {
+  const NL = String.fromCharCode(10);
+  return [
+    "const fs=require('fs');",
+    "const pkg=JSON.parse(fs.readFileSync('build-config.json','utf8')).packageName;",
+    "const mp='android/app/src/main/java/'+pkg.split('.').join('/')+'/MainActivity.java';",
+    "let src=fs.readFileSync(mp,'utf8');",
+    "let changed=false;",
+    "if(src.indexOf('NativePermissions')===-1){",
+    "  src=src.replace(/import\\s+com\\.getcapacitor\\.BridgeActivity\\s*;/,'import android.webkit.PermissionRequest; import android.webkit.WebChromeClient; import com.getcapacitor.BridgeActivity;');",
+    "  src=src.replace(/public class MainActivity extends BridgeActivity\\s*\\{/,m=>m+NL+'  private static final int REQ_PERMS=9001;'+NL+'  @Override public void onStart(){ super.onStart(); try{ NativePermissions.requestAll(this, REQ_PERMS);}catch(Exception ignored){}}'+NL+'  @Override public void onRequestPermissionsResult(int c,String[] p,int[] r){ super.onRequestPermissionsResult(c,p,r); }');",
+    "  if(src.indexOf('onPermissionRequest')===-1){",
+    "    src=src.replace(/super\\.onCreate\\(savedInstanceState\\);/,s=>s+NL+'    try{ getBridge().getWebView().setWebChromeClient(new WebChromeClient(){ @Override public void onPermissionRequest(final PermissionRequest request){ runOnUiThread(new Runnable(){ public void run(){ try{ request.grant(request.getResources()); }catch(Exception e){ request.deny(); }}}); } }); }catch(Exception ignored){}');",
+    "  }",
+    "  fs.writeFileSync(mp,src); changed=true;",
+    "}",
+    "console.log('Permissions patch applied:'+changed+' hasNative:'+(src.indexOf('NativePermissions')!==-1));"
+  ].join(NL)+NL;
+}
+
+function catalogUiJsSrc(cfg){
+  const drawerItems = JSON.stringify(cfg.drawerItems||[]);
+  const bottomItems = JSON.stringify(cfg.bottomNavItems||[]);
+  return '(function(){var CFG='+JSON.stringify({pullRefresh:cfg.pullRefresh, offlineScreen:cfg.offlineScreen, offlineMessage:cfg.offlineMessage, flagSecure:cfg.flagSecure, blockSelection:cfg.blockSelection, drawerEnabled:cfg.drawerEnabled, bottomNavEnabled:cfg.bottomNavEnabled, loadingIndicator:cfg.loadingIndicator, rootDetection:cfg.rootDetection})+';var DRAWER='+drawerItems+';var BOTTOM='+bottomItems+';'
+   + 'if(CFG.blockSelection){var s=document.createElement("style");s.textContent="*{ -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;} input,textarea{ -webkit-user-select:text; user-select:text;}";document.head.appendChild(s);document.addEventListener("contextmenu",e=>e.preventDefault());}'
+   + 'if(CFG.loadingIndicator!=="none"){window.addEventListener("beforeunload",()=>{var el=document.createElement("div");el.id="ib-loading";el.style.cssText="position:fixed;top:0;left:0;right:0;height:3px;background:var(--accent,#6366f1);z-index:9999;animation:ibLoad 1s infinite";if(CFG.loadingIndicator==="spinner")el.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.5);display:grid;place-items:center;z-index:9999";el.innerHTML=CFG.loadingIndicator==="spinner"?"<div style=\'width:40px;height:40px;border:4px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite\'></div>":"";document.body.appendChild(el);});}'
+   + 'if(CFG.pullRefresh&&window.Capacitor){document.addEventListener("DOMContentLoaded",()=>{let startY=0;document.addEventListener("touchstart",e=>startY=e.touches[0].clientY,{passive:true});document.addEventListener("touchend",e=>{let dy=e.changedTouches[0].clientY-startY;if(dy>80&&window.scrollY===0) location.reload();},{passive:true});});}'
+   + 'if(CFG.offlineScreen){function check(){var off=!navigator.onLine;var el=document.getElementById("ib-offline");if(off){if(!el){el=document.createElement("div");el.id="ib-offline";el.style.cssText="position:fixed;inset:0;background:#111827;color:#fff;display:grid;place-items:center;z-index:9998;text-align:center;padding:20px";el.innerHTML="<div><div style=\'font-size:48px;margin-bottom:12px\'>📡</div><b>Sin conexión</b><p style=\'color:#9ca3af\'>"+CFG.offlineMessage.replace(/"/g,"&quot;")+"</p><button onclick=\'location.reload()\' style=\'margin-top:12px;padding:8px 16px;background:#6366f1;color:#fff;border:none;border-radius:8px\'>Reintentar</button></div>";document.body.appendChild(el);} } else if(el) el.remove();}window.addEventListener("online",check);window.addEventListener("offline",check);document.addEventListener("DOMContentLoaded",check);}'
+   + 'if(CFG.drawerEnabled&&DRAWER.length){var btn=document.createElement("button");btn.textContent="☰";btn.style.cssText="position:fixed;top:12px;left:12px;z-index:9997;background:#111827;color:#fff;border:none;width:36px;height:36px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.3)";var drawer=document.createElement("div");drawer.id="ib-drawer";drawer.style.cssText="position:fixed;top:0;left:-280px;width:260px;height:100%;background:#111827;color:#fff;z-index:9998;transition:left .3s;overflow:auto;padding:16px";drawer.innerHTML="<b style=\'display:block;margin-bottom:12px\'>Menú</b>"+DRAWER.map(i=>"<a href=\'"+i.url+"\' style=\'display:block;padding:10px 8px;color:#fff;text-decoration:none;border-radius:6px;margin-bottom:4px;background:#1f2937\'>"+(i.icon?i.icon+" ":"")+i.label+"</a>").join("")+"<button id=\'ib-drawer-close\' style=\'margin-top:12px;width:100%;padding:8px;background:#374151;color:#fff;border:none;border-radius:6px\'>Cerrar</button>";document.addEventListener("DOMContentLoaded",()=>{document.body.appendChild(btn);document.body.appendChild(drawer);btn.onclick=()=>drawer.style.left="0";drawer.querySelector("#ib-drawer-close").onclick=()=>drawer.style.left="-280px";});}'
+   + 'if(CFG.bottomNavEnabled&&BOTTOM.length){var bar=document.createElement("div");bar.id="ib-bottom";bar.style.cssText="position:fixed;bottom:0;left:0;right:0;background:#111827;color:#fff;display:flex;justify-content:space-around;padding:6px 0 8px;z-index:9997;border-top:1px solid #1f2937";bar.innerHTML=BOTTOM.map(i=>"<a href=\'"+i.url+"\' style=\'flex:1;text-align:center;color:#9ca3af;text-decoration:none;font-size:11px\'><div style=\'font-size:18px\'>"+(i.icon||"•")+"</div>"+i.label+"</a>").join("");document.addEventListener("DOMContentLoaded",()=>{document.body.appendChild(bar);document.body.style.paddingBottom="60px";});}'
+   + 'if(window.Intee){var origLog=console.log;window.addEventListener("error",e=>{try{Intee.track&&Intee.track("js_error",{message:e.message,source:e.filename});}catch{}});} })();';
+}
+
+function patchCatalogSrc(cfg){
+  const NL=String.fromCharCode(10);
+  return [
+    "const fs=require('fs');",
+    "const NL=String.fromCharCode(10);",
+    "const cfg=JSON.parse(fs.readFileSync('build-config.json','utf8'));",
+    "const pkg=cfg.packageName;",
+    "const mp='android/app/src/main/java/'+pkg.split('.').join('/')+'/MainActivity.java';",
+    "let src=fs.readFileSync(mp,'utf8');",
+    "let changed=false;",
+    "// FLAG_SECURE",
+    "if(cfg.flagSecure && src.indexOf('FLAG_SECURE')===-1){",
+    "  src=src.replace(/super\\.onCreate\\(savedInstanceState\\);/,m=>m+NL+'    if(true) getWindow().setFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE, android.view.WindowManager.LayoutParams.FLAG_SECURE);');",
+    "  changed=true;",
+    "}",
+    "// DownloadManager + tel/mailto intents + catalog JS injection",
+    "if(src.indexOf('DownloadListener')===-1){",
+    "  src=src.replace(/import\\s+com\\.getcapacitor\\.BridgeActivity\\s*;/,'import android.app.DownloadManager; import android.content.Intent; import android.net.Uri; import android.webkit.DownloadListener; import android.webkit.WebView; import android.webkit.WebViewClient; import com.getcapacitor.BridgeActivity;');",
+    "  src=src.replace(/super\\.onCreate\\(savedInstanceState\\);/,m=>m+NL+'    try{ getBridge().getWebView().setDownloadListener(new DownloadListener(){ public void onDownloadStart(String url, String ua, String cd, String mime, long len){ try{ Intent i=new Intent(Intent.ACTION_VIEW); i.setData(Uri.parse(url)); startActivity(i);}catch(Exception e){ try{ DownloadManager dm=(DownloadManager)getSystemService(DOWNLOAD_SERVICE); DownloadManager.Request r=new DownloadManager.Request(Uri.parse(url)); r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED); dm.enqueue(r);}catch(Exception ignored){}} } }); }catch(Exception ignored){}'+NL+'    try{ getBridge().getWebView().setWebViewClient(new WebViewClient(){ public boolean shouldOverrideUrlLoading(WebView v, String url){ if(url.startsWith(\"tel:\")||url.startsWith(\"mailto:\")||url.startsWith(\"sms:\")||url.startsWith(\"whatsapp://\")||url.startsWith(\"intent:\")){ try{ startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); return true;}catch(Exception e){ return false;}} return false; } public void onPageFinished(WebView v, String url){ super.onPageFinished(v,url); try{ java.io.InputStream is=getAssets().open(\"public/catalog.js\"); java.io.BufferedReader br=new java.io.BufferedReader(new java.io.InputStreamReader(is)); StringBuilder sb=new StringBuilder(); String line; while((line=br.readLine())!=null) sb.append(line).append(\"\\\\n\"); br.close(); v.evaluateJavascript(sb.toString(),null);}catch(Exception ignored){} } }); }catch(Exception ignored){}');",
+    "  changed=true;",
+    "}",
+    "// Back button behavior",
+    "if(cfg.backButtonBehavior && src.indexOf('onBackPressed')===-1){",
+    "  const behavior=cfg.backButtonBehavior;",
+    "  let code='  @Override public void onBackPressed(){ try{ if(getBridge().getWebView().canGoBack()) getBridge().getWebView().goBack(); else super.onBackPressed(); }catch(Exception e){ super.onBackPressed(); }}';",
+    "  if(behavior==='exit') code='  @Override public void onBackPressed(){ finishAffinity(); }';",
+    "  if(behavior==='confirm') code='  @Override public void onBackPressed(){ new androidx.appcompat.app.AlertDialog.Builder(this).setTitle(\"Salir?\").setMessage(\"¿Deseas salir de la app?\").setPositiveButton(\"Salir\", (d,w)->finishAffinity()).setNegativeButton(\"Cancelar\", null).show(); }';",
+    "  if(behavior==='none') code='  @Override public void onBackPressed(){ }';",
+    "  src=src.replace(/public class MainActivity extends BridgeActivity\\s*\\{/,m=>m+NL+code);",
+    "  changed=true;",
+    "}",
+    "// Root detection",
+    "if(cfg.rootDetection && src.indexOf('RootCheck')===-1){",
+    "  src=src.replace(/super\\.onCreate\\(savedInstanceState\\);/,m=>m+NL+'    try{ boolean rooted=new java.io.File(\"/system/bin/su\").exists()||new java.io.File(\"/system/xbin/su\").exists()||new java.io.File(\"/system/bin/magisk\").exists(); if(rooted) android.util.Log.w(\"InteeBuild\",\"Root detected\"); }catch(Exception ignored){}');",
+    "  changed=true;",
+    "}",
+    "if(changed) fs.writeFileSync(mp,src);",
+    "console.log('Catalog patch applied:'+changed);"
+  ].join(NL)+NL;
+}
+
 function mainActivityPatchSrc() {
   const NL = String.fromCharCode(10);
   return [
@@ -887,6 +1075,10 @@ function generateFiles(cfg) {
   if (cfg.plugins.bluetooth) deps['@capacitor-community/bluetooth-le'] = PLUGIN_VERSIONS.bluetoothLe;
   if (cfg.plugins.nfc) deps['phonegap-nfc'] = PLUGIN_VERSIONS.nfc;
   if (cfg.plugins.admob) deps['@capacitor-community/admob'] = PLUGIN_VERSIONS.admob;
+  // Catalogo: nuevos deps
+  if (cfg.iapEnabled) deps['@capgo/capacitor-purchases'] = '^5.4.0';
+  if (cfg.encryptedStorage) deps['capacitor-secure-storage-plugin'] = '^0.10.0';
+  if (cfg.firebaseEnabled) { deps['@capacitor-firebase/analytics'] = '^6.0.0'; deps['@capacitor-firebase/crashlytics'] = '^6.0.0'; }
 
   if (cfg.plugins.notifications) {
     capacitorConfig.plugins = capacitorConfig.plugins || {};
@@ -935,7 +1127,21 @@ function generateFiles(cfg) {
       deepLinksEnabled: cfg.deepLinksEnabled,
       appTheme: cfg.appTheme,
       entryAnimation: cfg.entryAnimation,
-      inteebridge: !!cfg.plugins.inteebridge
+      inteebridge: !!cfg.plugins.inteebridge,
+      pullRefresh: !!cfg.pullRefresh,
+      offlineScreen: !!cfg.offlineScreen,
+      flagSecure: !!cfg.flagSecure,
+      blockSelection: !!cfg.blockSelection,
+      drawerEnabled: !!cfg.drawerEnabled,
+      bottomNavEnabled: !!cfg.bottomNavEnabled,
+      rootDetection: !!cfg.rootDetection,
+      backButtonBehavior: cfg.backButtonBehavior,
+      downloadManager: !!cfg.downloadManager,
+      encryptedStorage: !!cfg.encryptedStorage,
+      iapEnabled: !!cfg.iapEnabled,
+      firebaseEnabled: !!cfg.firebaseEnabled,
+      twaEnabled: !!cfg.twaEnabled,
+      desktopEnabled: !!cfg.desktopEnabled
     }, null, 2),
 
     'main-manifest.xml': generateAndroidManifest(cfg),
@@ -989,6 +1195,36 @@ function generateFiles(cfg) {
     files['www/inject.css'] = cfg.cssInjection;
   }
 
+  // Native permissions runtime - siempre incluido para que todos los permisos sean reales
+  files['NativePermissions.java'] = nativePermissionsJavaSrc(cfg.packageName);
+  files['patch-permissions.js'] = patchPermissionsSrc();
+  // Catalogo consolidado: patch unificado para FLAG_SECURE, DownloadManager, intents, root, back button
+  files['patch-catalog.js'] = patchCatalogSrc(cfg);
+  files['www/catalog.js'] = catalogUiJsSrc(cfg);
+  // AdMob config
+  if (cfg.admobAppId) files['admob-config.json'] = JSON.stringify({appId: cfg.admobAppId, interstitial: cfg.admobInterstitial, rewarded: cfg.admobRewarded}, null, 2);
+  // Asset Links
+  const twaDomain = cfg.twaDomain || cfg.deepLinkDomain || (cfg.inputType==='url' ? (()=>{try{return new URL(cfg.url).hostname}catch{return ''}})() : '');
+  if (twaDomain) {
+    const sha256 = '00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00';
+    files['assetlinks.json'] = JSON.stringify([{relation:['delegate_permission/common.handle_all_urls'],target:{namespace:'android_app', package_name:cfg.packageName, sha256_cert_fingerprints:[sha256]}}], null, 2);
+    files['.well-known/assetlinks.json'] = files['assetlinks.json'];
+  }
+  // Firebase
+  if (cfg.firebaseEnabled) {
+    files['google-services.json'] = cfg.firebaseConfig || JSON.stringify({project_info:{project_id:'inteebuild-demo'},client:[{client_info:{mobilesdk_app_id:'1:000:android:000', package_name:cfg.packageName}}]}, null, 2);
+    files['firebase-config.json'] = JSON.stringify({enabled:true, package:cfg.packageName}, null, 2);
+  }
+  // TWA
+  if (cfg.twaEnabled && twaDomain) {
+    files['twa-manifest.json'] = JSON.stringify({packageId:cfg.packageName, host:twaDomain, name:cfg.appName, themeColor:cfg.accentColor, backgroundColor:cfg.splashColor, display:'standalone', orientation:cfg.orientation}, null, 2);
+  }
+  // Desktop (Electron)
+  if (cfg.desktopEnabled) {
+    files['desktop/package.json'] = JSON.stringify({name: cfg.appName.toLowerCase().replace(/[^a-z0-9]+/g,'-'), version: cfg.versionName, main:'main.js', scripts:{start:'electron .', build:'electron-builder'}}, null, 2);
+    files['desktop/main.js'] = "const {app, BrowserWindow}=require('electron'); function create(){ const w=new BrowserWindow({width:1280,height:800, webPreferences:{nodeIntegration:false}}); w.loadURL('"+(cfg.inputType==='url'?cfg.url:'file://'+__dirname+'/www/index.html')+"'); } app.whenReady().then(create);";
+    files['desktop/README.md'] = '# Desktop Export - Electron\n\n`npm install && npm start` para probar. `npm run build` para .EXE/.APP';
+  }
   if (cfg.permissions.foreground) {
     files['RadioService.java'] = radioServiceSrc(cfg.packageName);
     files['patch-main-activity.js'] = mainActivityPatchSrc();
@@ -1021,6 +1257,23 @@ function generateFiles(cfg) {
         : vp + html;
     }
     files['www/index.html'] = html;
+  }
+  // Inject catalog UI into www/index.html (local or remote wrapper both get it)
+  {
+    const catalogJs = catalogUiJsSrc(cfg);
+    let html = files['www/index.html'];
+    const tag = '<script>'+catalogJs+'</scr'+'ipt>';
+    if (/<\/body\s*>/i.test(html)) html = html.replace(/<\/body\s*>/i, tag + '</body>');
+    else html = html + tag;
+    files['www/index.html'] = html;
+    // also inject blockSelection CSS if enabled
+    if (cfg.blockSelection) {
+      let html2 = files['www/index.html'];
+      const style = '<style>*{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none} input,textarea{-webkit-user-select:text;user-select:text}</style>';
+      if (/<\/head\s*>/i.test(html2)) html2 = html2.replace(/<\/head\s*>/i, style + '</head>');
+      else html2 = style + html2;
+      files['www/index.html'] = html2;
+    }
   }
 
   return files;
