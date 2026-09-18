@@ -865,6 +865,7 @@ function patchPermissionsSrc() {
   const NL = String.fromCharCode(10);
   return [
     "const fs=require('fs');",
+    "const NL=String.fromCharCode(10);",
     "const pkg=JSON.parse(fs.readFileSync('build-config.json','utf8')).packageName;",
     "const mp='android/app/src/main/java/'+pkg.split('.').join('/')+'/MainActivity.java';",
     "let src=fs.readFileSync(mp,'utf8');",
