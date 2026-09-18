@@ -177,24 +177,32 @@ function buildRecommendations(detectedApis) {
     .map(api => ({ api, ...map[api] }));
 }
 
-// ========== API KEYS ==========
+// ========== API KEYS (hash + prefix, sin exponer secreto) ==========
 function loadKeys(){ try{ return JSON.parse(fs.readFileSync(APIKEYS_FILE,'utf-8')); }catch{ return []; } }
 function saveKeys(a){ fs.writeFileSync(APIKEYS_FILE, JSON.stringify(a,null,2),'utf-8'); }
-function createApiKey(name){
+function hashKey(key){ return crypto.createHash('sha256').update(String(key)).digest('hex'); }
+function createApiKey(name, scopes){
   const keys=loadKeys();
   const id=crypto.randomBytes(4).toString('hex');
   const key='ib_'+crypto.randomBytes(24).toString('hex');
-  const entry={id,key,name:name||'default',createdAt:Date.now(),lastUsed:null,uses:0};
-  keys.push(entry); saveKeys(keys); return entry;
+  const entry={id, keyHash:hashKey(key), prefix:key.slice(0,10), name:name||'default', createdAt:Date.now(), lastUsed:null, uses:0, revokedAt:null, scopes:Array.isArray(scopes)&&scopes.length?scopes:['build','decompile','analyze']};
+  keys.push(entry); saveKeys(keys); return {...entry, key};
 }
 function verifyApiKey(req){
   const header = req.headers['x-api-key'] || req.headers['authorization'] || '';
   let token = String(header).replace(/^Bearer\s+/i,'').trim();
   if(!token) return { valid:false, reason:'missing' };
-  const keys=loadKeys();
-  if(!keys.length) return { valid:true, isPublic:true };
-  const found=keys.find(k=>k.key===token);
-  if(found){ found.lastUsed=Date.now(); found.uses=(found.uses||0)+1; saveKeys(keys); return {valid:true, key:found}; }
+  const keys=loadKeys().filter(k=>!k.revokedAt);
+  if(!loadKeys().filter(k=>!k.revokedAt).length && !loadKeys().length) return { valid:true, isPublic:true };
+  if(!keys.length) return { valid:false, reason:'revoked' };
+  const h=hashKey(token);
+  const found=keys.find(k=>k.keyHash===h || k.key===token);
+  if(found){
+    if(found.key && !found.keyHash){ found.keyHash=hashKey(found.key); delete found.key; }
+    found.lastUsed=Date.now(); found.uses=(found.uses||0)+1;
+    const all=loadKeys(); const idx=all.findIndex(k=>k.id===found.id); if(idx!==-1){ all[idx]=found; saveKeys(all); }
+    return {valid:true, key:found};
+  }
   return { valid:false };
 }
 function requireApiKey(req,res,next){
@@ -518,21 +526,22 @@ app.post('/api/analyze/fix', async (req,res)=>{
   res.json({fixed, originalLength:html.length, fixedLength:fixed.length});
 });
 
-// API Keys management
-app.get('/api/keys', (req,res)=>{ const keys=loadKeys().map(k=>({id:k.id,name:k.name,createdAt:k.createdAt,lastUsed:k.lastUsed,uses:k.uses,keyMask:k.key.slice(0,8)+'...'+k.key.slice(-4)})); res.json(keys); });
+// API Keys management (hash, sin exponer secreto)
+app.get('/api/keys', (req,res)=>{ const keys=loadKeys().map(k=>({id:k.id,name:k.name,createdAt:k.createdAt,lastUsed:k.lastUsed,uses:k.uses,revokedAt:k.revokedAt||null,scopes:k.scopes||['build'],prefix:k.prefix||(k.key?String(k.key).slice(0,10):'ib_...'),keyMask:(k.prefix||'ib_...')+'...'+(k.keyHash?String(k.keyHash).slice(-4):'****')})); res.json(keys); });
 app.post('/api/keys', (req,res)=>{
   const name=String(req.body.name||'').slice(0,40)||'default';
-  const keys=loadKeys();
-  if(keys.length>=10) return res.status(400).json({error:'Máximo 10 API keys'});
-  const entry=createApiKey(name);
+  const scopes=Array.isArray(req.body.scopes)?req.body.scopes.slice(0,5):['build','decompile','analyze'];
+  const keys=loadKeys().filter(k=>!k.revokedAt);
+  if(keys.length>=10) return res.status(400).json({error:'Máximo 10 API keys activas'});
+  const entry=createApiKey(name, scopes);
   res.json(entry);
 });
 app.delete('/api/keys/:id', (req,res)=>{
-  let keys=loadKeys();
-  const before=keys.length;
-  keys=keys.filter(k=>k.id!==req.params.id);
-  if(keys.length===before) return res.status(404).json({error:'Key no encontrada'});
-  saveKeys(keys); res.json({ok:true});
+  const keys=loadKeys();
+  const idx=keys.findIndex(k=>k.id===req.params.id);
+  if(idx===-1) return res.status(404).json({error:'Key no encontrada'});
+  keys[idx].revokedAt=Date.now(); delete keys[idx].key;
+  saveKeys(keys); res.json({ok:true, revoked:true});
 });
 app.get('/api/docs', (req,res)=>{
   res.json({

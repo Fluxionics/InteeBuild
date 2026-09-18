@@ -36,27 +36,33 @@ const PLUGIN_VERSIONS = {
 };
 
 const PERMISSION_SPEC = {
-  notifications: { title:'Notificaciones', manifest:['android.permission.POST_NOTIFICATIONS','android.permission.VIBRATE'], runtime:true, minSdk:33, deps:['@capacitor/push-notifications','@capacitor/local-notifications'], api:'notifications', handler:'LocalNotifications' },
-  foreground: { title:'Foreground Service', manifest:['android.permission.FOREGROUND_SERVICE','android.permission.FOREGROUND_SERVICE_DATA_SYNC','android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK'], runtime:false, minSdk:28, deps:[], api:'foreground', handler:'RadioService' },
-  cameraMic: { title:'Cámara', manifest:['android.permission.CAMERA','android.permission.RECORD_AUDIO','android.permission.MODIFY_AUDIO_SETTINGS'], runtime:true, minSdk:23, deps:['@capacitor/camera'], api:'camera', handler:'Camera' },
-  microphone: { title:'Micrófono', manifest:['android.permission.RECORD_AUDIO','android.permission.MODIFY_AUDIO_SETTINGS'], runtime:true, minSdk:23, deps:['@capacitor/haptics'], api:'microphone', handler:'Microphone' },
-  storage: { title:'Almacenamiento', manifest:['android.permission.READ_EXTERNAL_STORAGE','android.permission.READ_MEDIA_IMAGES','android.permission.READ_MEDIA_VIDEO','android.permission.READ_MEDIA_AUDIO'], runtime:true, minSdk:33, deps:['@capacitor/filesystem'], api:'filesystem', handler:'Filesystem' },
-  gps: { title:'Ubicación', manifest:['android.permission.ACCESS_FINE_LOCATION','android.permission.ACCESS_COARSE_LOCATION','android.permission.ACCESS_BACKGROUND_LOCATION'], runtime:true, minSdk:23, deps:['@capacitor/geolocation'], api:'geolocation', handler:'Geolocation' },
-  bluetooth: { title:'Bluetooth', manifest:['android.permission.BLUETOOTH','android.permission.BLUETOOTH_ADMIN','android.permission.BLUETOOTH_CONNECT','android.permission.BLUETOOTH_SCAN','android.permission.BLUETOOTH_ADVERTISE'], runtime:true, minSdk:31, deps:['@capacitor-community/bluetooth-le'], api:'bluetooth', handler:'BluetoothLe' },
-  phone: { title:'Teléfono', manifest:['android.permission.CALL_PHONE','android.permission.READ_PHONE_STATE','android.permission.READ_CALL_LOG'], runtime:true, minSdk:23, deps:[], api:'phone', handler:'Phone' },
-  sms: { title:'SMS', manifest:['android.permission.SEND_SMS','android.permission.READ_SMS'], runtime:true, minSdk:23, deps:[], api:'sms', handler:'Sms' },
-  calendar: { title:'Calendario', manifest:['android.permission.READ_CALENDAR','android.permission.WRITE_CALENDAR'], runtime:true, minSdk:23, deps:[], api:'calendar', handler:'Calendar' },
-  contacts: { title:'Contactos', manifest:['android.permission.READ_CONTACTS','android.permission.WRITE_CONTACTS'], runtime:true, minSdk:23, deps:[], api:'contacts', handler:'Contacts' },
-  sensors: { title:'Sensores', manifest:['android.permission.BODY_SENSORS','android.permission.HIGH_SAMPLING_RATE_SENSORS'], runtime:true, minSdk:23, deps:[], api:'sensors', handler:'Sensors' },
-  nfc: { title:'NFC', manifest:['android.permission.NFC'], runtime:false, minSdk:19, deps:['phonegap-nfc'], api:'nfc', handler:'NFC' },
-  systemAlert: { title:'Superposición', manifest:['android.permission.SYSTEM_ALERT_WINDOW'], runtime:false, minSdk:23, deps:[], api:'systemAlert', handler:'SystemAlert' },
-  installPackages: { title:'Instalador', manifest:['android.permission.REQUEST_INSTALL_PACKAGES'], runtime:false, minSdk:26, deps:[], api:'installPackages', handler:'Install' },
-  alarm: { title:'Alarmas', manifest:['android.permission.SCHEDULE_EXACT_ALARM','android.permission.USE_EXACT_ALARM'], runtime:false, minSdk:31, deps:[], api:'alarm', handler:'Alarm' },
-  nearby: { title:'WiFi Cercano', manifest:['android.permission.NEARBY_WIFI_DEVICES'], runtime:true, minSdk:33, deps:[], api:'nearby', handler:'Nearby' },
-  vibration: { title:'Vibración', manifest:['android.permission.VIBRATE'], runtime:false, minSdk:1, deps:['@capacitor/haptics'], api:'vibration', handler:'Haptics' },
-  wakeLock: { title:'Wake Lock', manifest:['android.permission.WAKE_LOCK'], runtime:false, minSdk:1, deps:['@capacitor/device'], api:'wakelock', handler:'WakeLock' },
-  biometric: { title:'Biometría', manifest:['android.permission.USE_BIOMETRIC'], runtime:false, minSdk:28, deps:['@capacitor/biometrics'], api:'biometric', handler:'Biometric' },
-  activityRecognition: { title:'Actividad', manifest:['android.permission.ACTIVITY_RECOGNITION'], runtime:true, minSdk:29, deps:[], api:'activityRecognition', handler:'Activity' }
+  notifications: { title:'Notificaciones', manifest:['android.permission.POST_NOTIFICATIONS'], runtime:true, minSdk:33, deps:['@capacitor/push-notifications','@capacitor/local-notifications'], api:'notifications', handler:'LocalNotifications', impl:{native:'LocalNotifications.schedule+requestPermissions', bridge:'Intee.notifications.schedule', webview:'Notification.requestPermission', providerOk:['capacitor','native']}, specialAccess:null },
+  foreground: { title:'Foreground Service', manifest:['android.permission.FOREGROUND_SERVICE','android.permission.FOREGROUND_SERVICE_DATA_SYNC','android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK'], runtime:false, minSdk:28, deps:[], api:'foreground', handler:'RadioService', impl:{native:'RadioService.startForeground', bridge:'n/a (sistema)', webview:'n/a', providerOk:['capacitor','native','gecko']}, specialAccess:null },
+  cameraMic: { title:'Cámara', manifest:['android.permission.CAMERA'], runtime:true, minSdk:23, deps:['@capacitor/camera'], api:'camera', handler:'Camera', impl:{native:'NativePermissions.request(CAMERA)+Capacitor Camera.getPhoto', bridge:'Intee.camera', webview:'getUserMedia video (WebChromeClient grant)', providerOk:['capacitor','native']}, specialAccess:null },
+  microphone: { title:'Micrófono', manifest:['android.permission.RECORD_AUDIO','android.permission.MODIFY_AUDIO_SETTINGS'], runtime:true, minSdk:23, deps:['@capacitor/haptics'], api:'microphone', handler:'Microphone', impl:{native:'NativePermissions.request(RECORD_AUDIO)', bridge:'getUserMedia audio', webview:'getUserMedia audio (grant selectivo)', providerOk:['capacitor','native']}, specialAccess:null },
+  storage: { title:'Almacenamiento multimedia', manifest:['android.permission.READ_MEDIA_IMAGES','android.permission.READ_MEDIA_VIDEO','android.permission.READ_MEDIA_AUDIO'], runtime:true, minSdk:33, deps:['@capacitor/filesystem'], api:'filesystem', handler:'Filesystem', impl:{native:'Filesystem.read/write + FileProvider', bridge:'Intee.files', webview:'input file + DownloadManager', providerOk:['capacitor','native']}, specialAccess:null, legacyNote:'READ_EXTERNAL_STORAGE solo para API<33, se omite si targetSdk>=33' },
+  gps: { title:'Ubicación precisa', manifest:['android.permission.ACCESS_FINE_LOCATION','android.permission.ACCESS_COARSE_LOCATION'], runtime:true, minSdk:23, deps:['@capacitor/geolocation'], api:'geolocation', handler:'Geolocation', impl:{native:'NativePermissions.request(FINE/COARSE)+Geolocation.getCurrentPosition', bridge:'Intee.location', webview:'geolocation API (grant solo si gps)', providerOk:['capacitor','native']}, specialAccess:null },
+  gpsBackground: { title:'Ubicación en segundo plano', manifest:['android.permission.ACCESS_BACKGROUND_LOCATION'], runtime:true, minSdk:29, deps:['@capacitor/geolocation'], api:'geolocation-bg', handler:'GeolocationBg', impl:{native:'request BACKGROUND tras FINE concedido', bridge:'watchLocation', webview:'n/a', providerOk:['capacitor','native']}, specialAccess:'Play Store: requiere justificación + aprobación, solicitar solo si la app lo necesita' },
+  bluetoothScan: { title:'Bluetooth · Escanear', manifest:['android.permission.BLUETOOTH_SCAN'], runtime:true, minSdk:31, deps:['@capacitor-community/bluetooth-le'], api:'bluetooth', handler:'BluetoothLe', impl:{native:'request SCAN (neverForLocation si aplica)', bridge:'Intee bluetooth (BLE)', webview:'navigator.bluetooth.requestDevice', providerOk:['capacitor','native']}, specialAccess:null },
+  bluetoothConnect: { title:'Bluetooth · Conectar', manifest:['android.permission.BLUETOOTH_CONNECT'], runtime:true, minSdk:31, deps:['@capacitor-community/bluetooth-le'], api:'bluetooth', handler:'BluetoothLe', impl:{native:'request CONNECT', bridge:'BLE connect', webview:'navigator.bluetooth', providerOk:['capacitor','native']}, specialAccess:null },
+  bluetoothAdvertise: { title:'Bluetooth · Anunciar', manifest:['android.permission.BLUETOOTH_ADVERTISE'], runtime:true, minSdk:31, deps:['@capacitor-community/bluetooth-le'], api:'bluetooth', handler:'BluetoothLe', impl:{native:'request ADVERTISE', bridge:'BLE advertise', webview:'n/a', providerOk:['capacitor','native']}, specialAccess:null },
+  bluetooth: { title:'Bluetooth (compat API<31)', manifest:['android.permission.BLUETOOTH','android.permission.BLUETOOTH_ADMIN'], runtime:true, minSdk:23, maxSdk:30, deps:['@capacitor-community/bluetooth-le'], api:'bluetooth', handler:'BluetoothLe', impl:{native:'legacy BLUETOOTH/ADMIN', bridge:'BLE', webview:'navigator.bluetooth', providerOk:['capacitor','native']}, specialAccess:null, legacyNote:'Solo para minSdk<=30, en API31+ se usan SCAN/CONNECT/ADVERTISE' },
+  phone: { title:'Teléfono', manifest:['android.permission.CALL_PHONE','android.permission.READ_PHONE_STATE','android.permission.READ_CALL_LOG'], runtime:true, minSdk:23, deps:[], api:'phone', handler:'Phone', impl:{native:'request CALL_PHONE', bridge:'tel: intent', webview:'tel: → Intent nativo', providerOk:['capacitor','native']}, specialAccess:'Play Store restringido' },
+  sms: { title:'SMS', manifest:['android.permission.SEND_SMS','android.permission.READ_SMS'], runtime:true, minSdk:23, deps:[], api:'sms', handler:'Sms', impl:{native:'request SMS', bridge:'sms: intent', webview:'sms: → Intent', providerOk:['capacitor','native']}, specialAccess:'Play Store restringido' },
+  calendar: { title:'Calendario', manifest:['android.permission.READ_CALENDAR','android.permission.WRITE_CALENDAR'], runtime:true, minSdk:23, deps:[], api:'calendar', handler:'Calendar', impl:{native:'request CALENDAR', bridge:'n/a', webview:'n/a', providerOk:['capacitor','native']}, specialAccess:null },
+  contacts: { title:'Contactos', manifest:['android.permission.READ_CONTACTS','android.permission.WRITE_CONTACTS'], runtime:true, minSdk:23, deps:[], api:'contacts', handler:'Contacts', impl:{native:'request CONTACTS', bridge:'n/a', webview:'n/a', providerOk:['capacitor','native']}, specialAccess:null },
+  sensors: { title:'Sensores', manifest:['android.permission.BODY_SENSORS','android.permission.HIGH_SAMPLING_RATE_SENSORS'], runtime:true, minSdk:23, deps:[], api:'sensors', handler:'Sensors', impl:{native:'request BODY_SENSORS', bridge:'n/a', webview:'Generic Sensor API', providerOk:['capacitor','native']}, specialAccess:null },
+  nfc: { title:'NFC', manifest:['android.permission.NFC'], runtime:false, minSdk:19, deps:['phonegap-nfc'], api:'nfc', handler:'NFC', impl:{native:'NfcAdapter', bridge:'NDEFReader', webview:'NDEFReader (Chrome)', providerOk:['capacitor','native']}, specialAccess:null },
+  systemAlert: { title:'Superposición', manifest:['android.permission.SYSTEM_ALERT_WINDOW'], runtime:false, minSdk:23, deps:[], api:'systemAlert', handler:'SystemAlert', impl:{native:'Settings.canDrawOverlays intent', bridge:'n/a', webview:'n/a', providerOk:['capacitor','native']}, specialAccess:'Acceso especial: Settings.ACTION_MANAGE_OVERLAY_PERMISSION' },
+  installPackages: { title:'Instalador', manifest:['android.permission.REQUEST_INSTALL_PACKAGES'], runtime:false, minSdk:26, deps:[], api:'installPackages', handler:'Install', impl:{native:'canRequestPackageInstalls', bridge:'n/a', webview:'n/a', providerOk:['capacitor','native']}, specialAccess:'Play Store restringido' },
+  alarmSchedule: { title:'Alarmas exactas (SCHEDULE)', manifest:['android.permission.SCHEDULE_EXACT_ALARM'], runtime:false, minSdk:31, deps:[], api:'alarm', handler:'AlarmSchedule', impl:{native:'AlarmManager.canScheduleExactAlarms', bridge:'LocalNotifications schedule', webview:'n/a', providerOk:['capacitor','native']}, specialAccess:'Acceso especial revocable por usuario (recomendado)' },
+  alarmUse: { title:'Alarmas exactas (USE, casos limitados)', manifest:['android.permission.USE_EXACT_ALARM'], runtime:false, minSdk:31, deps:[], api:'alarm', handler:'AlarmUse', impl:{native:'USE_EXACT_ALARM (reloj/calendario)', bridge:'LocalNotifications', webview:'n/a', providerOk:['capacitor','native']}, specialAccess:'Solo reloj/alarma/calendario, Play lo verifica' },
+  alarm: { title:'Alarmas (legacy selector)', manifest:['android.permission.SCHEDULE_EXACT_ALARM'], runtime:false, minSdk:31, deps:[], api:'alarm', handler:'AlarmSchedule', impl:{native:'SCHEDULE por defecto', bridge:'LocalNotifications', webview:'n/a', providerOk:['capacitor','native']}, specialAccess:'Usa alarmSchedule, alarmUse solo si aplica' },
+  nearby: { title:'WiFi Cercano', manifest:['android.permission.NEARBY_WIFI_DEVICES'], runtime:true, minSdk:33, deps:[], api:'nearby', handler:'Nearby', impl:{native:'request NEARBY_WIFI', bridge:'n/a', webview:'n/a', providerOk:['capacitor','native']}, specialAccess:null },
+  vibration: { title:'Vibración', manifest:['android.permission.VIBRATE'], runtime:false, minSdk:1, deps:['@capacitor/haptics'], api:'vibration', handler:'Haptics', impl:{native:'Vibrator', bridge:'Intee.vibrate', webview:'navigator.vibrate', providerOk:['capacitor','native']}, specialAccess:null },
+  wakeLock: { title:'Wake Lock', manifest:['android.permission.WAKE_LOCK'], runtime:false, minSdk:1, deps:['@capacitor/device'], api:'wakelock', handler:'WakeLock', impl:{native:'PowerManager WakeLock', bridge:'screen.keepOn', webview:'WakeLock API', providerOk:['capacitor','native']}, specialAccess:null },
+  biometric: { title:'Biometría', manifest:['android.permission.USE_BIOMETRIC'], runtime:false, minSdk:28, deps:['@capacitor/biometrics'], api:'biometric', handler:'Biometric', impl:{native:'BiometricPrompt', bridge:'Intee.biometric', webview:'WebAuthn', providerOk:['capacitor','native']}, specialAccess:null },
+  activityRecognition: { title:'Actividad', manifest:['android.permission.ACTIVITY_RECOGNITION'], runtime:true, minSdk:29, deps:[], api:'activityRecognition', handler:'Activity', impl:{native:'request ACTIVITY_RECOGNITION', bridge:'n/a', webview:'n/a', providerOk:['capacitor','native']}, specialAccess:null }
 };
 
 function pv(name, cap) {
@@ -69,15 +75,23 @@ function pv(name, cap) {
 function getPermissionAudit(cfg){
   const selected = Object.entries(cfg.permissions||{}).filter(([,v])=>v).map(([k])=>k);
   const targetSdk = cfg.targetSdk||35;
+  const provider = cfg.provider||'capacitor';
   const res = selected.map(key=>{
     const spec = PERMISSION_SPEC[key];
-    if(!spec) return {key, title:key, manifest:'MISSING', runtime:'MISSING', handler:'MISSING', version:'UNKNOWN', status:'fail'};
+    if(!spec) return {key, title:key, manifest:'MISSING', runtime:'MISSING', native:'MISSING', bridge:'MISSING', version:'UNKNOWN', special:null, status:'fail'};
     const manifest = spec.manifest.length ? 'OK' : 'MISSING';
-    const runtime = spec.runtime ? (targetSdk >= spec.minSdk ? 'OK' : 'REQUIRES ANDROID '+spec.minSdk+'+' ) : 'OK';
-    const handler = spec.handler ? 'OK' : 'MISSING';
-    const version = targetSdk >= spec.minSdk ? 'OK' : 'WARN';
-    const status = (manifest==='OK' && handler==='OK' && version==='OK') ? 'ok' : (version!=='OK' ? 'warn' : 'fail');
-    return {key, title:spec.title, manifest, runtime, handler, version, status, minSdk:spec.minSdk, api:spec.api};
+    const needsRuntime = !!spec.runtime;
+    const runtime = needsRuntime ? (targetSdk >= spec.minSdk ? 'IMPLEMENTED (NativePermissions.request)' : 'REQUIRES ANDROID '+spec.minSdk+'+') : 'N/A (install-time/special)';
+    const impl = spec.impl || {};
+    const native = impl.native ? 'OK ('+impl.native.slice(0,60)+')' : (spec.handler ? 'DECLARED ('+spec.handler+')' : 'MISSING');
+    const bridge = impl.bridge || 'n/a';
+    const providerOk = !impl.providerOk || impl.providerOk.includes(provider) ? 'OK ('+provider+')' : 'WARN (provider '+provider+' no soporta)';
+    const version = (spec.minSdk && targetSdk < spec.minSdk) ? 'WARN' : ((spec.maxSdk && targetSdk > spec.maxSdk) ? 'WARN (solo hasta API '+spec.maxSdk+')' : 'OK');
+    let status='ok';
+    if(manifest!=='OK' || native.includes('MISSING')) status='fail';
+    else if(version!=='OK' || providerOk.startsWith('WARN') || spec.specialAccess) status='warn';
+    if(key==='gpsBackground' && !cfg.permissions.gps) status='fail';
+    return {key, title:spec.title, manifest, runtime, native, bridge, handler:spec.handler, version, special:spec.specialAccess||spec.legacyNote||null, provider:providerOk, status, minSdk:spec.minSdk, api:spec.api};
   });
   const ok=res.filter(r=>r.status==='ok').length;
   const total=res.length;
@@ -145,7 +159,11 @@ function normalizeConfig(raw) {
     cameraMic: !!raw?.permissions?.cameraMic,
     storage: !!raw?.permissions?.storage,
     gps: !!raw?.permissions?.gps,
+    gpsBackground: !!raw?.permissions?.gpsBackground,
     bluetooth: !!raw?.permissions?.bluetooth,
+    bluetoothScan: !!raw?.permissions?.bluetoothScan,
+    bluetoothConnect: !!raw?.permissions?.bluetoothConnect,
+    bluetoothAdvertise: !!raw?.permissions?.bluetoothAdvertise,
     phone: !!raw?.permissions?.phone,
     sms: !!raw?.permissions?.sms,
     calendar: !!raw?.permissions?.calendar,
@@ -155,6 +173,8 @@ function normalizeConfig(raw) {
     systemAlert: !!raw?.permissions?.systemAlert,
     installPackages: !!raw?.permissions?.installPackages,
     alarm: !!raw?.permissions?.alarm,
+    alarmSchedule: !!raw?.permissions?.alarmSchedule,
+    alarmUse: !!raw?.permissions?.alarmUse,
     nearby: !!raw?.permissions?.nearby,
     vibration: !!raw?.permissions?.vibration,
     wakeLock: !!raw?.permissions?.wakeLock,
@@ -162,6 +182,13 @@ function normalizeConfig(raw) {
     microphone: !!raw?.permissions?.microphone,
     activityRecognition: !!raw?.permissions?.activityRecognition
   };
+  // Compat: legacy single bluetooth -> granular; legacy alarm -> schedule
+  if (permissions.bluetooth && !permissions.bluetoothScan && !permissions.bluetoothConnect && !permissions.bluetoothAdvertise) {
+    if ((Number(raw.minSdk)||23) >= 31 || (Number(raw.targetSdk)||35) >= 31) {
+      permissions.bluetoothScan = true; permissions.bluetoothConnect = true;
+    }
+  }
+  if (permissions.alarm && !permissions.alarmSchedule && !permissions.alarmUse) permissions.alarmSchedule = true;
 
   const plugins = {
     camera: !!raw?.plugins?.camera,
@@ -192,15 +219,16 @@ function normalizeConfig(raw) {
   };
 
   // Auto-enable native plugins when permission is checked -> permissions now truly native
-  if (permissions.gps) plugins.geolocation = true;
+  if (permissions.gps || permissions.gpsBackground) plugins.geolocation = true;
   if (permissions.cameraMic) { plugins.camera = true; plugins.haptics = true; }
   if (permissions.microphone) plugins.haptics = true;
   if (permissions.storage) plugins.filesystem = true;
-  if (permissions.bluetooth) plugins.bluetooth = true;
+  if (permissions.bluetooth || permissions.bluetoothScan || permissions.bluetoothConnect || permissions.bluetoothAdvertise) plugins.bluetooth = true;
   if (permissions.nfc) plugins.nfc = true;
   if (permissions.vibration) plugins.haptics = true;
   if (permissions.biometric) plugins.biometrics = true;
   if (permissions.notifications || permissions.foreground || raw?.notifySchedEnabled) { plugins.localNotifications = true; plugins.notifications = true; }
+  if (permissions.alarmSchedule || permissions.alarmUse || permissions.alarm) { plugins.localNotifications = true; }
   if (permissions.wakeLock) { plugins.device = true; }
   if (permissions.contacts) plugins.contacts = true;
   if (permissions.calendar) plugins.calendar = true;
@@ -869,10 +897,10 @@ function patchPermissionsSrc() {
     "let src=fs.readFileSync(mp,'utf8');",
     "let changed=false;",
     "if(src.indexOf('NativePermissions')===-1){",
-    "  src=src.replace(/import\\s+com\\.getcapacitor\\.BridgeActivity\\s*;/,'import android.webkit.PermissionRequest; import android.webkit.WebChromeClient; import com.getcapacitor.BridgeActivity;');",
-    "  src=src.replace(/public class MainActivity extends BridgeActivity\\s*\\{/,m=>m+NL+'  private static final int REQ_PERMS=9001;'+NL+'  @Override public void onStart(){ super.onStart(); try{ NativePermissions.requestAll(this, REQ_PERMS);}catch(Exception ignored){}}'+NL+'  @Override public void onRequestPermissionsResult(int c,String[] p,int[] r){ super.onRequestPermissionsResult(c,p,r); }');",
+    "  src=src.replace(/import\\s+com\\.getcapacitor\\.BridgeActivity\\s*;/,'import android.Manifest; import android.content.pm.PackageManager; import android.webkit.PermissionRequest; import android.webkit.WebChromeClient; import androidx.core.content.ContextCompat; import com.getcapacitor.BridgeActivity;');",
+    "  src=src.replace(/public class MainActivity extends BridgeActivity\\s*\\{/,m=>m+NL+'  private static final int REQ_PERMS=9001;'+NL+'  private boolean hasPerm(String p){ try{ return ContextCompat.checkSelfPermission(this,p)==PackageManager.PERMISSION_GRANTED; }catch(Exception e){ return false; }}'+NL+'  private boolean wants(String res){ try{ String[] declared=getPackageManager().getPackageInfo(getPackageName(),PackageManager.GET_PERMISSIONS).requestedPermissions; if(declared==null) return false; for(String d:declared){ if(res.contains(\"VIDEO\")&&(d.equals(Manifest.permission.CAMERA))) return true; if(res.contains(\"AUDIO\")&&(d.equals(Manifest.permission.RECORD_AUDIO)||d.equals(Manifest.permission.MODIFY_AUDIO_SETTINGS))) return true; if(res.contains(\"GEOLOCATION\")&&(d.equals(Manifest.permission.ACCESS_FINE_LOCATION)||d.equals(Manifest.permission.ACCESS_COARSE_LOCATION))) return true; } return false; }catch(Exception e){ return false; }}'+NL+'  @Override public void onStart(){ super.onStart(); try{ NativePermissions.requestAll(this, REQ_PERMS);}catch(Exception ignored){}}'+NL+'  @Override public void onRequestPermissionsResult(int c,String[] p,int[] r){ super.onRequestPermissionsResult(c,p,r); }');",
     "  if(src.indexOf('onPermissionRequest')===-1){",
-    "    src=src.replace(/super\\.onCreate\\(savedInstanceState\\);/,s=>s+NL+'    try{ getBridge().getWebView().setWebChromeClient(new WebChromeClient(){ @Override public void onPermissionRequest(final PermissionRequest request){ runOnUiThread(new Runnable(){ public void run(){ try{ request.grant(request.getResources()); }catch(Exception e){ request.deny(); }}}); } }); }catch(Exception ignored){}');",
+    "    src=src.replace(/super\\.onCreate\\(savedInstanceState\\);/,s=>s+NL+'    try{ getBridge().getWebView().setWebChromeClient(new WebChromeClient(){ @Override public void onPermissionRequest(final PermissionRequest request){ runOnUiThread(new Runnable(){ public void run(){ try{ String[] res=request.getResources(); java.util.List<String> ok=new java.util.ArrayList<>(); for(String r:res){ if(r.contains(\"VIDEO\")&&wants(r)&&hasPerm(Manifest.permission.CAMERA)) ok.add(r); else if(r.contains(\"AUDIO\")&&wants(r)&&hasPerm(Manifest.permission.RECORD_AUDIO)) ok.add(r); else if(r.contains(\"GEOLOCATION\")&&wants(r)&&(hasPerm(Manifest.permission.ACCESS_FINE_LOCATION)||hasPerm(Manifest.permission.ACCESS_COARSE_LOCATION))) ok.add(r); } if(!ok.isEmpty()) request.grant(ok.toArray(new String[0])); else request.deny(); }catch(Exception e){ try{request.deny();}catch(Exception ignored){}} }}); } }); }catch(Exception ignored){}');",
     "  }",
     "  fs.writeFileSync(mp,src); changed=true;",
     "}",

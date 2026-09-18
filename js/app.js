@@ -589,7 +589,7 @@ async function runAudit(){
     if(!r.ok) throw new Error(j.error || 'Audit falló');
     const items=j.items.map(i=>{
       const icon=i.status==='ok'?'✓':i.status==='warn'?'⚠':'✕';
-      return `<div class="audit-item ${i.status}"><span class="audit-ico">${icon}</span><div class="audit-main"><b>${escHtml(i.title)}</b> <small>(${escHtml(i.key)})</small><div class="audit-meta"><span class="audit-chip ${i.manifest==='OK'?'ok':'fail'}">Manifest ${escHtml(i.manifest)}</span><span class="audit-chip ${i.runtime==='OK'?'ok':(i.runtime||'').startsWith('REQUIRES')?'warn':'fail'}">Runtime ${escHtml(i.runtime)}</span><span class="audit-chip ${i.handler==='OK'?'ok':'fail'}">Handler ${escHtml(i.handler)}</span>${i.version!=='OK'?`<span class="audit-chip warn">${escHtml(i.version)} · minSdk ${i.minSdk}</span>`:''}</div></div><span class="audit-badge ${i.status}">${i.status}</span></div>`;
+      return `<div class="audit-item ${i.status}"><span class="audit-ico">${icon}</span><div class="audit-main"><b>${escHtml(i.title)}</b> <small>(${escHtml(i.key)})</small><div class="audit-meta"><span class="audit-chip ${i.manifest==='OK'?'ok':'fail'}">Manifest ${escHtml(i.manifest)}</span><span class="audit-chip ${(i.runtime||'').startsWith('IMPLEMENTED')||i.runtime==='OK'?'ok':(i.runtime||'').startsWith('REQUIRES')||i.runtime==='N/A (install-time/special)'?'warn':'fail'}">Runtime ${escHtml((i.runtime||'').slice(0,60))}</span><span class="audit-chip ${(i.native||'').startsWith('OK')?'ok':'fail'}">Native ${escHtml((i.native||i.handler||'').slice(0,70))}</span><span class="audit-chip">Bridge ${escHtml((i.bridge||'').slice(0,50))}</span>${i.version!=='OK'?`<span class="audit-chip warn">${escHtml(i.version)} · minSdk ${i.minSdk}</span>`:''}${i.special?`<span class="audit-chip warn">⚠ ${escHtml((i.special||'').slice(0,80))}</span>`:''}${i.provider&&i.provider.startsWith('WARN')?`<span class="audit-chip warn">${escHtml(i.provider)}</span>`:''}</div></div><span class="audit-badge ${i.status}">${i.status}</span></div>`;
     }).join('');
     auditBox.innerHTML = j.total? items + `<div class="audit-summary ${j.canBuild?'good':'bad'}"><b>${j.ok}/${j.total} OK</b> · Readiness ${j.readiness}% ${j.canBuild?'· ✓ Listo para compilar':'· ✕ Bloqueado: revisa permisos'}</div>` : '<small style="color:var(--muted)">Selecciona al menos un permiso para auditar. Sin permisos el APK solo usa INTERNET.</small>';
     if(readinessBox){
@@ -695,7 +695,11 @@ function collect() {
     microphone: !!data.microphone,
     storage: !!data.storage,
     gps: !!data.gps,
+    gpsBackground: !!data.gpsBackground,
     bluetooth: !!data.bluetooth,
+    bluetoothScan: !!data.bluetoothScan,
+    bluetoothConnect: !!data.bluetoothConnect,
+    bluetoothAdvertise: !!data.bluetoothAdvertise,
     phone: !!data.phone,
     sms: !!data.sms,
     calendar: !!data.calendar,
@@ -705,6 +709,8 @@ function collect() {
     systemAlert: !!data.systemAlert,
     installPackages: !!data.installPackages,
     alarm: !!data.alarm,
+    alarmSchedule: !!data.alarmSchedule,
+    alarmUse: !!data.alarmUse,
     nearby: !!data.nearby,
     vibration: !!data.vibration,
     wakeLock: !!data.wakeLock,

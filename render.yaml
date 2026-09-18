@@ -9,7 +9,7 @@ services:
     envVars:
       - key: GITHUB_TOKEN
         sync: false
-      - key: INTE_BUILDS_REPO
+      - key: INTEE_BUILDS_REPO
         sync: false
       - key: NODE_ENV
         value: production
