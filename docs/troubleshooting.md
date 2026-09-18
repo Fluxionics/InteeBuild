@@ -37,3 +37,22 @@
 ## Límite de compilaciones
 
 Máximo 10 compilaciones por hora e IP. Si lo alcanzas, espera y reintenta.
+
+## Permission Audit failed / Readiness bajo
+
+1. Pulsa `Ejecutar Audit` en el Paso 2. Lee cada fila: `GENERATED OK` vs `SPEC ONLY`.
+2. `gpsBackground sin gps` → marca también `Ubicación precisa`.
+3. `Bluetooth legacy en target 35` → usa `Scan + Connect`.
+4. `Alarmas` → elige `SCHEDULE` o `USE`, no ambas.
+5. Si el botón Generar está deshabilitado, el Audit tiene un `fail`: corrígelo, no lo fuerces.
+
+## Provider no disponible
+
+- `Flutter / Tauri` muestran `PLANNED`: solo generan README, no APK. Usa `Capacitor` o `Native`.
+- `TWA` requiere Chrome + `assetlinks.json` en tu dominio. Sin eso, la app abre en blanco.
+
+## Permiso denegado en Android
+
+1. Verifica en el ZIP (`POST /api/project`) que `main-manifest.xml` tenga la línea.
+2. En Android: Ajustes → Apps → tu app → Permisos → concede manualmente una vez.
+3. Si tu web pide cámara y no marcaste `cameraMic`, el WebView responde `deny()` a propósito. Marca el permiso y recompila.

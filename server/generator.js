@@ -76,27 +76,34 @@ function getPermissionAudit(cfg){
   const selected = Object.entries(cfg.permissions||{}).filter(([,v])=>v).map(([k])=>k);
   const targetSdk = cfg.targetSdk||35;
   const provider = cfg.provider||'capacitor';
+  let manifestXml='';
+  try{ manifestXml = permissionManifestBlocks(cfg); }catch{ manifestXml=''; }
+  const needsRuntimeGlobal = Object.entries(cfg.permissions||{}).some(([k,v])=>v && PERMISSION_SPEC[k]?.runtime);
   const res = selected.map(key=>{
     const spec = PERMISSION_SPEC[key];
-    if(!spec) return {key, title:key, manifest:'MISSING', runtime:'MISSING', native:'MISSING', bridge:'MISSING', version:'UNKNOWN', special:null, status:'fail'};
-    const manifest = spec.manifest.length ? 'OK' : 'MISSING';
+    if(!spec) return {key, title:key, manifest:'MISSING', runtime:'MISSING', native:'MISSING', bridge:'MISSING', version:'UNKNOWN', special:null, status:'fail', verified:false};
+    const manifestInSpec = spec.manifest.length ? 'OK' : 'MISSING';
+    const manifestGenerated = spec.manifest.every(m=>manifestXml.includes(m));
+    const manifest = manifestGenerated ? 'GENERATED OK' : (manifestInSpec==='OK' ? 'SPEC OK, NOT GENERATED' : 'MISSING');
     const needsRuntime = !!spec.runtime;
-    const runtime = needsRuntime ? (targetSdk >= spec.minSdk ? 'IMPLEMENTED (NativePermissions.request)' : 'REQUIRES ANDROID '+spec.minSdk+'+') : 'N/A (install-time/special)';
+    const nativeGenerated = !needsRuntime || needsRuntimeGlobal;
+    const runtime = !needsRuntime ? 'N/A (install-time/special)' : (!nativeGenerated ? 'MISSING (sin NativePermissions.java)' : (targetSdk >= spec.minSdk ? 'GENERATED (NativePermissions.request + MainActivity patch)' : 'REQUIRES ANDROID '+spec.minSdk+'+'));
     const impl = spec.impl || {};
-    const native = impl.native ? 'OK ('+impl.native.slice(0,60)+')' : (spec.handler ? 'DECLARED ('+spec.handler+')' : 'MISSING');
+    const native = impl.native ? (nativeGenerated || !needsRuntime ? 'GENERATED ('+impl.native.slice(0,70)+')' : 'SPEC ONLY, NOT GENERATED') : (spec.handler ? 'DECLARED ('+spec.handler+')' : 'MISSING');
     const bridge = impl.bridge || 'n/a';
     const providerOk = !impl.providerOk || impl.providerOk.includes(provider) ? 'OK ('+provider+')' : 'WARN (provider '+provider+' no soporta)';
     const version = (spec.minSdk && targetSdk < spec.minSdk) ? 'WARN' : ((spec.maxSdk && targetSdk > spec.maxSdk) ? 'WARN (solo hasta API '+spec.maxSdk+')' : 'OK');
+    const verified = manifestGenerated && (!needsRuntime || nativeGenerated);
     let status='ok';
-    if(manifest!=='OK' || native.includes('MISSING')) status='fail';
+    if(!verified || native.includes('MISSING') || native.includes('SPEC ONLY')) status='fail';
     else if(version!=='OK' || providerOk.startsWith('WARN') || spec.specialAccess) status='warn';
     if(key==='gpsBackground' && !cfg.permissions.gps) status='fail';
-    return {key, title:spec.title, manifest, runtime, native, bridge, handler:spec.handler, version, special:spec.specialAccess||spec.legacyNote||null, provider:providerOk, status, minSdk:spec.minSdk, api:spec.api};
+    return {key, title:spec.title, manifest, runtime, native, bridge, handler:spec.handler, version, special:spec.specialAccess||spec.legacyNote||null, provider:providerOk, status, minSdk:spec.minSdk, api:spec.api, verified};
   });
   const ok=res.filter(r=>r.status==='ok').length;
   const total=res.length;
   const readiness = total? Math.round((ok/total)*100) : 100;
-  return {items:res, ok, total, readiness, canBuild: res.every(r=>r.status!=='fail')};
+  return {items:res, ok, total, readiness, canBuild: res.every(r=>r.status!=='fail'), verifiedAll: res.every(r=>r.verified)};
 }
 
 function suggestPermissionsFromApis(detectedApis){

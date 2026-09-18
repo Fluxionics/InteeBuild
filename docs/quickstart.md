@@ -32,6 +32,12 @@ Consejo: pulsa **"Analizar salud web"** antes de compilar. Una puntuación de 80
 
 ## Siguiente paso
 
-- Lee `troubleshooting.md` si algo falla.
-- Lee `permissions.md` para entender cada permiso.
+- Lee [troubleshooting.md](./troubleshooting.md) si algo falla.
+- Lee [permissions.md](./permissions.md) para cada permiso con pruebas reales.
+- Para radios: [foreground.md](./foreground.md).
+- Para automatizar: [api.md](./api.md) y panel `developer.html`.
 - Guarda tu configuración con el botón **JSON** del historial para reutilizarla.
+
+## Índice completo
+
+Ver [README de docs](./README.md).
