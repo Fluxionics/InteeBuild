@@ -12,6 +12,8 @@ Guías completas, verificables contra el código generado. Empieza por [inicio r
 | [providers.md](./providers.md) | Motores WebView: Capacitor, Native, TWA, Gecko, Cordova |
 | [analyzer.md](./analyzer.md) | Seguridad, errores, optimización y auto-fix |
 | [api.md](./api.md) | Developer API, keys, builds, readiness, webhooks |
+| [outputs.md](./outputs.md) | Salidas multi-platform gratis + ficha Play Store |
+| [versions.md](./versions.md) | Versiones, updates OTA simples y CI/CD gratis |
 | [decompiler.md](./decompiler.md) | Recuperar código fuente de un APK |
 | [production.md](./production.md) | Despliegue gratis y seguro en Render |
 | [troubleshooting.md](./troubleshooting.md) | Errores comunes y cómo resolverlos |

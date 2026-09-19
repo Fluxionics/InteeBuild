@@ -53,6 +53,7 @@
         <option value="finanzas">Finanzas & Pagos</option>
         <option value="eventos">Eventos & Tickets</option>
       </select>
+      <a href="./docs.html" class="btn ghost sm" style="text-decoration:none">Docs</a>
       <a href="./developer.html" class="btn ghost sm" style="text-decoration:none">API Docs</a>
       <button id="modeToggle" class="btn ghost sm">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
@@ -118,7 +119,7 @@
       <h2>Preguntas frecuentes</h2>
       <details class="card faq"><summary>¿Es gratis?</summary><p class="hint">Sí. La compilación usa GitHub Actions y el proyecto es open source.</p></details>
       <details class="card faq"><summary>¿Puedo publicar en Google Play?</summary><p class="hint">Sí. Elige salida AAB, firma con tu keystore y sube el bundle a Play Console.</p></details>
-      <details class="card faq"><summary>¿Qué pasa con mis datos?</summary><p class="hint">Las ramas y artefactos se borran automáticamente a los 30 minutos. Ver Política de Privacidad.</p></details>
+      <details class="card faq"><summary>¿Qué pasa con mis datos?</summary><p class="hint">La rama con tu código se borra al terminar el build (no queda código en el repo). Artefactos y runs se auto-limpian después. Ver Política de Privacidad.</p></details>
       <details class="card faq"><summary>¿Funciona sin programar?</summary><p class="hint">Sí. Plantillas y presets configuran todo por ti; el modo avanzado es opcional.</p></details>
     </section>
 
@@ -154,6 +155,7 @@
                 <button type="button" class="toggle-btn" data-input="html">Código HTML Directo</button>
               </div>
             </div>
+            <p class="hint" style="font-size:11px">Plantillas 100% nativas y verificadas: al elegir una arriba se configura todo (permisos + provider + UI). <button type="button" class="btn ghost sm" id="templateZipBtn" style="padding:4px 10px">📦 Ver código (ZIP) de la plantilla</button></p>
             <div id="urlGroup">
               <label>URL del sitio web
                 <div style="display:flex;gap:8px">
@@ -215,10 +217,12 @@
               </label>
               <div style="display:flex;gap:8px;flex-wrap:wrap">
                 <button type="button" class="btn ghost sm" id="exampleHtmlBtn">Descargar ejemplo HTML</button>
+                <button type="button" class="btn ghost sm hidden" id="faceBtn">🎭 Usar cara de la plantilla</button>
                 <label class="btn ghost sm" style="cursor:pointer">Importar archivo .html
                   <input type="file" id="htmlFileInput" accept=".html,.htm,text/html" class="hidden" />
                 </label>
               </div>
+              <p class="hint" style="font-size:11px;margin-top:6px">Tu HTML es la <b>cara</b>; todo lo demás (permisos, splash, menú, PWA) lo pone el nativo. O pega tu URL arriba.</p>
             </div>
             <label title="Nombre visible de la app. Solo letras, números, espacios, guiones y puntos (2-40 caracteres). Ejemplo: Mi Tienda">Nombre de la Aplicación
               <input type="text" name="appName" placeholder="Mi Aplicación Nativa" maxlength="40" id="appNameInput" />
@@ -637,6 +641,7 @@
               <label>Paquete de salida<select name="outputType"><option value="apk">Instalable APK</option><option value="aab">Google Play Bundle (AAB)</option><option value="both">Ambos (APK + AAB)</option></select></label>
               <label>Plataforma<select name="platform" id="platformSelect"><option value="android">Android</option><option value="ios">iOS (iPhone)</option><option value="both">Android + iOS</option></select></label>
             </div>
+            <p class="hint" style="font-size:11px">Multi-platform gratis: cada build incluye APK/AAB + archivos PWA (<code>manifest.webmanifest</code> + <code>sw.js</code>) y, si los activas abajo, Desktop y TWA. Todo sin pagos.</p>
             <div class="row">
               <label>Webhook de Notificación (opcional)<input type="url" name="webhookUrl" placeholder="https://..." /></label>
               <span></span>
@@ -738,6 +743,7 @@
             <label>Acción del botón Atrás (Back Button)<select name="backButtonBehavior"><option value="back">Volver al historial anterior</option><option value="exit">Cerrar la aplicación</option><option value="confirm">Solicitar confirmación antes de salir</option><option value="none">Sin acción</option></select></label>
             <label>Modo de almacenamiento en caché<select name="cacheMode"><option value="normal">Normal (Estándar Web)</option><option value="no-cache">Deshabilitar caché</option><option value="force-cache">Forzar uso de caché offline</option></select></label>
             <label>Inyección de código JavaScript<textarea name="jsInjection" rows="4" placeholder="// Código JS inyectado tras la carga de la WebView&#10;console.log('WebView lista');"></textarea></label>
+            <label class="switch"><input type="checkbox" name="minify" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Minificar HTML (gratis)</b><small>Quita comentarios y espacios extra del código generado</small></span></label>
             <label>Inyección de estilos CSS<textarea name="cssInjection" rows="4" placeholder="/* Estilos personalizados aplicados a la WebView */&#10;body { -webkit-user-select: none; }"></textarea></label>
             <label>Cabeceras HTTP Personalizadas (clave: valor)<textarea name="customHeaders" rows="3" placeholder="X-App-Platform: Android-Nativo&#10;X-InteeBuild-Client: 1.0"></textarea></label>
           </div>
@@ -847,7 +853,7 @@
                 <label>Contraseña del .p12<input type="password" name="iosP12Password" id="iosP12Pass" /></label>
                 <label>Tipo de exportación<select name="iosExportMethod"><option value="development">Development (pruebas)</option><option value="ad-hoc">Ad Hoc (dispositivos)</option><option value="app-store">App Store</option></select></label>
               </div>
-              <p class="hint">Se usa solo en este build y se auto-borra con la rama temporal (~30 min).</p>
+              <p class="hint">Se usa solo en este build y se auto-borra con la rama temporal (al terminar el build).</p>
             </div>
           </div>
 
@@ -1118,6 +1124,7 @@
     <a href="./privacy.html">Privacidad</a><span class="sep">·</span>
     <a href="./terms.html">Términos</a><span class="sep">·</span>
     <a href="./license.html">Licencia</a><span class="sep">·</span>
+    <a href="./docs.html" style="color:var(--accent);font-size:11px;text-decoration:none;font-weight:700">Docs</a><span class="sep">·</span>
     <a href="./developer.html" style="color:var(--accent);font-size:11px;text-decoration:none;font-weight:700">Developer API</a><span class="sep">·</span>
     <a href="/api/v1/build" style="color:var(--faint);font-size:11px;text-decoration:none">API REST v1</a><span class="sep">·</span>
     <a href="/api/diag" target="_blank" rel="noopener" style="color:var(--muted);font-size:11px;">Diagnóstico</a><span class="sep">·</span>

@@ -242,6 +242,8 @@ function normalizeConfig(raw) {
 
   const provider = ['capacitor','native','twa','gecko','cordova','flutter','tauri'].includes(String(raw.provider||'').toLowerCase()) ? String(raw.provider).toLowerCase() : 'capacitor';
   const providerVersion = String(raw.providerVersion||'').slice(0,20) || (provider==='capacitor' ? (compileSdk>=35?'7':'6') : '1.0');
+  const minify = !!raw.minify;
+  const pwaEnabled = raw.pwaEnabled !== undefined ? !!raw.pwaEnabled : true;
   const orientation = ['portrait', 'landscape', 'any', 'sensor'].includes(raw.orientation) ? raw.orientation : 'any';
   const fullscreen = !!raw.fullscreen;
   const hideNavBar = !!raw.hideNavBar;
@@ -376,6 +378,7 @@ function normalizeConfig(raw) {
     appTheme, entryAnimation, userAgent, jsInjection, cssInjection,
     cacheMode, backButtonBehavior, customHeaders, webhookUrl,
     provider, providerVersion,
+    minify, pwaEnabled,
     pullRefresh, offlineScreen, offlineMessage, flagSecure, blockSelection, downloadManager,
     drawerEnabled, drawerItems, bottomNavEnabled, bottomNavItems, loadingIndicator,
     admobAppId, admobInterstitial, admobRewarded, iapEnabled, iapProducts,
@@ -1193,7 +1196,9 @@ function generateFiles(cfg) {
       iapEnabled: !!cfg.iapEnabled,
       firebaseEnabled: !!cfg.firebaseEnabled,
       twaEnabled: !!cfg.twaEnabled,
-      desktopEnabled: !!cfg.desktopEnabled
+      desktopEnabled: !!cfg.desktopEnabled,
+      minify: !!cfg.minify,
+      pwaEnabled: !!cfg.pwaEnabled
     }, null, 2),
 
     'main-manifest.xml': generateAndroidManifest(cfg),
@@ -1337,8 +1342,71 @@ function generateFiles(cfg) {
       files['www/index.html'] = html2;
     }
   }
+  // PWA gratis: manifest + service worker + registro (sin hosting, los archivos van en el ZIP)
+  if (cfg.pwaEnabled) {
+    files['www/manifest.webmanifest'] = JSON.stringify({
+      name: cfg.appName,
+      short_name: cfg.appName.slice(0, 12),
+      start_url: '.',
+      display: 'standalone',
+      background_color: cfg.splashColor || '#ffffff',
+      theme_color: cfg.accentColor || '#4f46e5',
+      icons: [{ src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }]
+    }, null, 2);
+    files['www/sw.js'] = "const CACHE='ib-v1';self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','./index.html','./manifest.webmanifest']).catch(()=>{})));self.skipWaiting();});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match('./index.html'))));});";
+    let html = files['www/index.html'];
+    if (!/<link[^>]*rel=["']manifest["']/i.test(html)) {
+      const link = '<link rel="manifest" href="manifest.webmanifest" />';
+      html = /<\/head\s*>/i.test(html) ? html.replace(/<\/head\s*>/i, link + '</head>') : link + html;
+    }
+    if (!/serviceWorker/i.test(html)) {
+      const reg = '<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</scr' + 'ipt>';
+      html = /<\/body\s*>/i.test(html) ? html.replace(/<\/body\s*>/i, reg + '</body>') : html + reg;
+    }
+    files['www/index.html'] = html;
+  }
+  // Minify gratis y seguro (solo si se activa): quita comentarios y colapsa espacios
+  if (cfg.minify) {
+    let html = files['www/index.html'];
+    html = html.replace(/<!--(?!\[if)[\s\S]*?-->/g, '');
+    html = html.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n');
+    files['www/index.html'] = html;
+    if (files['www/catalog.js']) {
+      files['www/catalog.js'] = String(files['www/catalog.js']).replace(/\/\*[\s\S]*?\*\//g, '');
+    }
+  }
 
   return files;
+}
+
+function buildPlayListing(cfg) {
+  const perms = Object.entries(cfg.permissions || {}).filter(([, v]) => v).map(([k]) => k);
+  const feat = [];
+  if (cfg.permissions.foreground) feat.push('audio en segundo plano');
+  if (cfg.permissions.gps) feat.push('ubicación GPS');
+  if (cfg.permissions.cameraMic) feat.push('cámara y micrófono');
+  if (cfg.drawerEnabled) feat.push('menú lateral nativo');
+  if (cfg.bottomNavEnabled) feat.push('navegación inferior');
+  if (cfg.offlineScreen) feat.push('pantalla sin conexión');
+  const shortDesc = (cfg.description || ((cfg.appName || 'Mi app') + ' — app Android nativa generada con InteeBuild.')).slice(0, 80);
+  const fullDesc = [
+    (cfg.description || (cfg.appName || 'Mi app') + ' para Android.'),
+    '',
+    'Características:',
+    ...(feat.length ? feat.map(f => '• ' + f) : ['• Acceso rápido desde tu teléfono']),
+    '• Funciona con tu web favorita dentro de la app',
+    '',
+    'Privacidad: esta app solicita únicamente los permisos necesarios (' + (perms.length ? perms.join(', ') : 'ninguno adicional') + ').'
+  ].join('\n').slice(0, 4000);
+  return {
+    title: String(cfg.appName || 'Mi app').slice(0, 30),
+    shortDescription: shortDesc,
+    fullDescription: fullDesc,
+    keywords: ['android', 'app', cfg.packageName || ''].filter(Boolean).join(', ').slice(0, 100),
+    category: 'Herramientas',
+    packageName: cfg.packageName || '',
+    version: (cfg.versionName || '1.0.0') + ' (' + (cfg.versionCode || 1) + ')'
+  };
 }
 
 module.exports = {
@@ -1347,6 +1415,7 @@ module.exports = {
   generateAndroidManifest,
   getPermissionAudit,
   suggestPermissionsFromApis,
+  buildPlayListing,
   PERMISSION_SPEC,
   WORKFLOW_YML,
   VALID_COMPILE_SDKS,

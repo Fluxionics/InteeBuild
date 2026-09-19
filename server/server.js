@@ -11,6 +11,7 @@ const JSZip = require('jszip');
 
 const generator = require('./generator');
 const gh = require('./github');
+const templates = require('./templates');
 const packageJson = require('../package.json');
 const VERSION = packageJson.version;
 
@@ -24,8 +25,12 @@ if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 if (!fs.existsSync(HISTORY_FILE)) fs.writeFileSync(HISTORY_FILE, '[]', 'utf-8');
 const APIKEYS_FILE = path.join(DATA_DIR, 'apikeys.json');
 const GIT_FILE = path.join(DATA_DIR, 'git-integrations.json');
+const VERSIONS_FILE = path.join(DATA_DIR, 'versions.json');
 if (!fs.existsSync(APIKEYS_FILE)) fs.writeFileSync(APIKEYS_FILE, '[]', 'utf-8');
 if (!fs.existsSync(GIT_FILE)) fs.writeFileSync(GIT_FILE, '[]', 'utf-8');
+if (!fs.existsSync(VERSIONS_FILE)) fs.writeFileSync(VERSIONS_FILE, '{}', 'utf-8');
+function loadVersions(){ try{ return JSON.parse(fs.readFileSync(VERSIONS_FILE,'utf-8')); }catch{ return {}; } }
+function saveVersions(v){ fs.writeFileSync(VERSIONS_FILE, JSON.stringify(v,null,2),'utf-8'); }
 
 const ALLOWED_ORIGIN = process.env.CORS_ORIGIN || null;
 app.use(cors(ALLOWED_ORIGIN ? { origin: ALLOWED_ORIGIN } : { origin: true }));
@@ -546,6 +551,7 @@ app.delete('/api/keys/:id', (req,res)=>{
 app.get('/api/docs', (req,res)=>{
   res.json({
     version:VERSION,
+    free:'Todo gratis y local: sin planes de pago, sin API keys de IA, sin monetización.',
     endpoints:{
       health:'GET /api/health',
       analyze:'GET /api/analyze?url= & POST /api/analyze/html',
@@ -555,11 +561,95 @@ app.get('/api/docs', (req,res)=>{
       keys:'GET/POST /api/keys, DELETE /api/keys/:id',
       gitConnect:'POST /api/git/connect {repo,branch,token}',
       gitWebhook:'POST /api/git/webhook',
-      decompile:'POST /api/decompile (JSON {apkBase64} o raw octet-stream)'
+      decompile:'POST /api/decompile (JSON {apkBase64} o raw octet-stream)',
+      templates:'GET /api/templates, GET /api/templates/:id',
+      listing:'POST /api/listing (ficha Play Store gratis)',
+      securityAudit:'POST /api/security-audit (GDPR + permisos + privacy)',
+      privacyPolicy:'GET /api/privacy-policy?appName=&package=',
+      versions:'GET /api/versions/:appId, POST /api/versions/publish, GET /api/check-update',
+      cicd:'POST /api/cicd (workflow gratis para auto-build on push)'
     },
     auth:'Header X-API-Key o Authorization: Bearer ib_... (opcional si no hay keys, obligatorio si existen)',
-    permissions:'Todos los 21 permisos son nativos: runtime request + manifest + WebChromeClient grant + plugins Capacitor auto-inyectados'
+    permissions:'Permisos granulares nativos: runtime request + manifest + WebChromeClient grant selectivo + plugins auto'
   });
+});
+
+// Ficha Play Store gratis (sin IA, plantilla local)
+app.post('/api/listing', (req,res)=>{
+  try{
+    const cfg=generator.normalizeConfig(templates.applyTemplate(req.body||{}, (req.body||{}).template));
+    res.json({ok:true, listing:generator.buildPlayListing(cfg)});
+  }catch(e){ res.status(400).json({error:e.message}); }
+});
+
+// Security audit gratis: permisos + GDPR + dependencias (reglas locales, sin IA)
+app.post('/api/security-audit', (req,res)=>{
+  try{
+    const cfg=generator.normalizeConfig(templates.applyTemplate(req.body||{}, (req.body||{}).template));
+    const audit=generator.getPermissionAudit(cfg);
+    const issues=[];
+    const sensitive=['phone','sms','systemAlert','installPackages','gpsBackground'];
+    sensitive.forEach(k=>{ if(cfg.permissions[k]) issues.push({severity:'high', msg:'Permiso sensible '+k+' requiere justificación en Play Store', fix:'Quítalo si tu app no es de esa categoría'}); });
+    if(!cfg.useCleartext && String(cfg.url||'').startsWith('http://')) issues.push({severity:'medium', msg:'URL http con cleartext desactivado', fix:'Activa tráfico cleartext o usa https'});
+    const gdpr=[
+      {item:'Política de privacidad enlazada', ok:!!String(req.body.privacyUrl||'').trim(), fix:'GET /api/privacy-policy para generarla'},
+      {item:'Sin permisos sensibles innecesarios', ok:!sensitive.some(k=>cfg.permissions[k]), fix:'Quita phone/sms/gpsBackground si no aplican'},
+      {item:'Keystore propio para release', ok:!!cfg.useCustomSigning, fix:'Sube tu .jks en Firma para publicar'}
+    ];
+    const score=Math.max(0, 100 - audit.items.filter(i=>i.status==='fail').length*20 - audit.items.filter(i=>i.status==='warn').length*5 - issues.filter(i=>i.severity==='high').length*5);
+    res.json({ok:true, score, level: score>=90?'Excelente':score>=70?'Bueno':score>=50?'Revisar':'Crítico', audit, issues, gdpr});
+  }catch(e){ res.status(400).json({error:e.message}); }
+});
+app.get('/api/privacy-policy', (req,res)=>{
+  const appName=String(req.query.appName||'Mi app').slice(0,60);
+  const pkg=String(req.query.package||'com.example.app').slice(0,80);
+  res.type('text/plain').send(
+    'POLÍTICA DE PRIVACIDAD — '+appName+' ('+pkg+')\n\n'
+    + '1. Datos que recoge la app: la app muestra contenido web y usa únicamente los permisos que el usuario concede en Android (cámara, ubicación, etc.).\n'
+    + '2. Uso: los datos se usan solo para el funcionamiento visible de la app y no se venden.\n'
+    + '3. Terceros: si tu web carga servicios externos (analítica, anuncios), revisa sus políticas.\n'
+    + '4. Conservación: InteeBuild borra la rama de compilación al terminar el build; los artefactos se auto-limpian.\n'
+    + '5. Contacto: publica un correo de contacto antes de subir a Play Store.\n\n'
+    + 'Generado gratis con InteeBuild. Adáptalo con tu abogado.'
+  );
+});
+
+// Versiones y OTA simple (local, gratis): publica y consulta actualizaciones
+app.get('/api/versions/:appId', (req,res)=>{
+  const v=loadVersions();
+  res.json(v[String(req.params.appId)]||{appId:req.params.appId, versions:[]});
+});
+app.post('/api/versions/publish', (req,res)=>{
+  const appId=String(req.body.appId||'').slice(0,80);
+  const version=String(req.body.version||'').slice(0,20);
+  const changelog=String(req.body.changelog||'').slice(0,500);
+  if(!appId || !/^\d+(\.\d+){0,3}$/.test(version)) return res.status(400).json({error:'appId y version (ej 1.0.1) requeridos'});
+  const v=loadVersions();
+  const entry=v[appId]||{appId, versions:[]};
+  entry.versions.unshift({version, changelog, publishedAt:Date.now()});
+  entry.versions=entry.versions.slice(0,20);
+  v[appId]=entry; saveVersions(v);
+  res.json({ok:true, ...entry});
+});
+app.get('/api/check-update', (req,res)=>{
+  const appId=String(req.query.appId||'');
+  const current=String(req.query.version||'0.0.0');
+  const entry=(loadVersions())[appId];
+  if(!entry || !entry.versions.length) return res.json({updateAvailable:false});
+  const latest=entry.versions[0].version;
+  const cmp=(a,b)=>{ const pa=a.split('.').map(Number), pb=b.split('.').map(Number); for(let i=0;i<3;i++){ if((pa[i]||0)!==(pb[i]||0)) return (pa[i]||0)>(pb[i]||0)?1:-1; } return 0; };
+  if(cmp(latest,current)>0) return res.json({updateAvailable:true, latest, changelog:entry.versions[0].changelog});
+  res.json({updateAvailable:false, latest});
+});
+
+// CI/CD gratis: genera workflow para auto-compilar on push usando tu webhook
+app.post('/api/cicd', (req,res)=>{
+  const repo=String(req.body.repo||'').trim();
+  const branch=String(req.body.branch||'main').trim();
+  const baseUrl=String(req.body.baseUrl||'https://tu-dominio.com').replace(/\/$/,'');
+  if(!/^[^/]+\/[^/]+$/.test(repo)) return res.status(400).json({error:'repo debe ser usuario/repo'});
+  const yml='name: inteebuild-auto\non:\n  push:\n    branches: ['+branch+']\n    paths: [index.html, src/**, www/**]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - name: Trigger InteeBuild\n        run: |\n          curl -X POST '+baseUrl+'/api/git/webhook -H "Content-Type: application/json" -d \'{"repository":{"full_name":"'+repo+'"},"ref":"refs/heads/'+branch+'"}\'\n';
+  res.json({ok:true, repo, branch, file:'.github/workflows/inteebuild-auto.yml', workflow:yml, note:'Súbelo a '+repo+' y conecta el repo en POST /api/git/connect. Sin costos, usa tu propio servidor.'});
 });
 
 // Git integration - connect repo to auto-build on push
@@ -685,6 +775,49 @@ app.post('/api/decompile', async (req,res)=>{
   }catch(e){ res.status(500).json({error:'No se pudo descompilar: '+e.message}); }
 });
 
+app.get('/api/templates', (req,res)=>{
+  const list = templates.listTemplates().map(t=>{
+    let audit=null;
+    try{
+      const safeName=('Tpl '+t.name).replace(/[^A-Za-z0-9 ]/g, '').slice(0, 30) || 'Tpl App';
+      const cfg=generator.normalizeConfig({appName:safeName, url:'https://example.com', ...templates.getTemplate(t.id).config});
+      audit=generator.getPermissionAudit(cfg);
+    }catch(e){ audit={error:e.message}; }
+    return {...t, audit: audit ? {ok:audit.ok, total:audit.total, readiness:audit.readiness, canBuild:audit.canBuild} : null};
+  });
+  res.json(list);
+});
+app.get('/api/templates/:id', (req,res)=>{
+  const t=templates.getTemplate(req.params.id);
+  if(!t) return res.status(404).json({error:'Plantilla no encontrada'});
+  res.json({id:req.params.id, ...t});
+});
+// Prueba de que la plantilla es 100% código nativo: genera manifest,
+// lista de archivos Java/XML y audit verificado, sin compilar en GitHub.
+app.get('/api/templates/:id/native', (req,res)=>{
+  const t=templates.getTemplate(req.params.id);
+  if(!t) return res.status(404).json({error:'Plantilla no encontrada'});
+  try{
+    const safeName=('Tpl '+t.name).replace(/[^A-Za-z0-9 ]/g, '').slice(0, 30) || 'Tpl App';
+    const cfg=generator.normalizeConfig({appName:safeName, url:'https://example.com', packageName:'com.example.'+String(req.params.id).replace(/[^a-z0-9]/g,''), ...t.config});
+    const files=generator.generateFiles(cfg);
+    const names=Object.keys(files);
+    const javaFiles=names.filter(n=>n.endsWith('.java')||n.endsWith('.xml'));
+    const audit=generator.getPermissionAudit(cfg);
+    res.json({
+      id:req.params.id, name:t.name,
+      native100: audit.verifiedAll !== false && audit.canBuild,
+      manifest: files['main-manifest.xml'],
+      files: names,
+      javaFiles,
+      hasNativePermissions: !!files['NativePermissions.java'],
+      hasRadioService: !!files['RadioService.java'],
+      hasCatalogPatch: !!files['patch-catalog.js'],
+      provider: files['provider.json'] ? JSON.parse(files['provider.json']) : null,
+      audit
+    });
+  }catch(e){ res.status(400).json({error:e.message}); }
+});
 app.get('/api/permissions/spec', (req,res)=> res.json(generator.PERMISSION_SPEC));
 app.post('/api/permissions/audit', (req,res)=>{
   try{
@@ -762,7 +895,8 @@ app.get('/api/build/:id', (req, res) => {
 
 app.post('/api/project', async (req, res) => {
   try {
-    const cfg = generator.normalizeConfig(req.body || {});
+    const raw = templates.applyTemplate(req.body || {}, (req.body || {}).template);
+    const cfg = generator.normalizeConfig(raw);
     if (cfg.inputType === 'url' && isBlockedUrl(cfg.url)) throw Object.assign(new Error('URL bloqueada por seguridad'), { status: 400 });
     if (cfg.inputType === 'html' && cfg.htmlCode.length > 500000) throw Object.assign(new Error('HTML demasiado grande (max 500KB)'), { status: 400 });
     cfg._buildId = 'zip';
@@ -829,7 +963,8 @@ app.post('/api/build', async (req, res) => {
   const ip = req.ip || req.connection.remoteAddress || 'unknown';
   let cfg;
   try {
-    cfg = generator.normalizeConfig(req.body || {});
+    const raw = templates.applyTemplate(req.body || {}, (req.body || {}).template);
+    cfg = generator.normalizeConfig(raw);
     if (cfg.inputType === 'url' && isBlockedUrl(cfg.url)) throw Object.assign(new Error('URL bloqueada por seguridad (localhost/IP privada)'), { status: 400 });
     if (cfg.inputType === 'html' && cfg.htmlCode.length > 500000) throw Object.assign(new Error('HTML demasiado grande (max 500KB)'), { status: 400 });
     if (cfg.iconBase64 && cfg.iconBase64.length > 7 * 1024 * 1024) throw Object.assign(new Error('Icono demasiado grande'), { status: 400 });
@@ -849,7 +984,7 @@ app.post('/api/v1/build', requireApiKey, async (req, res) => {
   const ip = req.ip || req.connection.remoteAddress || 'unknown';
   const body = req.body || {};
 
-  const rawCfg = {
+  const rawCfg = templates.applyTemplate({
     url: body.url,
     appName: body.name || body.appName,
     packageName: body.package || body.packageName,
@@ -863,8 +998,9 @@ app.post('/api/v1/build', requireApiKey, async (req, res) => {
     targetSdk: body.targetSdk || 35,
     minSdk: body.minSdk || 23,
     permissions: body.permissions || {},
-    plugins: body.plugins || {}
-  };
+    plugins: body.plugins || {},
+    provider: body.provider || 'capacitor'
+  }, body.template);
 
   let cfg;
   try {
@@ -974,6 +1110,9 @@ function pollBuild(g, state) {
         if (run.status === 'completed') {
           clearInterval(timer);
           runCleanup(g);
+          // El código subido ya no se necesita: borra la rama para no dejar código
+          // Los artefactos (APK/AAB) siguen disponibles 30 min para descarga
+          try { gh.deleteBranchSoon(g.owner, g.repo, state.branch, 60000); } catch (_) {}
           if (run.conclusion === 'success') {
             state.status = 'success';
             state.step = 'Build completado';
@@ -996,6 +1135,7 @@ function pollBuild(g, state) {
             state.error = `GitHub Actions concluyo: ${run.conclusion}`;
             updateHistory(state.id, { status: 'failed', error: state.error });
             await fireWebhook(state.webhookUrl, { event: 'build.failed', buildId: state.id, status: 'failed', error: state.error, runUrl: state.runUrl });
+            try { gh.deleteBranchSoon(g.owner, g.repo, state.branch, 60000); } catch (_) {}
           }
         } else {
           state.step = run.status === 'queued' ? 'En cola en GitHub Actions' : 'Compilando APK';
@@ -1012,6 +1152,7 @@ function pollBuild(g, state) {
         state.error = state.error || 'Tiempo de espera agotado consultando GitHub';
         updateHistory(state.id, { status: 'failed', error: state.error });
         fireWebhook(state.webhookUrl, { event: 'build.failed', buildId: state.id, status: 'failed', error: state.error });
+        try { gh.deleteBranchSoon(g.owner, g.repo, state.branch, 60000); } catch (_) {}
       }
     }
   }, 6000);

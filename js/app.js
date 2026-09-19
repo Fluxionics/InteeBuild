@@ -261,70 +261,91 @@ if(bottomCheck) bottomCheck.addEventListener('change', e=> document.getElementBy
 
 const templateSelect = document.getElementById('templateSelect');
 if (templateSelect) {
-  templateSelect.addEventListener('change', () => {
+  templateSelect.addEventListener('change', async () => {
     const v = templateSelect.value;
+    if (!v) return;
     const setCheck = (name, val) => {
       const el = document.querySelector(`[name="${name}"]`);
       if (el) {
         el.checked = !!val;
-        const tile = el.closest('.perm-tile, .plugin-card');
+        const tile = el.closest('.perm-tile, .plugin-card, .switch');
         if (tile) tile.classList.toggle('checked', !!val);
       }
     };
-    const setVal = (name, val) => { const el = document.querySelector(`[name="${name}"]`); if (el) el.value = val; };
-
-    if (!v) return;
-
-    setCheck('notifications', true);
-    setCheck('foreground', true);
-    setVal('orientation', 'any');
-
-    const names = {
-      web: 'Web estándar', pwa: 'PWA Nativa', radio: 'Radio', ecommerce: 'Tienda',
-      blog: 'Blog', game: 'Juego', edu: 'Educación', empresa: 'Corporativa',
-      comunidad: 'Comunidad', streaming: 'Streaming', dashboard: 'Panel',
-      ai: 'AI Web App', maps: 'Mapas', finanzas: 'Finanzas', eventos: 'Eventos',
-      portafolio: 'Portafolio'
+    const setVal = (name, val) => { const el = document.querySelector(`[name="${name}"]`); if (el && val !== undefined) el.value = val; };
+    const setProvider = (p) => {
+      const rad = document.querySelector(`input[name="provider"][value="${p}"]`);
+      if (rad) {
+        document.querySelectorAll('input[name="provider"]').forEach(r=>{r.checked=false; r.closest('.plugin-card')?.classList.remove('checked');});
+        rad.checked = true;
+        rad.closest('.plugin-card')?.classList.add('checked');
+      }
     };
-
-    if (v === 'radio') {
-      setCheck('foreground', true); setCheck('wakeLock', true); setCheck('plugin_statusBar', true); setCheck('plugin_inteebridge', true);
-      setVal('outputType', 'apk');
-    } else if (v === 'ecommerce') {
-      setCheck('storage', true); setCheck('cameraMic', true); setCheck('gps', true); setCheck('plugin_camera', true); setCheck('plugin_share', true);
-    } else if (v === 'game') {
-      setCheck('wakeLock', true); setCheck('vibration', true); setCheck('plugin_haptics', true); setCheck('fullscreen', true);
-      setVal('orientation', 'landscape');
-    } else if (v === 'streaming') {
-      setCheck('foreground', true); setCheck('wakeLock', true); setCheck('plugin_statusBar', true);
-      setVal('orientation', 'sensor');
-    } else if (v === 'maps') {
-      setCheck('gps', true); setCheck('plugin_geolocation', true);
-    } else if (v === 'ai') {
-      setCheck('microphone', true); setCheck('cameraMic', true); setCheck('plugin_clipboard', true); setCheck('plugin_inteebridge', true);
-    } else if (v === 'comunidad') {
-      setCheck('notifications', true); setCheck('cameraMic', true); setCheck('storage', true); setCheck('plugin_share', true); setCheck('plugin_camera', true);
-    } else if (v === 'pwa') {
-      setCheck('notifications', true); setCheck('storage', true); setCheck('plugin_notifications', true); setCheck('plugin_filesystem', true);
-    } else if (v === 'blog') {
-      setCheck('notifications', true); setCheck('storage', true); setCheck('plugin_share', true);
-    } else if (v === 'edu') {
-      setCheck('notifications', true); setCheck('storage', true); setCheck('cameraMic', true); setCheck('plugin_filesystem', true); setCheck('plugin_camera', true);
-    } else if (v === 'empresa') {
-      setCheck('notifications', true); setCheck('storage', true); setCheck('plugin_biometrics', true); setCheck('biometric', true);
-    } else if (v === 'dashboard') {
-      setCheck('notifications', true);
-    } else if (v === 'finanzas') {
-      setCheck('plugin_biometrics', true); setCheck('biometric', true); setCheck('notifications', true);
-    } else if (v === 'eventos') {
-      setCheck('cameraMic', true); setCheck('gps', true); setCheck('plugin_camera', true); setCheck('plugin_geolocation', true);
-    } else if (v === 'portafolio') {
-      setCheck('notifications', true); setCheck('storage', true); setCheck('plugin_share', true);
-      setVal('orientation', 'any');
+    try {
+      const r = await fetch('/api/templates/' + encodeURIComponent(v));
+      const t = await r.json();
+      if (!r.ok) throw new Error(t.error || 'Plantilla no encontrada');
+      const c = t.config || {};
+      // Limpia permisos/plugins antes de aplicar plantilla completa
+      document.querySelectorAll('#permEasy input[type="checkbox"], #permAdvanced input[type="checkbox"]').forEach(el=>{ el.checked=false; el.closest('.perm-tile')?.classList.remove('checked'); });
+      Object.entries(c.permissions || {}).forEach(([k,val])=> setCheck(k, !!val));
+      Object.entries(c.plugins || {}).forEach(([k,val])=> setCheck('plugin_' + k, !!val));
+      ['orientation','outputType','loadingIndicator','offlineMessage','desktopPlatform'].forEach(k=>{ if(c[k]!==undefined) setVal(k, c[k]); });
+      ['fullscreen','keepScreenOn','edgeToEdge','useCleartext','splashEnabled','pullRefresh','offlineScreen','downloadManager','flagSecure','blockSelection','encryptedStorage','rootDetection','firebaseEnabled','admobInterstitial','admobRewarded','iapEnabled','twaEnabled','desktopEnabled'].forEach(k=>{ if(c[k]!==undefined) setCheck(k, !!c[k]); });
+      if(c.provider) setProvider(c.provider);
+      // Cara HTML: la plantilla trae cara starter 100% editable.
+      // Si el editor está vacío se pone sola; si tienes tu HTML, te pregunta sin borrar nada.
+      if (t.faceHtml) {
+        window._lastTemplateFace = t.faceHtml;
+        window._lastTemplateName = t.name;
+        const ta = document.querySelector('[name="htmlCode"]');
+        const cur = ta ? ta.value.trim() : '';
+        if (ta && !cur) {
+          const htmlToggle = document.querySelector('.toggle-btn[data-input="html"]');
+          if (htmlToggle) htmlToggle.click();
+          ta.value = t.faceHtml;
+        } else if (ta && cur && cur !== t.faceHtml) {
+          setTimeout(() => {
+            if (confirm('La plantilla "' + t.name + '" trae una cara HTML de ejemplo. ¿Usarla como cara? (Tu HTML actual se reemplaza. Todo lo demás ya quedó nativo.)')) {
+              const htmlToggle = document.querySelector('.toggle-btn[data-input="html"]');
+              if (htmlToggle) htmlToggle.click();
+              ta.value = t.faceHtml;
+            }
+          }, 350);
+        }
+        const faceBtn = document.getElementById('faceBtn');
+        if (faceBtn) faceBtn.classList.remove('hidden');
+      }
+      if (typeof updatePreview === 'function') updatePreview();
+      if (typeof runAudit === 'function') setTimeout(runAudit, 300);
+      alert('Plantilla aplicada: ' + t.name + ' (nativo verificado + cara HTML lista). Revisa Audit en el paso 2.');
+    } catch (e) {
+      alert('No se pudo aplicar la plantilla: ' + e.message);
     }
+  });
+}
 
-    if (typeof updatePreview === 'function') updatePreview();
-    alert('Plantilla aplicada: ' + (names[v] || v) + '. Revisa los pasos 2 y 3.');
+const faceBtn = document.getElementById('faceBtn');
+if (faceBtn) {
+  faceBtn.addEventListener('click', async () => {
+    if (window._lastTemplateFace) {
+      const ta = document.querySelector('[name="htmlCode"]');
+      const htmlToggle = document.querySelector('.toggle-btn[data-input="html"]');
+      if (htmlToggle) htmlToggle.click();
+      if (ta) ta.value = window._lastTemplateFace;
+      return;
+    }
+    const v = templateSelect ? templateSelect.value : '';
+    if (!v) return alert('Elige primero una plantilla arriba.');
+    try {
+      const r = await fetch('/api/templates/' + encodeURIComponent(v));
+      const t = await r.json();
+      if (!r.ok || !t.faceHtml) throw new Error('Sin cara disponible');
+      window._lastTemplateFace = t.faceHtml;
+      const htmlToggle = document.querySelector('.toggle-btn[data-input="html"]');
+      if (htmlToggle) htmlToggle.click();
+      document.querySelector('[name="htmlCode"]').value = t.faceHtml;
+    } catch (e) { alert(e.message); }
   });
 }
 
@@ -361,6 +382,30 @@ function updatePreview() {
 
 if (appNameInput) appNameInput.addEventListener('input', updatePreview);
 if (urlInput) urlInput.addEventListener('input', updatePreview);
+
+const templateZipBtn = document.getElementById('templateZipBtn');
+if (templateZipBtn) {
+  templateZipBtn.addEventListener('click', async () => {
+    const tpl = document.getElementById('templateSelect') ? document.getElementById('templateSelect').value : '';
+    if (!tpl) return alert('Elige primero una plantilla arriba (ej. Radio).');
+    templateZipBtn.textContent = 'Generando ZIP…';
+    templateZipBtn.disabled = true;
+    try {
+      const cfg = collect();
+      cfg.template = tpl;
+      const res = await fetch('/api/project', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cfg) });
+      if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || 'No se pudo generar el ZIP'); }
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'inteebuild-plantilla-' + tpl + '.zip';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } catch (e) { alert(e.message); }
+    templateZipBtn.innerHTML = '📦 Ver código (ZIP) de la plantilla';
+    templateZipBtn.disabled = false;
+  });
+}
 
 let isLandscape = false;
 let isDark = false;

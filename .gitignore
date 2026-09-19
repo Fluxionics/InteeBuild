@@ -6,3 +6,4 @@ _CHK*.js
 .DS_Store
 data/apikeys.json
 data/git-integrations.json
+data/versions.json

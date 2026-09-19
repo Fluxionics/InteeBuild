@@ -184,15 +184,25 @@ async function deleteArtifact(owner, repo, artifactId) {
   await api(`/repos/${owner}/${repo}/actions/artifacts/${artifactId}`, { method: 'DELETE' });
 }
 
+async function deleteBranchSoon(owner, repo, branch, delayMs = 60000) {
+  setTimeout(() => {
+    deleteBranch(owner, repo, branch).then(
+      () => console.log(`[cleanup-branch] ${branch} borrada (código no queda en el repo)`),
+      (e) => console.log(`[cleanup-branch] ${branch} no se pudo borrar: ${e.message}`)
+    );
+  }, delayMs);
+}
+
 async function cleanup(owner, repo, keepBranch) {
   const del = { branches: 0, runs: 0, artifacts: 0 };
+  const branchCutoff = Date.now() - 5 * 60 * 1000;
   const cutoff = Date.now() - 30 * 60 * 1000;
   try {
     const branches = await listBranches(owner, repo);
     const old = branches.filter(b => {
       if (!/^build-[0-9a-f]{8}$/.test(b.name) || b.name === keepBranch) return false;
       const d = b.commit && b.commit.commit ? b.commit.commit.committer.date : b.commit.committer.date;
-      return new Date(d).getTime() < cutoff;
+      return new Date(d).getTime() < branchCutoff;
     });
     for (const b of old) {
       try { await deleteBranch(owner, repo, b.name); del.branches++; } catch (_) {}
@@ -248,5 +258,8 @@ module.exports = {
   getRun,
   getArtifacts,
   downloadArtifact,
+  deleteBranch,
+  deleteBranchSoon,
+  deleteRun,
   cleanup
 };

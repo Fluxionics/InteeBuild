@@ -16,7 +16,7 @@
   <p class="hint">Ultima actualizacion: 11 de septiembre de 2026</p>
   <section class="card">
     <h2>Resumen</h2>
-    <p>InteeBuild no requiere registro. No almacenamos tu codigo HTML de forma permanente ni tu keystore. Los builds se crean en una rama temporal del repositorio que configures y se eliminan automaticamente tras 60 minutos.</p>
+    <p>InteeBuild no requiere registro. No almacenamos tu codigo HTML de forma permanente ni tu keystore. Cada build sube el proyecto a una rama temporal (<code>build-*</code>) que se borra automáticamente al terminar la compilación (el código no queda en el repo). Los artefactos y runs se auto-limpian después (ramas &gt;5 min, runs y artefactos &gt;30 min).</p>
     <h2>Datos que procesamos</h2>
     <ul>
       <li>URL o codigo HTML que proporcionas para generar la app.</li>
