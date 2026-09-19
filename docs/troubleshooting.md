@@ -6,6 +6,10 @@
 2. El botón de descarga usa `/api/download/<id>`. Si el historial se limpió en el servidor, el enlace expira: compila de nuevo.
 3. Las ramas y artefactos se borran a los 30 minutos automáticamente.
 
+## Error `androidx.media.app.NotificationCompat does not exist`
+
+El servicio de audio usa `Notification.MediaStyle` del framework, sin dependencias androidx. Si tu build falla con ese error es un ZIP generado con versión vieja: vuelve a compilar (el workflow sincroniza el generador solo) y verifica en el log `--- audio nativo instalado ---` → `1`.
+
 ## GitHub Actions falló
 
 1. En el resultado del build pulsa **Logs** para abrir la ejecución en GitHub.

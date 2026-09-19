@@ -855,7 +855,6 @@ function nativeAudioServiceSrc(pkg, streamUrl, autoplay, appName) {
     + 'import android.os.Build;\n'
     + 'import android.os.IBinder;\n'
     + 'import android.os.PowerManager;\n'
-    + 'import androidx.core.app.NotificationCompat;\n'
     + 'import java.util.Collections;\n'
     + '\n'
     + 'public class RadioService extends Service {\n'
@@ -875,7 +874,7 @@ function nativeAudioServiceSrc(pkg, streamUrl, autoplay, appName) {
     + '        Intent i = new Intent(ctx, RadioService.class);\n'
     + '        i.setAction(ACTION_PLAY);\n'
     + '        if (url != null && !url.isEmpty()) i.putExtra("url", url);\n'
-    + '        try { ctx.startForegroundService(i); } catch (Exception e) { try { ctx.startService(i); } catch (Exception ignored) {} }\n'
+    + '        try { if (Build.VERSION.SDK_INT >= 26) ctx.startForegroundService(i); else ctx.startService(i); } catch (Exception ignored) {}\n'
     + '    }\n'
     + '\n'
     + '    public static void pause(Context ctx) {\n'
@@ -970,16 +969,16 @@ function nativeAudioServiceSrc(pkg, streamUrl, autoplay, appName) {
     + '        Intent togel = new Intent(this, RadioService.class);\n'
     + '        togel.setAction(playing ? ACTION_PAUSE : ACTION_PLAY);\n'
     + '        PendingIntent act = PendingIntent.getService(this, 1, togel, pendingFlags());\n'
-    + '        NotificationCompat.Builder b = new NotificationCompat.Builder(this, CHANNEL_ID)\n'
-    + '                .setContentTitle(' + javaString(appName) + ')\n'
+    + '        Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(this, CHANNEL_ID) : new Notification.Builder(this);\n'
+    + '        b.setContentTitle(' + javaString(appName) + ')\n'
     + '                .setContentText(playing ? "Transmitiendo en directo" : "Toca play en la app")\n'
     + '                .setSmallIcon(android.R.drawable.ic_media_play)\n'
     + '                .setOngoing(true)\n'
     + '                .setOnlyAlertOnce(true)\n'
     + '                .addAction(playing ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play, playing ? "Pausar" : "Play", act);\n'
     + '        if (content != null) b.setContentIntent(content);\n'
-    + '        try { if (session != null) b.setStyle(new androidx.media.app.NotificationCompat.MediaStyle().setMediaSession(session.getSessionToken()).setShowActionsInCompactView(0)); } catch (Exception ignored) {}\n'
-    + '        return b.build();\n'
+    + '        try { if (session != null && Build.VERSION.SDK_INT >= 21) b.setStyle(new Notification.MediaStyle().setMediaSession(session.getSessionToken()).setShowActionsInCompactView(0)); } catch (Exception ignored) {}\n'
+    + '        try { return b.build(); } catch (Exception e) { return new Notification(); }\n'
     + '    }\n'
     + '\n'
     + '    private int pendingFlags() {\n'
@@ -1192,9 +1191,9 @@ function mainActivityPatchSrc() {
     "const mp = 'android/app/src/main/java/' + pkg.split('.').join('/') + '/MainActivity.java';",
     "let src = fs.readFileSync(mp, 'utf8');",
     "if (src.indexOf('RadioService') === -1) {",
-    "  src = src.split('import com.getcapacitor.BridgeActivity;').join(['import android.content.Intent;', 'import android.os.Bundle;', 'import com.getcapacitor.BridgeActivity;'].join(NL));",
+    "  src = src.split('import com.getcapacitor.BridgeActivity;').join(['import android.content.Intent;', 'import android.os.Build;', 'import android.os.Bundle;', 'import com.getcapacitor.BridgeActivity;'].join(NL));",
     "  src = src.replace(/public class MainActivity extends BridgeActivity\\s*\\{/, function (m) {",
-    "    return m + NL + '  @Override' + NL + '  public void onCreate(Bundle savedInstanceState) {' + NL + '    super.onCreate(savedInstanceState);' + NL + '    try { startForegroundService(new Intent(this, RadioService.class)); } catch (Exception ignored) {}' + NL + '  }' + NL;",
+    "    return m + NL + '  @Override' + NL + '  public void onCreate(Bundle savedInstanceState) {' + NL + '    super.onCreate(savedInstanceState);' + NL + '    try { if (Build.VERSION.SDK_INT >= 26) startForegroundService(new Intent(this, RadioService.class)); else startService(new Intent(this, RadioService.class)); } catch (Exception ignored) {}' + NL + '  }' + NL;",
     "  });",
     "  fs.writeFileSync(mp, src);",
     "}",
@@ -1221,7 +1220,7 @@ function notifyScriptSrc(cfg) {
 function nativeMainActivitySrc(pkg, cfg){
   const url = cfg.inputType==='url' ? cfg.url : 'file:///android_asset/public/index.html';
   const useAudio = cfg.nativeAudio && cfg.streamUrl;
-  const fgHook = cfg.permissions.foreground ? ' try { startForegroundService(new android.content.Intent(this, RadioService.class)); } catch (Exception e) { try { startService(new android.content.Intent(this, RadioService.class)); } catch (Exception ignored) {} }' : '';
+  const fgHook = cfg.permissions.foreground ? ' try { if (android.os.Build.VERSION.SDK_INT >= 26) startForegroundService(new android.content.Intent(this, RadioService.class)); else startService(new android.content.Intent(this, RadioService.class)); } catch (Exception ignored) {}' : '';
   const bridgeHook = useAudio ? ' try { wv.addJavascriptInterface(new AudioBridge(this), "InteeAudio"); } catch (Exception ignored) {}' : '';
   return 'package '+pkg+';\nimport android.os.Bundle; import android.webkit.WebView; import android.webkit.WebViewClient; import android.webkit.WebChromeClient; import android.webkit.PermissionRequest; import androidx.appcompat.app.AppCompatActivity;\npublic class MainActivity extends AppCompatActivity {\n  WebView wv;\n  @Override protected void onCreate(Bundle b){ super.onCreate(b); wv=new WebView(this); setContentView(wv); wv.getSettings().setJavaScriptEnabled(true); wv.getSettings().setDomStorageEnabled(true); wv.getSettings().setAllowFileAccess(true); wv.getSettings().setMixedContentMode(0);'+bridgeHook+' wv.setWebViewClient(new WebViewClient(){ public boolean shouldOverrideUrlLoading(WebView v,String u){ if(u.startsWith("tel:")||u.startsWith("mailto:")||u.startsWith("whatsapp:")){ try{ startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(u))); return true;}catch(Exception e){} } return false; } public void onPageFinished(WebView v,String u){ try{ java.io.InputStream is=getAssets().open("public/catalog.js"); java.io.BufferedReader br=new java.io.BufferedReader(new java.io.InputStreamReader(is)); StringBuilder sb=new StringBuilder(); String l; while((l=br.readLine())!=null) sb.append(l).append("\\n"); br.close(); v.evaluateJavascript(sb.toString(),null);}catch(Exception e){} } }); wv.setWebChromeClient(new WebChromeClient(){ public void onPermissionRequest(PermissionRequest r){ runOnUiThread(()->r.grant(r.getResources())); } });'+fgHook+' wv.loadUrl("'+url+'"); }\n  @Override public void onBackPressed(){ if(wv.canGoBack()) wv.goBack(); else super.onBackPressed(); }\n}\n';
 }

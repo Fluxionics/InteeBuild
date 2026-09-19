@@ -166,6 +166,8 @@ android:name="android.permission.FOREGROUND_SERVICE"
 manifest XML OK
 ```
 
+> Nota: el servicio usa solo APIs del framework (`Notification.MediaStyle`, `MediaPlayer`, `MediaSession`). No requiere dependencias androidx extras: si ves `package androidx.media.app ... does not exist`, regenera con esta versión.
+
 Si `grep -c RadioService` da `0`, el servicio no se inyectó: no instales ese APK, revisa `packageName` y `build-config.json`. Si `grep -c InteeAudio` da `0`, el puente JS no se inyectó: tus botones no sonarán en nativo (caerán al fallback web).
 
 ## Si se corta solo (reconexión obligatoria)
