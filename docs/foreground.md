@@ -2,6 +2,35 @@
 
 Esta es la plantilla que más importa en InteeBuild: radio / podcast / streaming que sigue sonando con la app minimizada o la pantalla apagada.
 
+## Modo recomendado: audio 100% nativo (sin WebView)
+
+Desde esta versión las plantillas **Radio** y **Streaming** activan `nativeAudio`: el audio lo reproduce `RadioService.java` con `MediaPlayer` + `MediaSession` en Java, y tu HTML es solo la cara con botones. Así no importa lo que haga el WebView: el sonido es nativo y no se corta.
+
+**Cómo funciona:**
+
+1. En el Studio, tarjeta `Audio 100% nativo`: marca `Reproducir audio en Java nativo` y pega la **URL de tu stream** (ej `https://tu-servidor.com:8000/stream`).
+2. Las plantillas Radio/Streaming ya lo traen marcado (Radio con auto-play).
+3. En tu HTML usa el puente (con fallback web si se abre en navegador):
+
+```html
+<button onclick="nPlay()">▶ Play nativo</button>
+<button onclick="nPause()">⏸ Pausa</button>
+<script>
+  function nPlay(){
+    var u = 'https://tu-servidor.com:8000/stream';
+    if (window.InteeAudio) InteeAudio.play(u);   // Java nativo
+    else { var a = document.getElementById('p'); a.src = u; a.load(); a.play(); }
+  }
+  function nPause(){
+    if (window.InteeAudio) InteeAudio.pause();
+  }
+</script>
+```
+
+**Qué genera (verificable en el ZIP):** `RadioService.java` con `MediaPlayer` + `Icy-MetaData: 0` (mp3 limpio de Shoutcast) + `MediaSession` con Play/Pausa en notificación y pantalla de bloqueo, `AudioBridge.java` (`window.InteeAudio`), patch que lo inyecta en `MainActivity`, y la URL horneada como constante (más lo que pases por JS).
+
+**Prueba:** abre la app → debe aparecer la notificación con botón Play/Pausa **aunque no hayas tocado nada** (si hay auto-play) o al primer tap. Minimiza, apaga pantalla: sigue. Los botones de la notificación y del lock-screen controlan el stream.
+
 ## Qué genera InteeBuild cuando activas Foreground
 
 Marca en el Studio: `Servicio Foreground` + `Pantalla Encendida (WAKE_LOCK)` + `Notificaciones`.
@@ -126,6 +155,34 @@ manifest XML OK
 
 Si `grep -c RadioService` da `0`, el servicio no se inyectó: no instales ese APK, revisa `packageName` y `build-config.json`.
 
+## Si se corta solo (reconexión obligatoria)
+
+Los streams Shoutcast/Icecast se caen solos cada cierto tiempo. Sin reconexión, el `<audio>` queda en silencio para siempre y parece que "la app lo cortó". Agrega esto:
+
+```html
+<script>
+  const a = document.getElementById('player');
+  let wantPlay = false;
+  document.getElementById('play').onclick = () => {
+    if (a.paused) { wantPlay = true; a.load(); a.play().catch(() => {}); }
+    else { wantPlay = false; a.pause(); }
+  };
+  // Si el servidor corta el stream, reintenta solo
+  ['error', 'stalled', 'suspend'].forEach(ev => a.addEventListener(ev, () => {
+    if (!wantPlay) return;
+    setTimeout(() => { a.load(); a.play().catch(() => {}); }, 3000);
+  }));
+  a.addEventListener('ended', () => {
+    if (!wantPlay) return;
+    a.load(); a.play().catch(() => {});
+  });
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.setActionHandler('play', () => { wantPlay = true; a.load(); a.play().catch(() => {}); });
+    navigator.mediaSession.setActionHandler('pause', () => { wantPlay = false; a.pause(); });
+  }
+</script>
+```
+
 ## Errores típicos
 
 | Síntoma | Causa | Fix |
@@ -133,6 +190,8 @@ Si `grep -c RadioService` da `0`, el servicio no se inyectó: no instales ese AP
 | El audio se corta al apagar pantalla | Falta `WAKE_LOCK` o el HTML pausa en `visibilitychange` | Marca Wake Lock y quita `pause()` |
 | No aparece notificación | `RadioService` no arrancó | Revisa log `servicio instalado`, debe ser `1` |
 | Play rechaza el AAB | `ACCESS_BACKGROUND_LOCATION` sin justificación | No marques ubicación en segundo plano para una radio |
+| Se corta a los minutos (con notificación visible) | Optimización de batería / OEM agresivo (Xiaomi, Huawei, Samsung) | Ajustes → Apps → tu app → Batería → **Sin restricciones** + permitir actividad en segundo plano |
+| Se corta al minimizar (sin notificación) | El build no trae Foreground (plantilla Radio no aplicada) | Recompila con `foreground + wakeLock + notifications` y verifica `servicio instalado: 1` en el log |
 | `onPermissionRequest` concede todo | Patch viejo (grant-all) | Regenera: el patch actual usa `wants()+hasPerm()` y `deny()` por defecto |
 
 ## Checklist antes de publicar una radio

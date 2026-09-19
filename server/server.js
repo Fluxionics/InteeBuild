@@ -821,7 +821,7 @@ app.get('/api/templates/:id/native', (req,res)=>{
 app.get('/api/permissions/spec', (req,res)=> res.json(generator.PERMISSION_SPEC));
 app.post('/api/permissions/audit', (req,res)=>{
   try{
-    const cfg=generator.normalizeConfig(req.body||{});
+    const cfg=generator.normalizeConfig(templates.applyTemplate(req.body||{}, (req.body||{}).template));
     const audit=generator.getPermissionAudit(cfg);
     res.json(audit);
   }catch(e){ res.status(400).json({error:e.message}); }
@@ -846,7 +846,7 @@ app.post('/api/permissions/suggest', async (req,res)=>{
 });
 app.post('/api/build-readiness', (req,res)=>{
   try{
-    const cfg=generator.normalizeConfig(req.body||{});
+    const cfg=generator.normalizeConfig(templates.applyTemplate(req.body||{}, (req.body||{}).template));
     const audit=generator.getPermissionAudit(cfg);
     const hasUrlOrHtml = !!(String(cfg.url||'').trim() && cfg.inputType==='url') || !!(String(cfg.htmlCode||'').trim() && cfg.inputType==='html');
     const checks={
@@ -864,7 +864,10 @@ app.post('/api/build-readiness', (req,res)=>{
     const warnings=[];
     audit.items.forEach(i=>{ if(i.status==='warn') warnings.push(i.title+' requiere Android '+i.minSdk+'+'); });
     if(!hasUrlOrHtml) warnings.push('Falta URL o HTML');
-    res.json({readiness, checks, audit, warnings, canBuild: audit.canBuild && hasUrlOrHtml, message: readiness>=90?'Listo para compilar': readiness>=70?'Recomendado revisar':'Corrige permisos'});
+    const nativeAudioOk = !cfg.nativeAudio || !!cfg.streamUrl;
+    if(cfg.nativeAudio && !cfg.streamUrl) warnings.push('Audio nativo activo pero sin URL del stream: pon tu servidor en Audio nativo');
+    if(cfg.nativeAudio && !!cfg.streamUrl && !/^https?:\/\//.test(cfg.streamUrl)) warnings.push('streamUrl debe empezar con http:// o https://');
+    res.json({readiness, checks:{...checks, nativeAudio:nativeAudioOk}, audit, warnings, canBuild: audit.canBuild && hasUrlOrHtml && nativeAudioOk, message: readiness>=90?'Listo para compilar': readiness>=70?'Recomendado revisar':'Corrige permisos'});
   }catch(e){ res.status(400).json({error:e.message}); }
 });
 
@@ -999,7 +1002,10 @@ app.post('/api/v1/build', requireApiKey, async (req, res) => {
     minSdk: body.minSdk || 23,
     permissions: body.permissions || {},
     plugins: body.plugins || {},
-    provider: body.provider || 'capacitor'
+    provider: body.provider || 'capacitor',
+    streamUrl: body.streamUrl || '',
+    nativeAudio: !!body.nativeAudio,
+    nativeAutoplay: body.nativeAutoplay !== undefined ? !!body.nativeAutoplay : true
   }, body.template);
 
   let cfg;

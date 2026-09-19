@@ -651,6 +651,19 @@
 
           <div class="card">
             <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg>
+              Audio 100% nativo <span class="pro-badge">PRO</span>
+            </div>
+            <p class="hint">El audio lo reproduce Java nativo (MediaPlayer en foreground service), no el WebView. Tu HTML es solo la cara con botones que llaman <code>window.InteeAudio.play(url)</code>. Se activa solo con las plantillas Radio y Streaming.</p>
+            <label class="switch"><input type="checkbox" name="nativeAudio" id="nativeAudioCheck" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Reproducir audio en Java nativo</b><small>MediaPlayer + MediaSession + notificación con Play/Pausa. Sin esto el audio depende del WebView y se puede cortar</small></span></label>
+            <div id="nativeAudioBox" class="hidden" style="padding-top:8px">
+              <label>URL del stream (tu servidor)<input type="url" name="streamUrl" placeholder="https://tu-servidor.com:8000/stream" /></label>
+              <label class="switch"><input type="checkbox" name="nativeAutoplay" checked /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Auto-play al abrir la app</b><small>Empieza a sonar solo con la URL de arriba</small></span></label>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
               <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
               Estilo y Apariencia
             </div>

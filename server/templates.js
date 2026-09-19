@@ -35,9 +35,11 @@ const TEMPLATES = {
   },
   radio: {
     name: 'Radio & Audio Stream',
-    description: 'Audio en segundo plano con pantalla apagada. Ver docs/foreground.md.',
+    description: 'Audio 100% nativo (Java MediaPlayer) con pantalla apagada. Pon tu URL del stream. Ver docs/foreground.md.',
     config: {
       permissions: { foreground: true, wakeLock: true, notifications: true },
+      nativeAudio: true,
+      nativeAutoplay: true,
       provider: 'capacitor',
       orientation: 'any',
       outputType: 'apk',
@@ -152,9 +154,11 @@ const TEMPLATES = {
   },
   streaming: {
     name: 'Video & Streaming',
-    description: 'Video con pantalla encendida y rotación por sensor.',
+    description: 'Audio nativo + video con pantalla encendida y rotación por sensor.',
     config: {
       permissions: { foreground: true, wakeLock: true },
+      nativeAudio: true,
+      nativeAutoplay: false,
       provider: 'capacitor',
       orientation: 'sensor',
       fullscreen: true,
@@ -260,7 +264,7 @@ function makeFace(title, accent, body) {
 const FACES = {
   web: ['Mi Web', '#6366f1', '<h1>Mi Web</h1><p>Reemplaza este HTML con tu cara: todo lo demás (permisos, splash, menú) es nativo.</p><div class="card"><button class="btn" onclick="location.reload()">Recargar</button></div>'],
   pwa: ['Mi PWA', '#6366f1', '<h1>Mi PWA</h1><p>Instalable y offline gracias al service worker que InteeBuild genera solo.</p><div class="card"><button class="btn" onclick="alert(\'PWA lista\')">Probar</button></div>'],
-  radio: ['Mi Radio', '#10b981', '<h1>📻 Mi Radio</h1><p>El audio sigue con pantalla apagada (Foreground + Wake Lock nativos).</p><div class="card"><audio id="p" src="https://example.com/stream.mp3" preload="none" style="width:100%"></audio><br><button class="btn" onclick="document.getElementById(\'p\').play()">▶ Play</button><button class="btn" onclick="document.getElementById(\'p\').pause()">⏸ Pausa</button></div><p>No pauses en visibilitychange: el servicio nativo mantiene el proceso.</p>'],
+  radio: ['Mi Radio', '#10b981', '<h1>📻 Mi Radio</h1><p>Audio 100% nativo: suena con pantalla apagada. Cambia la URL por tu servidor.</p><div class="card"><input id="s" value="https://example.com/stream.mp3" style="width:100%;padding:10px;border-radius:8px;border:1px solid #1f2937;background:#020617;color:#fff" /><br><br><button class="btn" onclick="nPlay()">▶ Play nativo</button><button class="btn" onclick="nPause()">⏸ Pausa</button><p id="st">Listo</p></div><script>function nPlay(){var u=document.getElementById(\'s\').value;if(window.InteeAudio){try{InteeAudio.play(u);document.getElementById(\'st\').textContent=\'Sonando en nativo…\';}catch(e){fallback(u);}}else fallback(u);}function nPause(){if(window.InteeAudio){try{InteeAudio.pause();}catch(e){}}var a=document.getElementById(\'p\');if(a)a.pause();document.getElementById(\'st\').textContent=\'En pausa\';}function fallback(u){var a=document.getElementById(\'p\');if(!a){a=document.createElement(\'audio\');a.id=\'p\';a.preload=\'none\';document.body.appendChild(a);}a.src=u;a.load();a.play();document.getElementById(\'st\').textContent=\'Sonando en web (fallback)…\';}document.addEventListener(\'visibilitychange\',function(){});</script>'],
   ecommerce: ['Mi Tienda', '#f59e0b', '<h1>🛍 Mi Tienda</h1><p>Catálogo de ejemplo: cambia productos por los tuyos.</p><div class="grid"><div class="card"><b>Producto 1</b><p>$19.99</p><button class="btn" onclick="if(window.Intee)Intee.share({title:\'Producto 1\',url:location.href})">Compartir</button></div><div class="card"><b>Producto 2</b><p>$29.99</p><button class="btn" onclick="if(window.Intee)Intee.share({title:\'Producto 2\',url:location.href})">Compartir</button></div></div>'],
   blog: ['Mi Blog', '#38bdf8', '<h1>📰 Mi Blog</h1><div class="card"><b>Artículo 1</b><p>Resumen de la noticia…</p></div><div class="card"><b>Artículo 2</b><p>Resumen de la noticia…</p></div>'],
   portafolio: ['Mi Portafolio', '#8b5cf6', '<h1>👋 Hola, soy Yo</h1><p>Desarrollador · Diseñador · Creador</p><div class="card"><b>Proyecto 1</b><p>Descripción breve.</p></div><div class="card"><b>Proyecto 2</b><p>Descripción breve.</p></div>'],
@@ -268,7 +272,7 @@ const FACES = {
   edu: ['Mis Cursos', '#22d3a7', '<h1>🎓 Mis Cursos</h1><div class="card"><b>Curso 1: HTML</b><p>12 lecciones</p><button class="btn">Continuar</button></div><div class="card"><b>Curso 2: CSS</b><p>9 lecciones</p><button class="btn">Continuar</button></div>'],
   empresa: ['Mi Empresa', '#64748b', '<h1>🏢 Mi Empresa</h1><p>Soluciones profesionales.</p><div class="card"><button class="btn" onclick="if(window.Intee&&Intee.biometric)Intee.biometric(\'Acceder\');else alert(\'Biometría solo en la app instalada\')">🔒 Entrar con huella</button></div>'],
   comunidad: ['Mi Comunidad', '#ec4899', '<h1>💬 Mi Comunidad</h1><div class="card"><b>Ana</b><p>¡Bienvenidos al grupo!</p><button class="btn" onclick="if(window.Intee)Intee.share({title:\'Comunidad\',url:location.href})">Compartir</button></div><div class="card"><b>Luis</b><p>Evento este sábado 🎉</p></div>'],
-  streaming: ['Mi Streaming', '#ef4444', '<h1>🎬 Mi Streaming</h1><div class="card"><video src="https://example.com/video.mp4" controls playsinline style="width:100%;border-radius:8px"></video></div><p>El nativo mantiene la pantalla encendida durante el video.</p>'],
+  streaming: ['Mi Streaming', '#ef4444', '<h1>🎬 Mi Streaming</h1><div class="card"><input id="s" value="https://example.com/stream.mp3" style="width:100%;padding:10px;border-radius:8px;border:1px solid #1f2937;background:#020617;color:#fff" /><br><br><button class="btn" onclick="if(window.InteeAudio){InteeAudio.play(document.getElementById(\'s\').value)}else{var a=document.getElementById(\'p\');if(!a){a=document.createElement(\'audio\');a.id=\'p\';document.body.appendChild(a);}a.src=document.getElementById(\'s\').value;a.load();a.play();}">▶ Audio nativo</button><button class="btn" onclick="if(window.InteeAudio){InteeAudio.pause()}">⏸ Pausa</button></div><div class="card"><video src="https://example.com/video.mp4" controls playsinline style="width:100%;border-radius:8px"></video></div><p>Audio en Java nativo + pantalla encendida.</p>'],
   dashboard: ['Mi Panel', '#38bdf8', '<h1>📊 Mi Panel</h1><div class="grid"><div class="card"><b>1,240</b><p>Usuarios</p></div><div class="card"><b>98%</b><p>Uptime</p></div></div>'],
   ai: ['Mi AI', '#a78bfa', '<h1>✨ Mi AI</h1><div class="card"><p><b>AI:</b> Hola, ¿en qué te ayudo?</p></div><div class="card"><button class="btn" onclick="if(navigator.mediaDevices)navigator.mediaDevices.getUserMedia({audio:true}).then(()=>alert(\'Micrófono OK\')).catch(()=>alert(\'Permiso denegado\'))">🎤 Hablar</button></div>'],
   maps: ['Mis Mapas', '#22c55e', '<h1>📍 Mis Mapas</h1><div class="card"><button class="btn" onclick="if(window.Intee&&Intee.location)Intee.location().then(l=>document.getElementById(\'c\').textContent=l.latitude+\', \'+l.longitude);else if(navigator.geolocation)navigator.geolocation.getCurrentPosition(p=>document.getElementById(\'c\').textContent=p.coords.latitude+\', \'+p.coords.longitude)">Obtener ubicación</button><p id="c">—</p></div>'],

@@ -258,6 +258,12 @@ const drawerCheck=document.getElementById('drawerCheck');
 if(drawerCheck) drawerCheck.addEventListener('change', e=> document.getElementById('drawerBox').classList.toggle('hidden', !e.target.checked));
 const bottomCheck=document.getElementById('bottomCheck');
 if(bottomCheck) bottomCheck.addEventListener('change', e=> document.getElementById('bottomBox').classList.toggle('hidden', !e.target.checked));
+const nativeAudioCheck=document.getElementById('nativeAudioCheck');
+if(nativeAudioCheck) {
+  const syncNativeBox=()=> document.getElementById('nativeAudioBox').classList.toggle('hidden', !nativeAudioCheck.checked);
+  nativeAudioCheck.addEventListener('change', syncNativeBox);
+  syncNativeBox();
+}
 
 const templateSelect = document.getElementById('templateSelect');
 if (templateSelect) {
@@ -291,7 +297,8 @@ if (templateSelect) {
       Object.entries(c.permissions || {}).forEach(([k,val])=> setCheck(k, !!val));
       Object.entries(c.plugins || {}).forEach(([k,val])=> setCheck('plugin_' + k, !!val));
       ['orientation','outputType','loadingIndicator','offlineMessage','desktopPlatform'].forEach(k=>{ if(c[k]!==undefined) setVal(k, c[k]); });
-      ['fullscreen','keepScreenOn','edgeToEdge','useCleartext','splashEnabled','pullRefresh','offlineScreen','downloadManager','flagSecure','blockSelection','encryptedStorage','rootDetection','firebaseEnabled','admobInterstitial','admobRewarded','iapEnabled','twaEnabled','desktopEnabled'].forEach(k=>{ if(c[k]!==undefined) setCheck(k, !!c[k]); });
+      ['fullscreen','keepScreenOn','edgeToEdge','useCleartext','splashEnabled','pullRefresh','offlineScreen','downloadManager','flagSecure','blockSelection','encryptedStorage','rootDetection','firebaseEnabled','admobInterstitial','admobRewarded','iapEnabled','twaEnabled','desktopEnabled','nativeAudio','nativeAutoplay'].forEach(k=>{ if(c[k]!==undefined) setCheck(k, !!c[k]); });
+      if (c.nativeAudio) { const nb=document.getElementById('nativeAudioBox'); if(nb) nb.classList.remove('hidden'); }
       if(c.provider) setProvider(c.provider);
       // Cara HTML: la plantilla trae cara starter 100% editable.
       // Si el editor está vacío se pone sola; si tienes tu HTML, te pregunta sin borrar nada.
