@@ -28,7 +28,21 @@ curl -X POST /api/v1/build \
 # → {"buildId":"abc123","status":"queued","branch":"build-abc123"}
 ```
 
-Campos: `url | htmlCode + inputType, name/appName, package/packageName, outputType (apk/aab/both), platform, permissions{}, plugins{}, provider, webhookUrl`.
+Campos: `url | htmlCode + inputType, name/appName, package/packageName, outputType (apk/aab/both), platform, permissions{}, plugins{}, provider, template (ej "radio"), streamUrl + nativeAudio + nativeAutoplay, minify, pwaEnabled, webhookUrl`.
+
+## Plantillas y audio nativo
+
+```bash
+curl /api/templates
+curl /api/templates/radio
+# → {name, description, config:{permissions, provider...}, faceHtml}
+
+# Compilar con plantilla + stream nativo:
+curl -X POST /api/v1/build -H "Content-Type: application/json" \
+  -d '{"template":"radio","name":"Mi Radio","url":"https://mi-radio.com","streamUrl":"https://mi-servidor.com:8000/stream"}'
+```
+
+`streamUrl` se hornea como constante Java en `RadioService` y `nativeAudio` genera `MediaPlayer + MediaSession + AudioBridge (window.InteeAudio)`. Cara de ejemplo lista: [radio-face.html](./radio-face.html).
 
 Polling cada 3s:
 
@@ -61,6 +75,19 @@ curl -X POST /api/decompile -H "Content-Type: application/json" -d '{"apkBase64"
 ```
 
 Límites: HTML 500KB, icono 7MB, APK decompile 30MB, 10 builds/hora por IP.
+
+## Salidas gratis, versiones y CI/CD
+
+```bash
+curl -X POST /api/listing -H "Content-Type: application/json" -d '{"appName":"Mi Radio","packageName":"com.miempresa.radio","template":"radio"}'
+curl -X POST /api/security-audit -H "Content-Type: application/json" -d '{"appName":"Mi App","url":"https://mi-web.com","permissions":{"cameraMic":true}}'
+curl "/api/privacy-policy?appName=Mi%20App&package=com.miempresa.miapp"
+curl -X POST /api/versions/publish -H "Content-Type: application/json" -d '{"appId":"com.miempresa.miapp","version":"1.0.1","changelog":"fix"}'
+curl "/api/check-update?appId=com.miempresa.miapp&version=1.0.0"
+curl -X POST /api/cicd -H "Content-Type: application/json" -d '{"repo":"usuario/mi-web","branch":"main","baseUrl":"https://tu-dominio.com"}'
+```
+
+Detalle en [outputs.md](./outputs.md) y [versions.md](./versions.md). Todo gratis y local, sin planes de pago ni API keys de IA.
 
 ## Ejemplos
 

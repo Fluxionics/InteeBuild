@@ -1,7 +1,7 @@
 {
   "name": "inteebuild",
   "version": "4.1.0",
-  "description": "Convierte tu web o HTML en APK/AAB nativo con 18 permisos Android, splash screen, historial de builds y configuracion completa.",
+  "description": "Convierte tu web o HTML en APK/AAB nativo con permisos Android granulares, audio nativo, splash screen, historial de builds y configuracion completa.",
   "main": "server/server.js",
   "type": "commonjs",
   "scripts": {

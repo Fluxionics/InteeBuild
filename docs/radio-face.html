@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<!--
+  CARA RADIO NATIVA — lista para pegar en InteeBuild (Código HTML Directo) + plantilla Radio.
+  1. Cambia STREAM_URL por tu servidor.
+  2. En el Studio, tarjeta "Audio 100% nativo": pega la misma URL.
+  3. Compila. El sonido sale de Java nativo (MediaPlayer), este HTML es solo la cara.
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Radio App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .bar { animation: bounce 1.2s infinite ease-in-out; }
+    .bar:nth-child(2) { animation-delay: 0.2s; }
+    .bar:nth-child(3) { animation-delay: 0.4s; }
+    .bar:nth-child(4) { animation-delay: 0.1s; }
+    @keyframes bounce {
+      0%, 100% { height: 6px; }
+      50% { height: 26px; }
+    }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex items-center justify-center p-4 select-none">
+
+  <div class="w-full max-w-sm bg-zinc-900/90 border border-zinc-800/80 backdrop-blur-md rounded-3xl p-6 shadow-2xl relative overflow-hidden">
+
+    <!-- Header: Indicador En Vivo + Animación -->
+    <div class="flex items-center justify-between mb-6">
+      <span class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-red-500 bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20">
+        <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+        En Vivo
+      </span>
+
+      <!-- Ecualizador visual -->
+      <div id="visualizer" class="flex items-end gap-1 h-7 opacity-20 transition-opacity duration-300">
+        <div class="w-1 bg-red-500 rounded-full bar"></div>
+        <div class="w-1 bg-red-500 rounded-full bar"></div>
+        <div class="w-1 bg-red-500 rounded-full bar"></div>
+        <div class="w-1 bg-red-500 rounded-full bar"></div>
+      </div>
+    </div>
+
+    <!-- Carátula / Logo de la Radio -->
+    <div class="relative group my-6">
+      <div class="w-48 h-48 mx-auto rounded-2xl bg-gradient-to-tr from-red-600 to-zinc-700 p-1 shadow-xl shadow-red-500/10">
+        <div class="w-full h-full bg-zinc-950 rounded-[14px] flex items-center justify-center border border-zinc-800">
+          <i id="main-icon" class="fa-solid fa-radio text-6xl text-zinc-700 transition-colors duration-300"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información de la Emisora -->
+    <div class="text-center my-4">
+      <h1 class="text-xl font-bold tracking-tight text-white">Mi Radio Online</h1>
+      <p id="status-text" class="text-xs text-zinc-400 mt-1 font-medium">Toque play para iniciar</p>
+    </div>
+
+    <!-- Fallback web: solo se usa fuera de la app instalada -->
+    <audio id="player" preload="none">
+      <source src="https://sp2.servidorrprivado.com:1221/=1" type="audio/mpeg">
+    </audio>
+
+    <!-- Botón Principal (Play / Pause) -->
+    <div class="flex items-center justify-center gap-6 my-6">
+      <button id="play" class="w-16 h-16 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center text-xl shadow-lg shadow-red-600/30 transition active:scale-95">
+        <i id="play-icon" class="fa-solid fa-play ml-1"></i>
+      </button>
+    </div>
+
+    <!-- Deslizador de Volumen (fallback web; en nativo usa los botones del teléfono) -->
+    <div class="flex items-center gap-3 bg-zinc-950/80 p-3 rounded-2xl border border-zinc-800/60">
+      <i id="volume-icon" class="fa-solid fa-volume-high text-zinc-400 text-sm"></i>
+      <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="1" class="w-full accent-red-500 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer">
+    </div>
+  </div>
+
+  <script>
+    // ====== EDITA SOLO ESTA URL ======
+    var STREAM_URL = 'https://sp2.servidorrprivado.com:1221/=1';
+
+    var audio = document.getElementById('player');
+    var playBtn = document.getElementById('play');
+    var playIcon = document.getElementById('play-icon');
+    var statusText = document.getElementById('status-text');
+    var visualizer = document.getElementById('visualizer');
+    var mainIcon = document.getElementById('main-icon');
+    var volumeSlider = document.getElementById('volume-slider');
+    var volumeIcon = document.getElementById('volume-icon');
+    var wantPlay = false;
+
+    function uiPlay() {
+      playIcon.className = 'fa-solid fa-pause';
+      statusText.textContent = 'Transmitiendo en directo...';
+      statusText.className = 'text-xs text-red-400 mt-1 font-medium';
+      visualizer.classList.remove('opacity-20');
+      mainIcon.classList.add('text-red-500');
+    }
+    function uiPause(msg) {
+      playIcon.className = 'fa-solid fa-play ml-1';
+      statusText.textContent = msg || 'Transmisión en pausa';
+      statusText.className = 'text-xs text-zinc-400 mt-1 font-medium';
+      visualizer.classList.add('opacity-20');
+      mainIcon.classList.remove('text-red-500');
+    }
+
+    // 1. Play SIEMPRE desde gesto del usuario (requisito WebView).
+    //    En la app instalada usa Java nativo; en navegador usa <audio>.
+    playBtn.onclick = function () {
+      if (window.InteeAudio) {
+        try {
+          if (InteeAudio.isPlaying()) { InteeAudio.pause(); wantPlay = false; uiPause(); }
+          else { wantPlay = true; InteeAudio.play(STREAM_URL); uiPlay(); }
+          return;
+        } catch (e) { /* cae al fallback */ }
+      }
+      if (audio.paused) {
+        wantPlay = true;
+        audio.src = STREAM_URL;
+        audio.load(); // re-sincroniza al directo
+        audio.play().then(uiPlay).catch(function () {
+          statusText.textContent = 'Error al reproducir el stream';
+        });
+      } else {
+        wantPlay = false;
+        audio.pause();
+        uiPause();
+      }
+    };
+
+    // 2. Si el servidor corta el stream, el fallback web reintenta solo.
+    //    (En nativo el servicio Java ya reintenta por su cuenta.)
+    function webRetry() {
+      if (!wantPlay || window.InteeAudio) return;
+      setTimeout(function () { audio.src = STREAM_URL; audio.load(); audio.play().catch(function () {}); }, 3000);
+    }
+    audio.addEventListener('error', webRetry);
+    audio.addEventListener('stalled', webRetry);
+    audio.addEventListener('ended', webRetry);
+
+    // 3. MediaSession (notificación multimedia del sistema en modo web).
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: 'Mi Radio Online',
+        artist: 'Señal en Vivo',
+        album: 'Radio Stream'
+      });
+      navigator.mediaSession.setActionHandler('play', function () { playBtn.click(); });
+      navigator.mediaSession.setActionHandler('pause', function () { playBtn.click(); });
+    }
+
+    // 4. REQUISITO: no pausar al ocultar o apagar pantalla.
+    document.addEventListener('visibilitychange', function () {
+      // Intencionalmente vacío.
+    });
+
+    // Volumen del fallback web (en nativo usa los botones físicos).
+    volumeSlider.addEventListener('input', function (e) {
+      var val = parseFloat(e.target.value);
+      audio.volume = val;
+      if (val === 0) volumeIcon.className = 'fa-solid fa-volume-xmark text-zinc-500';
+      else if (val < 0.5) volumeIcon.className = 'fa-solid fa-volume-low text-zinc-400';
+      else volumeIcon.className = 'fa-solid fa-volume-high text-zinc-400';
+    });
+  </script>
+</body>
+</html>

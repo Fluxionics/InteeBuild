@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>InteeBuild — Convierte tu web en APK Android gratis</title>
-  <meta name="description" content="InteeBuild convierte cualquier web o HTML en una app Android nativa (APK/AAB) en minutos. 18 permisos, splash personalizado, compilación en la nube. Gratis y open source." />
+  <meta name="description" content="InteeBuild convierte cualquier web o HTML en una app Android nativa (APK/AAB) en minutos. Permisos granulares, audio nativo, compilación en la nube. Gratis y open source." />
   <meta name="theme-color" content="#4f46e5" />
   <meta property="og:title" content="InteeBuild — Convierte tu web en APK Android" />
   <meta property="og:description" content="URL o HTML → APK/AAB nativo en minutos. Permission Engine, 7 providers, API y decompiler. Gratis y open source." />
@@ -95,7 +95,7 @@
       <h2>Todo lo que necesitas, gratis</h2>
       <div class="feat-grid">
         <div class="card feat"><b>URL o HTML</b><p class="hint">Pega tu sitio o escribe el código directo.</p></div>
-        <div class="card feat"><b>18 permisos</b><p class="hint">Cámara, GPS, notificaciones y más, con presets por caso de uso.</p></div>
+        <div class="card feat"><b>27 permisos granulares</b><p class="hint">Cámara, GPS, Bluetooth Scan/Connect y más, con audit real.</p></div>
         <div class="card feat"><b>Splash a medida</b><p class="hint">Color, duración e icono adaptativo.</p></div>
         <div class="card feat"><b>APK + AAB</b><p class="hint">Instalable directo o bundle para Google Play.</p></div>
         <div class="card feat"><b>Diagnóstico web</b><p class="hint">Puntuación 0-100 antes de compilar.</p></div>
@@ -123,10 +123,7 @@
       <details class="card faq"><summary>¿Funciona sin programar?</summary><p class="hint">Sí. Plantillas y presets configuran todo por ti; el modo avanzado es opcional.</p></details>
     </section>
 
-    <div class="ad-container ad-banner">
-      <script>atOptions={'key':'f782587ac8395b4bfe62f052ed3b33b5','format':'iframe','height':250,'width':300,'params':{}};</script>
-      <script src="https://www.highrevenueformat.com/f782587ac8395b4bfe62f052ed3b33b5/invoke.js" onerror="this.parentElement.style.display='none'"></script>
-    </div>
+    <div class="ad-container ad-banner" data-ad="banner"></div>
 
     <div id="alertConfig" class="alert hidden"></div>
 
@@ -728,10 +725,10 @@
             <div style="display:flex;gap:12px;margin-bottom:12px">
               <div style="width:180px;border:1px solid var(--border);border-radius:8px;padding:8px;background:var(--surface-2);font-size:11px;font-family:monospace">
                 <div style="font-weight:bold;margin-bottom:4px;color:var(--text)"><svg class="ico" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg> Archivos</div>
-                <div style="color:var(--accent);cursor:pointer" onclick="document.getElementById('devCodeView').textContent=document.querySelector('[name=\'appName\']').value ? '{\n  \"appId\": \"' + (document.querySelector('[name=\'packageName\']').value||'com.inteebuild.app') + '\",\n  \"appName\": \"' + document.querySelector('[name=\'appName\']').value + '\",\n  \"webDir\": \"www\"\n}' : 'capacitor.config.json'">capacitor.config.json</div>
-                <div style="color:var(--muted);cursor:pointer;margin-top:2px" onclick="document.getElementById('devCodeView').textContent='<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\">\n  <!-- Manifest generado automáticamente -->\n</manifest>'">AndroidManifest.xml</div>
-                <div style="color:var(--muted);cursor:pointer;margin-top:2px" onclick="document.getElementById('devCodeView').textContent='{\n  \"name\": \"inteebuild-app\",\n  \"version\": \"1.0.0\"\n}'">package.json</div>
-                <div style="color:var(--muted);cursor:pointer;margin-top:2px" onclick="document.getElementById('devCodeView').textContent='plugins/\nres/\n  mipmap-hdpi/\n  values/colors.xml'">res/</div>
+                <div style="color:var(--accent);cursor:pointer" data-devview="capacitor">capacitor.config.json</div>
+                <div style="color:var(--muted);cursor:pointer;margin-top:2px" data-devview="manifest">AndroidManifest.xml</div>
+                <div style="color:var(--muted);cursor:pointer;margin-top:2px" data-devview="package">package.json</div>
+                <div style="color:var(--muted);cursor:pointer;margin-top:2px" data-devview="res">res/</div>
               </div>
               <div style="flex:1;min-width:0">
                 <pre id="devCodeView" class="console" style="margin-top:0;height:120px;background:#0f172a;color:#38bdf8">{
@@ -1097,10 +1094,7 @@
     </div>
   </div>
 
-  <div class="ad-container ad-mobile">
-    <script>atOptions={'key':'43ebfe1e4238ce12d9f5d3aef4789066','format':'iframe','height':50,'width':320,'params':{}};</script>
-    <script src="https://www.highrevenueformat.com/43ebfe1e4238ce12d9f5d3aef4789066/invoke.js" onerror="this.parentElement.style.display='none'"></script>
-  </div>
+  <div class="ad-container ad-mobile" data-ad="mobile"></div>
 
   <section class="legal-section" aria-label="Información legal">
     <div class="card">
@@ -1163,6 +1157,7 @@
     </div>
   </div>
 
+  <script src="./js/ads.js"></script>
   <script src="./js/app.js"></script>
 </body>
 </html>

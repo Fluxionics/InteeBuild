@@ -29,6 +29,8 @@ Desde esta versión las plantillas **Radio** y **Streaming** activan `nativeAudi
 
 **Qué genera (verificable en el ZIP):** `RadioService.java` con `MediaPlayer` + `Icy-MetaData: 0` (mp3 limpio de Shoutcast) + `MediaSession` con Play/Pausa en notificación y pantalla de bloqueo, `AudioBridge.java` (`window.InteeAudio`), patch que lo inyecta en `MainActivity`, y la URL horneada como constante (más lo que pases por JS).
 
+**Cara lista para pegar:** [radio-face.html](./radio-face.html) — el diseño Tailwind completo ya adaptado a `InteeAudio` con fallback web. Cópialo al editor HTML, cambia `STREAM_URL` y compila.
+
 **Prueba:** abre la app → debe aparecer la notificación con botón Play/Pausa **aunque no hayas tocado nada** (si hay auto-play) o al primer tap. Minimiza, apaga pantalla: sigue. Los botones de la notificación y del lock-screen controlan el stream.
 
 ## Qué genera InteeBuild cuando activas Foreground

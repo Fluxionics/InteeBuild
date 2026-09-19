@@ -548,6 +548,57 @@ app.delete('/api/keys/:id', (req,res)=>{
   keys[idx].revokedAt=Date.now(); delete keys[idx].key;
   saveKeys(keys); res.json({ok:true, revoked:true});
 });
+// First-party ads (anti-adblock): los tags se sirven desde tu dominio.
+// Los bloqueadores filtran por dominio (highrevenueformat...); al pasar por
+// /api/ads el request es first-party y no coincide con las listas.
+const AD_SLOTS = {
+  banner: { key: 'f782587ac8395b4bfe62f052ed3b33b5', format: 'iframe', height: 250, width: 300 },
+  mobile: { key: '43ebfe1e4238ce12d9f5d3aef4789066', format: 'iframe', height: 50, width: 320 }
+};
+const AD_HOSTS = (process.env.AD_PROXY_HOSTS || 'www.highrevenueformat.com').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+const adCache = new Map();
+app.get('/api/ads/:slot', (req, res) => {
+  const slot = AD_SLOTS[String(req.params.slot || '').toLowerCase()];
+  if (!slot) return res.status(404).json({ error: 'Slot no existe (banner, mobile)' });
+  const loader = '/api/ad-proxy?u=' + encodeURIComponent('https://www.highrevenueformat.com/' + slot.key + '/invoke.js');
+  res.json({ ...slot, loader });
+});
+app.get('/api/ad-proxy', async (req, res) => {
+  let target = '';
+  try {
+    target = new URL(String(req.query.u || ''));
+    if (!/^https?:$/.test(target.protocol)) throw new Error('bad proto');
+    if (!AD_HOSTS.includes(target.hostname.toLowerCase())) throw new Error('host no permitido');
+  } catch {
+    return res.status(400).json({ error: 'URL de ad no permitida' });
+  }
+  const cacheKey = target.toString();
+  const hit = adCache.get(cacheKey);
+  if (hit && Date.now() - hit.at < 60000) {
+    res.type(hit.ct || 'application/javascript').send(hit.body);
+    return;
+  }
+  try {
+    const r = await fetch(cacheKey, { headers: { 'User-Agent': 'Mozilla/5.0', Referer: req.headers.referer || '' }, signal: AbortSignal.timeout(8000) });
+    if (!r.ok) throw new Error('Ad upstream ' + r.status);
+    let body = await r.text();
+    if (body.length > 200000) throw new Error('Ad muy grande');
+    // Reescribe el host del ad-network a first-party para que el iframe
+    // del creativo tampoco coincida con las listas de bloqueo.
+    const here = (req.headers['x-forwarded-proto'] || req.protocol) + '://' + req.headers.host;
+    AD_HOSTS.forEach(h => {
+      body = body.split('https://' + h).join(here + '/api/ad-proxy?u=https://' + h);
+      body = body.split('http://' + h).join(here + '/api/ad-proxy?u=http://' + h);
+      body = body.split('//' + h).join(here.replace(/^https?:/, '') + '/api/ad-proxy?u=https://' + h);
+    });
+    const ct = (r.headers.get('content-type') || '').includes('html') ? 'text/html' : 'application/javascript';
+    adCache.set(cacheKey, { at: Date.now(), body, ct });
+    if (adCache.size > 50) adCache.clear();
+    res.type(ct).send(body);
+  } catch (e) {
+    res.status(502).json({ error: 'Ad no disponible: ' + e.message });
+  }
+});
 app.get('/api/docs', (req,res)=>{
   res.json({
     version:VERSION,

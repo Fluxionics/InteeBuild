@@ -240,6 +240,20 @@ if (platformSelect && iosHint) {
   syncHint();
 }
 
+document.querySelectorAll('[data-devview]').forEach((el) => {
+  el.addEventListener('click', () => {
+    const view = document.getElementById('devCodeView');
+    if (!view) return;
+    const appName = (document.querySelector('[name="appName"]') || {}).value || 'Mi App';
+    const pkg = (document.querySelector('[name="packageName"]') || {}).value || 'com.inteebuild.app';
+    const k = el.getAttribute('data-devview');
+    if (k === 'capacitor') view.textContent = '{\n  "appId": "' + pkg + '",\n  "appName": "' + appName + '",\n  "webDir": "www"\n}';
+    else if (k === 'manifest') view.textContent = '<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n  <!-- Manifest generado automáticamente -->\n</manifest>';
+    else if (k === 'package') view.textContent = '{\n  "name": "inteebuild-app",\n  "version": "1.0.0"\n}';
+    else if (k === 'res') view.textContent = 'plugins/\nres/\n  mipmap-hdpi/\n  values/colors.xml';
+  });
+});
+
 const adaptiveFgInput = document.getElementById('adaptiveFgInput');
 if (adaptiveFgInput) {
   adaptiveFgInput.addEventListener('change', () => {
