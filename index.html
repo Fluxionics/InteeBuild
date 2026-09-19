@@ -130,13 +130,13 @@
     <div class="layout">
       <div class="wizard" id="wizard">
         <nav class="steps-bar">
-          <button class="step-dot active" data-step="0"><span>1</span><label>Aplicación</label></button>
-          <button class="step-dot" data-step="1"><span>2</span><label>Permisos</label></button>
-          <button class="step-dot" data-step="2"><span>3</span><label>Plugins</label></button>
-          <button class="step-dot" data-step="3"><span>4</span><label>Ajustes</label></button>
-          <button class="step-dot" data-step="4"><span>5</span><label>Preview</label></button>
-          <button class="step-dot" data-step="5"><span>6</span><label>QA + Seguridad</label></button>
-          <button class="step-dot" data-step="6"><span>7</span><label>Compilar</label></button>
+          <button class="step-dot active" data-step="0"><span>1</span><span class="sdot-label">Aplicación</span></button>
+          <button class="step-dot" data-step="1"><span>2</span><span class="sdot-label">Permisos</span></button>
+          <button class="step-dot" data-step="2"><span>3</span><span class="sdot-label">Plugins</span></button>
+          <button class="step-dot" data-step="3"><span>4</span><span class="sdot-label">Ajustes</span></button>
+          <button class="step-dot" data-step="4"><span>5</span><span class="sdot-label">Preview</span></button>
+          <button class="step-dot" data-step="5"><span>6</span><span class="sdot-label">QA + Seguridad</span></button>
+          <button class="step-dot" data-step="6"><span>7</span><span class="sdot-label">Compilar</span></button>
         </nav>
 
         <!-- STEP 0: Web / App info -->
@@ -674,7 +674,7 @@
             </div>
             <div class="row advanced hidden">
               <label>Color barra de navegación<input type="color" name="navigationBarColor" value="#ffffff" /></label>
-              <label>&nbsp;</label>
+              <span>&nbsp;</span>
             </div>
           </div>
 
@@ -948,13 +948,13 @@
 
             <div id="buildProgress" class="hidden">
               <div class="progress-steps">
-                <div class="pstep" id="ps0"><span class="pdot"></span><label>Proyecto generado</label></div>
-                <div class="pstep" id="ps1"><span class="pdot"></span><label>Workflow de CI/CD sincronizado</label></div>
-                <div class="pstep" id="ps2"><span class="pdot"></span><label>Repositorio actualizado</label></div>
-                <div class="pstep" id="ps3"><span class="pdot"></span><label>Ejecución en GitHub Actions</label></div>
-                <div class="pstep" id="ps4"><span class="pdot"></span><label>Permisos y manifiesto aplicados</label></div>
-                <div class="pstep" id="ps5"><span class="pdot"></span><label>Compilación de APK finalizada</label></div>
-                <div class="pstep" id="ps6"><span class="pdot"></span><label>Generación de Bundle AAB</label></div>
+                <div class="pstep" id="ps0"><span class="pdot"></span><span class="pstep-label">Proyecto generado</span></div>
+                <div class="pstep" id="ps1"><span class="pdot"></span><span class="pstep-label">Workflow de CI/CD sincronizado</span></div>
+                <div class="pstep" id="ps2"><span class="pdot"></span><span class="pstep-label">Repositorio actualizado</span></div>
+                <div class="pstep" id="ps3"><span class="pdot"></span><span class="pstep-label">Ejecución en GitHub Actions</span></div>
+                <div class="pstep" id="ps4"><span class="pdot"></span><span class="pstep-label">Permisos y manifiesto aplicados</span></div>
+                <div class="pstep" id="ps5"><span class="pdot"></span><span class="pstep-label">Compilación de APK finalizada</span></div>
+                <div class="pstep" id="ps6"><span class="pdot"></span><span class="pstep-label">Generación de Bundle AAB</span></div>
               </div>
               <div class="progress"><span id="progressBar"></span></div>
               <pre id="buildConsole" class="console hidden"></pre>
@@ -985,7 +985,7 @@
               </div>
             </div>
 
-            <div id="resultError" class="alert error hidden"></div>
+            <div id="resultError" class="alert error hidden" style="white-space:pre-wrap;text-align:left"></div>
           </div>
           <div class="step-nav"><button type="button" class="btn ghost prev-btn" id="backFromBuild">← Paso anterior</button><span></span></div>
         </div>

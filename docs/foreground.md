@@ -37,15 +37,21 @@ Desde esta versión las plantillas **Radio** y **Streaming** activan `nativeAudi
 
 Marca en el Studio: `Servicio Foreground` + `Pantalla Encendida (WAKE_LOCK)` + `Notificaciones`.
 
-`POST /api/project` o `POST /api/build` con:
+`POST /api/project` o `POST /api/build` con (o elige la plantilla **Radio** en el Studio, que ya trae todo esto):
 
 ```json
 {
   "appName": "Mi Radio",
   "url": "https://mi-radio.com",
-  "permissions": { "foreground": true, "wakeLock": true, "notifications": true }
+  "template": "radio",
+  "permissions": { "foreground": true, "wakeLock": true, "notifications": true },
+  "nativeAudio": true,
+  "nativeAutoplay": true,
+  "streamUrl": "https://tu-servidor.com:8000/stream"
 }
 ```
+
+> Sin `streamUrl` el readiness bloquea el build (`canBuild: false`) con el aviso *"Audio nativo activo pero sin URL del stream"*. Es a propósito: sin URL no hay nada que suene en nativo.
 
 ### 1. AndroidManifest.xml (verificable)
 
@@ -85,9 +91,11 @@ En el log del workflow debes ver:
 
 Si ves `0`, el patch no se aplicó: revisa `build-config.json → permissions.foreground: true`.
 
-## Tu HTML debe cumplir esto (si no, el audio se corta igual)
+## Tu HTML: dos modos (nativo recomendado, web fallback)
 
-El servicio nativo mantiene el proceso vivo, pero el `<audio>` lo controla tu página:
+**Modo nativo (recomendado):** tu HTML solo tiene botones que llaman a `window.InteeAudio`. El sonido lo reproduce Java, así que estas reglas no aplican: puedes minimizar y apagar sin miedo. Usa [radio-face.html](./radio-face.html) tal cual.
+
+**Modo web fallback** (si abres la cara en un navegador, o compilas sin `nativeAudio`): ahí sí el `<audio>` lo controla tu página y debe cumplir esto o se corta igual:
 
 ```html
 <audio id="player" src="https://mi-radio.com/stream.mp3" preload="none"></audio>
@@ -127,19 +135,20 @@ Instala, abre, cierra: no debe pedir ningún permiso. Si pide algo, el Engine es
 
 ### Paso 2: APK Foreground
 
-Activa la plantilla Radio (o el JSON de arriba). Esperado:
+Activa la plantilla Radio + URL en Audio nativo (o el JSON de arriba). Esperado:
 
 - Manifest con las 6 líneas de arriba + `RadioService`.
-- `RadioService.java` + `patch-main-activity.js` en el ZIP.
-- Audit: `foreground ok (GENERATED)`, `wakeLock ok`, `notifications ok`.
-- Readiness ≥ 90%.
+- `RadioService.java` (con `MediaPlayer`) + `AudioBridge.java` + `patch-main-activity.js` + `patch-audio.js` en el ZIP.
+- `build-config.json` con `nativeAudio: true` y `hasStreamUrl: true`.
+- Audit: `foreground ok (GENERATED)`, `wakeLock ok`, `notifications ok`, todo `verified: true`.
+- Readiness 100%. Sin `streamUrl`: `canBuild: false` con aviso.
 
 Instala en Android real:
 
-1. Abre la app → debe aparecer notificación persistente "Reproduciendo en segundo plano".
-2. Dale play → minimiza → el audio sigue.
-3. Apaga pantalla 30s → el audio sigue (WAKE_LOCK).
-4. Desliza la notificación → no se puede descartar (`setOngoing(true)`).
+1. Abre la app → debe aparecer notificación con botón **Play** aunque no hayas tocado nada (auto-play). **Si no hay notificación, no instales más: el servicio no arrancó.**
+2. Dale play en tu cara (o en la notificación) → minimiza → el audio sigue.
+3. Apaga pantalla 30s → el audio sigue (WAKE_LOCK + `PARTIAL_WAKE_LOCK` del player).
+4. La notificación no se puede descartar (`setOngoing(true)`); sus botones y los del lock-screen controlan el stream (MediaSession).
 
 ### Paso 3: Build log (qué buscar)
 
@@ -152,10 +161,12 @@ android:name="android.permission.FOREGROUND_SERVICE"
 --- catalog patches aplicados ---
 --- servicio instalado ---
 1
+--- audio nativo instalado ---
+1
 manifest XML OK
 ```
 
-Si `grep -c RadioService` da `0`, el servicio no se inyectó: no instales ese APK, revisa `packageName` y `build-config.json`.
+Si `grep -c RadioService` da `0`, el servicio no se inyectó: no instales ese APK, revisa `packageName` y `build-config.json`. Si `grep -c InteeAudio` da `0`, el puente JS no se inyectó: tus botones no sonarán en nativo (caerán al fallback web).
 
 ## Si se corta solo (reconexión obligatoria)
 
@@ -198,9 +209,11 @@ Los streams Shoutcast/Icecast se caen solos cada cierto tiempo. Sin reconexión,
 
 ## Checklist antes de publicar una radio
 
+- [ ] Plantilla Radio aplicada + `streamUrl` con tu servidor en Audio nativo
 - [ ] Manifest tiene `FOREGROUND_SERVICE_MEDIA_PLAYBACK` y `RadioService`
-- [ ] ZIP trae `RadioService.java`
-- [ ] Audit `foreground/nofitications/wakeLock` en `ok` y `verified: true`
-- [ ] HTML no pausa en `visibilitychange`
-- [ ] Stream en `https://`
+- [ ] ZIP trae `RadioService.java` (con `MediaPlayer`), `AudioBridge.java`, `patch-audio.js`
+- [ ] Audit `foreground/notifications/wakeLock` en `ok` y `verified: true`, readiness 100%
+- [ ] Cara usa `window.InteeAudio.play(url)` (ver [radio-face.html](./radio-face.html))
+- [ ] Stream en `https://` con certificado válido
+- [ ] Notificación con Play visible al abrir la app
 - [ ] Probado minimizado + pantalla apagada 30s

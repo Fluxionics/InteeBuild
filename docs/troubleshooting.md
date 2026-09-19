@@ -38,6 +38,22 @@
 
 Máximo 10 compilaciones por hora e IP. Si lo alcanzas, espera y reintenta.
 
+## El botón Compilar no hace nada o dice qué corregir
+
+Desde esta versión el botón primero consulta `POST /api/build-readiness` y te muestra el motivo exacto en rojo. Los más comunes:
+
+- `Audio nativo activo pero sin URL del stream` → pega tu servidor en Paso 4 → tarjeta `Audio 100% nativo`.
+- `Falta URL o HTML` → vuelve al Paso 1 y pon tu fuente.
+- `X requiere Android N+` → sube `targetSdk` o quita ese permiso.
+- Si el botón se ve opaco, igual haz clic: te dirá qué falta (ya no se bloquea en silencio).
+
+## Consola del navegador: qué ignorar y qué no
+
+- `ERR_BLOCKED_BY_CLIENT (invoke.js)` → era tu adblocker contra el dominio de ads. Desde esta versión los ads se sirven first-party (`/api/ads`), así que si aún lo ves haz **recarga dura** (Ctrl+Shift+R) o espera el redeploy en Render.
+- `cdn.tailwindcss.com should not be used in production` → aviso amarillo de Tailwind, tu app funciona igual. Solo optimiza si quieres arranque más rápido.
+- `No label associated with a form field` → aviso de accesibilidad ya corregido (los labels de pasos ahora son `span`). No bloquea nada.
+- `Uncaught SyntaxError: Invalid or unexpected token` en `index.html` → era el visor de Developer Mode, ya corregido. Si lo ves, recarga dura.
+
 ## Permission Audit failed / Readiness bajo
 
 1. Pulsa `Ejecutar Audit` en el Paso 2. Lee cada fila: `GENERATED OK` vs `SPEC ONLY`.

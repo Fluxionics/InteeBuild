@@ -666,7 +666,11 @@ async function runAudit(){
       const barColor=br.readiness>=90?'linear-gradient(90deg,var(--success),#34d399)':br.readiness>=70?'linear-gradient(90deg,var(--warn),#fbbf24)':'linear-gradient(90deg,var(--danger),#f87171)';
       readinessBox.innerHTML=`<div class="readiness-card"><div class="readiness-top"><span>BUILD READINESS</span><span class="readiness-pct">${br.readiness}%</span></div><div class="readiness-bar"><div class="readiness-fill" style="width:${br.readiness}%;background:${barColor}"></div></div><small style="color:var(--muted)">${escHtml(br.message||'')}</small>${(br.warnings||[]).length?'<div style="margin-top:6px;font-size:11px;color:var(--warn)">⚠ '+br.warnings.map(w=>escHtml(w)).join('<br>⚠ ')+'</div>':''}<div class="readiness-checks">${Object.entries(br.checks||{}).map(([k,v])=>`<span class="readiness-check ${v?'yes':'no'}">${v?'✓':'✕'} ${escHtml(k)}</span>`).join('')}</div></div>`;
       const buildBtnEl=document.getElementById('buildBtn');
-      if(buildBtnEl) { buildBtnEl.disabled=!br.canBuild; buildBtnEl.title=br.canBuild?'Listo para compilar':'Corrige audit antes de compilar'; }
+      if(buildBtnEl) {
+        buildBtnEl.disabled=false;
+        buildBtnEl.title=br.canBuild?'Listo para compilar':'Audit con observaciones: al compilar se te dirá qué corregir';
+        buildBtnEl.style.opacity=br.canBuild?'1':'.75';
+      }
     }
   }catch(e){ auditBox.innerHTML='<span style="color:var(--danger)">'+escHtml(e.message)+'</span>'; }
 }
@@ -937,6 +941,22 @@ if (downloadZipBtn) {
 }
 
 buildBtn.addEventListener('click', async () => {
+  // Pre-chequeo visible: si el readiness bloquea, explícalo en vez de fallar en silencio
+  buildBtn.textContent = 'Verificando…';
+  buildBtn.disabled = true;
+  try {
+    const chk = await fetch('/api/build-readiness', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(collect()) });
+    const cj = await chk.json();
+    if (chk.ok && cj.canBuild === false) {
+      const why = (cj.warnings || []).join('\n• ');
+      showError('No se puede compilar aún:\n• ' + (why || 'revisa el Audit en el paso 2 (Permisos → Ejecutar Audit).'));
+      buildBtn.textContent = 'Compilar APK';
+      buildBtn.disabled = false;
+      return;
+    }
+  } catch (_) { /* si el chequeo falla, intenta compilar igual y muestra el error real */ }
+  buildBtn.textContent = 'Compilar APK';
+  buildBtn.disabled = false;
   buildReady.classList.add('hidden');
   buildProgress.classList.remove('hidden');
   buildResult.classList.add('hidden');

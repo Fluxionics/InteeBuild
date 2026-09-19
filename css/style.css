@@ -94,11 +94,11 @@ main { max-width: 1080px; margin: 0 auto; padding: 32px 24px 80px; }
   font-size: 13px; font-weight: 700; background: var(--surface); border: 2px solid var(--border);
   color: var(--muted); transition: all .2s ease;
 }
-.step-dot label { font-size: 11px; font-weight: 600; color: var(--faint); cursor: pointer; transition: color .2s; white-space: nowrap; }
+.step-dot .sdot-label { font-size: 11px; font-weight: 600; color: var(--faint); cursor: pointer; transition: color .2s; white-space: nowrap; }
 .step-dot.active span { border-color: var(--accent); color: #fff; background: var(--accent); box-shadow: 0 0 12px rgba(99, 102, 241, 0.4); }
-.step-dot.active label { color: #fff; }
+.step-dot.active .sdot-label { color: #fff; }
 .step-dot.done span { border-color: var(--success); background: var(--success); color: #fff; }
-.step-dot.done label { color: var(--success); }
+.step-dot.done .sdot-label { color: var(--success); }
 
 .wizard { position: relative; }
 .step { display: none; animation: fadeIn .2s ease; }
@@ -196,9 +196,9 @@ input[type="color"] { height: 42px; padding: 4px; cursor: pointer; }
 .pstep.active .pdot::after { background: var(--accent); animation: pulse 1.2s ease-in-out infinite; }
 .pstep.done .pdot { border-color: var(--success); background: var(--success); }
 .pstep.done .pdot::after { content: "✓"; color: #fff; font-size: 11px; font-weight: 800; }
-.pstep label { font-size: 13.5px; font-weight: 600; color: var(--muted); }
-.pstep.active label { color: #fff; }
-.pstep.done label { color: var(--success); }
+.pstep .pstep-label { font-size: 13.5px; font-weight: 600; color: var(--muted); }
+.pstep.active .pstep-label { color: #fff; }
+.pstep.done .pstep-label { color: var(--success); }
 
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
 
@@ -397,7 +397,7 @@ pre, code { word-break: break-word; }
   .steps-bar::before { left: 4%; right: 4%; }
   .step-dot { padding: 0 8px; flex-shrink: 0; }
   .step-dot span { width: 32px; height: 32px; font-size: 12px; }
-  .step-dot label { display: none; }
+  .step-dot .sdot-label { display: none; }
   .card { padding: 16px 14px; }
   .hitem { flex-direction: column; align-items: flex-start; }
   .hitem-right { flex-wrap: wrap; }
