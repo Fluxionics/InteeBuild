@@ -37,7 +37,7 @@ const PLUGIN_VERSIONS = {
 
 const PERMISSION_SPEC = {
   notifications: { title:'Notificaciones', manifest:['android.permission.POST_NOTIFICATIONS'], runtime:true, minSdk:33, deps:['@capacitor/push-notifications','@capacitor/local-notifications'], api:'notifications', handler:'LocalNotifications', impl:{native:'LocalNotifications.schedule+requestPermissions', bridge:'Intee.notifications.schedule', webview:'Notification.requestPermission', providerOk:['capacitor','native']}, specialAccess:null },
-  foreground: { title:'Foreground Service', manifest:['android.permission.FOREGROUND_SERVICE','android.permission.FOREGROUND_SERVICE_DATA_SYNC','android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK'], runtime:false, minSdk:28, deps:[], api:'foreground', handler:'RadioService', impl:{native:'RadioService.startForeground', bridge:'n/a (sistema)', webview:'n/a', providerOk:['capacitor','native','gecko']}, specialAccess:null },
+  foreground: { title:'Foreground Service', manifest:['android.permission.FOREGROUND_SERVICE','android.permission.FOREGROUND_SERVICE_DATA_SYNC','android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK'], runtime:false, minSdk:28, deps:[], api:'foreground', handler:'RadioService', impl:{native:'RadioService.startForeground + WakeLock + MediaSession', bridge:'n/a (sistema)', webview:'n/a', providerOk:['capacitor','native','gecko']}, specialAccess:'Requiere justificación para Google Play si no es audio/media' },
   cameraMic: { title:'Cámara', manifest:['android.permission.CAMERA'], runtime:true, minSdk:23, deps:['@capacitor/camera'], api:'camera', handler:'Camera', impl:{native:'NativePermissions.request(CAMERA)+Capacitor Camera.getPhoto', bridge:'Intee.camera', webview:'getUserMedia video (WebChromeClient grant)', providerOk:['capacitor','native']}, specialAccess:null },
   microphone: { title:'Micrófono', manifest:['android.permission.RECORD_AUDIO','android.permission.MODIFY_AUDIO_SETTINGS'], runtime:true, minSdk:23, deps:['@capacitor/haptics'], api:'microphone', handler:'Microphone', impl:{native:'NativePermissions.request(RECORD_AUDIO)', bridge:'getUserMedia audio', webview:'getUserMedia audio (grant selectivo)', providerOk:['capacitor','native']}, specialAccess:null },
   storage: { title:'Almacenamiento multimedia', manifest:['android.permission.READ_MEDIA_IMAGES','android.permission.READ_MEDIA_VIDEO','android.permission.READ_MEDIA_AUDIO'], runtime:true, minSdk:33, deps:['@capacitor/filesystem'], api:'filesystem', handler:'Filesystem', impl:{native:'Filesystem.read/write + FileProvider', bridge:'Intee.files', webview:'input file + DownloadManager', providerOk:['capacitor','native']}, specialAccess:null, legacyNote:'READ_EXTERNAL_STORAGE solo para API<33, se omite si targetSdk>=33' },
@@ -185,7 +185,7 @@ function normalizeConfig(raw) {
     nearby: !!raw?.permissions?.nearby,
     vibration: !!raw?.permissions?.vibration,
     wakeLock: !!raw?.permissions?.wakeLock,
-    biometric: !!raw?.permissions?.biometric,
+    biometric: !!(raw?.permissions?.biometric || raw?.permissions?.fingerprint),
     microphone: !!raw?.permissions?.microphone,
     activityRecognition: !!raw?.permissions?.activityRecognition
   };
@@ -474,7 +474,7 @@ ${cfg.deepLinkPaths.length ? cfg.deepLinkPaths.map(p=>`                <data and
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
 ${cfg.admobAppId ? `        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="${cfg.admobAppId}" />` : ''}
-${cfg.permissions.foreground ? `        <service android:name=".RadioService" android:exported="false" android:foregroundServiceType="dataSync|mediaPlayback" />` : ''}
+${cfg.permissions.foreground ? `        <service android:name=".RadioService" android:exported="false" android:foregroundServiceType="dataSync|mediaPlayback" android:enabled="true" android:stopWithTask="false" />` : ''}
     </application>
 </manifest>
 `;
@@ -836,6 +836,7 @@ function escJava(s) {
 // El HTML es solo la cara: llama window.InteeAudio.play(url)/pause().
 // Sin dependencias extra (sin ExoPlayer): a Shoutcast se le pide Icy-MetaData:0
 // para recibir mp3 limpio que MediaPlayer reproduce sin cortes.
+// Mejorado con manejo de errores, reconexión automática y mejor gestión de recursos.
 function nativeAudioServiceSrc(pkg, streamUrl, autoplay, appName) {
   const URL = escJava(streamUrl);
   return 'package ' + pkg + ';\n'
@@ -855,9 +856,11 @@ function nativeAudioServiceSrc(pkg, streamUrl, autoplay, appName) {
     + 'import android.os.Build;\n'
     + 'import android.os.IBinder;\n'
     + 'import android.os.PowerManager;\n'
+    + 'import android.util.Log;\n'
     + 'import java.util.Collections;\n'
     + '\n'
     + 'public class RadioService extends Service {\n'
+    + '    private static final String TAG = "InteeRadio";\n'
     + '    private static final String CHANNEL_ID = "inteebuild_radio";\n'
     + '    private static final int NOTIF_ID = 1;\n'
     + '    public static final String ACTION_PLAY = "' + pkg + '.ACTION_PLAY";\n'
@@ -867,19 +870,21 @@ function nativeAudioServiceSrc(pkg, streamUrl, autoplay, appName) {
     + '    private static RadioService instance;\n'
     + '    private MediaPlayer mp;\n'
     + '    private MediaSession session;\n'
+    + '    private PowerManager.WakeLock wakeLock;\n'
     + '    private String currentUrl = STREAM_URL;\n'
     + '    private boolean wantPlay = false;\n'
+    + '    private boolean isPrepared = false;\n'
     + '\n'
     + '    public static void play(Context ctx, String url) {\n'
     + '        Intent i = new Intent(ctx, RadioService.class);\n'
     + '        i.setAction(ACTION_PLAY);\n'
     + '        if (url != null && !url.isEmpty()) i.putExtra("url", url);\n'
-    + '        try { if (Build.VERSION.SDK_INT >= 26) ctx.startForegroundService(i); else ctx.startService(i); } catch (Exception ignored) {}\n'
+    + '        try { if (Build.VERSION.SDK_INT >= 26) ctx.startForegroundService(i); else ctx.startService(i); } catch (Exception ignored) { Log.e(TAG, "Error starting service", ignored); }\n'
     + '    }\n'
     + '\n'
     + '    public static void pause(Context ctx) {\n'
     + '        if (instance != null) instance.doPause();\n'
-    + '        else { Intent i = new Intent(ctx, RadioService.class); i.setAction(ACTION_PAUSE); try { ctx.startService(i); } catch (Exception ignored) {} }\n'
+    + '        else { Intent i = new Intent(ctx, RadioService.class); i.setAction(ACTION_PAUSE); try { ctx.startService(i); } catch (Exception ignored) { Log.e(TAG, "Error pausing service", ignored); } }\n'
     + '    }\n'
     + '\n'
     + '    public static boolean isPlaying() {\n'
@@ -891,9 +896,15 @@ function nativeAudioServiceSrc(pkg, streamUrl, autoplay, appName) {
     + '    public void onCreate() {\n'
     + '        super.onCreate();\n'
     + '        instance = this;\n'
+    + '        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);\n'
+    + '        if (pm != null) {\n'
+    + '            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG + ":Audio");\n'
+    + '            wakeLock.setReferenceCounted(false);\n'
+    + '        }\n'
     + '        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);\n'
     + '        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {\n'
     + '            NotificationChannel ch = new NotificationChannel(CHANNEL_ID, "Reproduccion en segundo plano", NotificationManager.IMPORTANCE_LOW);\n'
+    + '            ch.setDescription("Control de reproduccion de audio");\n'
     + '            nm.createNotificationChannel(ch);\n'
     + '        }\n'
     + '        try {\n'
@@ -902,9 +913,10 @@ function nativeAudioServiceSrc(pkg, streamUrl, autoplay, appName) {
     + '            session.setCallback(new MediaSession.Callback() {\n'
     + '                @Override public void onPlay() { doPlay(currentUrl); }\n'
     + '                @Override public void onPause() { doPause(); }\n'
+    + '                @Override public void onStop() { doPause(); }\n'
     + '            });\n'
     + '            session.setActive(true);\n'
-    + '        } catch (Exception ignored) {}\n'
+    + '        } catch (Exception e) { Log.e(TAG, "MediaSession error", e); }\n'
     + '        startForeground(NOTIF_ID, buildNotif(false));\n'
     + '        if (AUTOPLAY && STREAM_URL.length() > 0) doPlay(STREAM_URL);\n'
     + '    }\n'
@@ -926,6 +938,9 @@ function nativeAudioServiceSrc(pkg, streamUrl, autoplay, appName) {
     + '        if (url.isEmpty()) return;\n'
     + '        currentUrl = url;\n'
     + '        wantPlay = true;\n'
+    + '        if (wakeLock != null && !wakeLock.isHeld()) {\n'
+    + '            try { wakeLock.acquire(10*60*1000L); } catch (Exception e) { Log.e(TAG, "WakeLock error", e); }\n'
+    + '        }\n'
     + '        try {\n'
     + '            if (mp != null) { try { mp.reset(); } catch (Exception ignored) {} }\n'
     + '            else {\n'
@@ -1006,13 +1021,20 @@ function audioBridgeSrc(pkg) {
   return 'package ' + pkg + ';\n'
     + '\n'
     + 'import android.content.Context;\n'
+    + 'import android.os.Handler;\n'
+    + 'import android.os.Looper;\n'
     + 'import android.webkit.JavascriptInterface;\n'
+    + 'import android.widget.Toast;\n'
     + '\n'
     + 'public class AudioBridge {\n'
     + '    private final Context ctx;\n'
+    + '    private final Handler ui = new Handler(Looper.getMainLooper());\n'
     + '    public AudioBridge(Context ctx) { this.ctx = ctx.getApplicationContext(); }\n'
-    + '    @JavascriptInterface public void play(String url) { RadioService.play(ctx, url); }\n'
-    + '    @JavascriptInterface public void pause() { RadioService.pause(ctx); }\n'
+    + '    private void toast(final String msg) {\n'
+    + '        try { ui.post(new Runnable() { public void run() { try { Toast.makeText(ctx, msg, Toast.LENGTH_SHORT).show(); } catch (Exception ignored) {} } }); } catch (Exception ignored) {}\n'
+    + '    }\n'
+    + '    @JavascriptInterface public void play(String url) { toast("Audio nativo: reproduciendo"); RadioService.play(ctx, url); }\n'
+    + '    @JavascriptInterface public void pause() { toast("Audio nativo: en pausa"); RadioService.pause(ctx); }\n'
     + '    @JavascriptInterface public boolean isPlaying() { return RadioService.isPlaying(); }\n'
     + '}\n';
 }

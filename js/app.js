@@ -423,7 +423,7 @@ if (templateZipBtn) {
       a.click();
       URL.revokeObjectURL(a.href);
     } catch (e) { alert(e.message); }
-    templateZipBtn.innerHTML = '📦 Ver código (ZIP) de la plantilla';
+    templateZipBtn.innerHTML = '<svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Ver código (ZIP) de la plantilla';
     templateZipBtn.disabled = false;
   });
 }
@@ -647,7 +647,7 @@ const auditBox=document.getElementById('auditBox');
 const readinessBox=document.getElementById('buildReadinessBox');
 async function runAudit(){
   if(!auditBox) return;
-  auditBox.innerHTML='<small style="color:var(--muted)">🛡️ Auditando permisos...</small>';
+  auditBox.innerHTML='<small style="color:var(--muted)"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg> Auditando permisos...</small>';
   try{
     const cfg=collect();
     const r=await fetch('/api/permissions/audit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(cfg)});
@@ -1196,9 +1196,9 @@ if(decompileBtn){
         +'<div class="decompile-row"><b>App</b><span>'+escHtml(j.meta.appName)+'</span></div>'
         +'<div class="decompile-row"><b>Versión</b><span>'+escHtml(j.meta.versionName||'1.0.0')+' '+(j.meta.versionCode?'('+escHtml(j.meta.versionCode)+')':'')+'</span></div>'
         +'<div class="decompile-row"><b>Permisos</b><span>'+escHtml((j.meta.permissions||[]).join(', ')||'ninguno')+'</span></div>'
-        +'<div class="decompile-row"><b>Archivos</b><span>'+j.meta.fileCount+' ('+j.meta.sizeKB+'KB) '+ (j.meta.hasIcon?'· 🎨 icono':'') + (j.meta.hasDex?'· ⚙️ dex':'')+'</span></div>'
-        +'<div style="margin-top:8px"><b style="font-size:12px">📦 Código fuente recuperado</b><pre class="code" style="margin-top:6px;max-height:160px;overflow:auto">'+escHtml(JSON.stringify(j.importConfig,null,2))+'</pre></div>'
-        +'<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button type="button" class="btn primary sm" id="importDecompiled">📥 Importar como proyecto</button>' + (j.sourceZipBase64 ? '<a class="btn ghost sm" href="data:application/zip;base64,'+j.sourceZipBase64+'" download="inteebuild-source-'+escHtml(j.meta.packageName||'app')+'.zip">📦 Descargar ZIP fuente ('+j.sourceZipSizeKB+'KB)</a>' : '') + '</div>'
+        +'<div class="decompile-row"><b>Archivos</b><span>'+j.meta.fileCount+' ('+j.meta.sizeKB+'KB) '+ (j.meta.hasIcon?'· <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg> icono':'') + (j.meta.hasDex?'· <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0 .33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> dex':'')+'</span></div>'
+        +'<div style="margin-top:8px"><b style="font-size:12px"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Código fuente recuperado</b><pre class="code" style="margin-top:6px;max-height:160px;overflow:auto">'+escHtml(JSON.stringify(j.importConfig,null,2))+'</pre></div>'
+        +'<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button type="button" class="btn primary sm" id="importDecompiled"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Importar como proyecto</button>' + (j.sourceZipBase64 ? '<a class="btn ghost sm" href="data:application/zip;base64,'+j.sourceZipBase64+'" download="inteebuild-source-'+escHtml(j.meta.packageName||'app')+'.zip"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Descargar ZIP fuente ('+j.sourceZipSizeKB+'KB)</a>' : '') + '</div>'
         +'<div style="margin-top:8px;font-size:11px;color:var(--muted)">'+escHtml(j.note)+'</div>'
         + (j.manifestPreview ? '<details style="margin-top:8px"><summary style="font-size:11px;cursor:pointer;color:var(--accent)">Manifest preview</summary><pre class="code" style="margin-top:6px;max-height:200px;overflow:auto">'+escHtml((j.manifestPreview||'').slice(0,3000))+'</pre></details>' : '')
         +'</div>';
