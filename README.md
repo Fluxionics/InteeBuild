@@ -1,6 +1,6 @@
 ![InteeBuild](assets/social-preview.svg)
 
-![Version](https://img.shields.io/badge/version-4.1.0-6366f1?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-4.2.0-6366f1?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-10b981?style=for-the-badge)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-10b981?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/platform-Android%20APK%20%2F%20AAB-6366f1?style=for-the-badge)
@@ -8,7 +8,7 @@
 
 # InteeBuild — Web a App Nativa Android
 
-Convierte cualquier sitio web o código HTML en una aplicación nativa de Android (APK y AAB). Permission Engine con permisos granulares reales, 7 motores WebView, API para developers, decompiler con código fuente y compilación en la nube con GitHub Actions.
+Convierte cualquier sitio web o código HTML en una aplicación nativa de Android (APK y AAB). Permission Engine con 68 permisos granulares reales (runtime + Settings + manifest verificados), 2 motores WebView listos (Capacitor, Native), API para developers, decompiler con código fuente y compilación en la nube con GitHub Actions.
 
 **Studio:** `index.html` · **Developer API:** `developer.html` · **Docs:** [Inicio rápido](./docs/quickstart.md) · [Solución de problemas](./docs/troubleshooting.md) · [Guía de permisos](./docs/permissions.md) · [Producción](./docs/production.md)
 
@@ -17,8 +17,8 @@ Convierte cualquier sitio web o código HTML en una aplicación nativa de Androi
 ## Caracteristicas
 
 - **Entrada flexible:** URL pública o código HTML directo.
-- **Permission Engine:** 27 permisos granulares (GPS preciso / segundo plano separado, Bluetooth Scan / Connect / Advertise, alarmas Schedule / Use, storage multimedia API 33). Solo se genera lo seleccionado. Audit con Manifest + Runtime + Native + Bridge + Provider y Build Readiness 0-100 que bloquea builds rotos.
-- **Providers WebView:** Capacitor 7 (READY), Native WebView ligero (READY), TWA Chrome (EXPERIMENTAL), GeckoView (EXPERIMENTAL), Cordova (EXPERIMENTAL), Flutter / Tauri (PLANNED).
+- **Permission Engine:** 68 permisos granulares (GPS preciso / segundo plano two-step, Bluetooth Scan / Connect / Advertise, alarmas Schedule / Use, storage multimedia API 33, splits finos de cámara, contactos, SMS y teléfono). Solo se genera lo seleccionado: batch runtime data-driven, accesos especiales por Settings, `uses-feature` y filtro NFC. Audit por evidencia (GENERATED vs SPEC ONLY) y Build Readiness que bloquea builds rotos.
+- **Providers WebView:** Capacitor 7 (READY), Native WebView ligero (READY). TWA, GeckoView y Cordova (EXPERIMENTAL). Flutter / Tauri (PLANNED).
 - **Icono e icono adaptativo:** PNG, JPG y WebP, generación de `mipmap-anydpi-v26` con fondo y foreground.
 - **Apariencia:** tema claro, oscuro o sistema, color de acento, status bar y navigation bar, edge-to-edge, splash screen con color y duración, animación de entrada y orientación. Drawer lateral, bottom tabs, pull-to-refresh, offline screen, loading y FLAG_SECURE.
 - **Analizador web:** HTTPS, viewport móvil, manifest, favicon, theme-color, service worker, recursos inseguros, CSP, eval, errores HTML, optimización y PWA. Puntuación 0-100 con auto-fix.

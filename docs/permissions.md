@@ -205,6 +205,33 @@ El Audit los marca `warn` con `special` aunque el Manifest esté OK. Es normal.
 
 ---
 
+## 13. Splits finos (una capacidad = una key)
+
+El Paso 2 → `Manifiesto Técnico` → `Permisos granulares técnicos` lista cada capacidad por separado, generada desde el mismo spec que el Audit. Todas pasan por Manifest + mecanismo real:
+
+| Grupo | Keys | Mecanismo |
+|---|---|---|
+| Cámara | `cameraFlash`, `cameraAutoFocus`, `videoCapture`, `audioRecord` | Batch runtime (`CAMERA` / `RECORD_AUDIO`) |
+| Contactos / Calendario | `readContacts`, `writeContacts`, `readCalendar`, `writeCalendar` | Batch runtime |
+| Teléfono | `readPhoneState`, `readPhoneNumber`, `callPhone`, `answerPhone`, `readCallLog`, `processOutgoingCalls` | Batch runtime (Play restringido) |
+| SMS | `sendSms`, `readSms`, `receiveSms`, `receiveMms` | Batch runtime (Play restringido) |
+| Sensores | `bodySensors`, `highSamplingRateSensors` | `BODY_SENSORS` runtime; alta tasa es install-time |
+| Storage legacy | `readExternalStorage`, `writeExternalStorage` | Batch runtime (solo `targetSdk < 33`) |
+| Ubicación fina | `accessFineLocation`, `accessCoarseLocation`, `accessBackgroundLocation` | Foreground en batch; background en two-step |
+| Red / WiFi | `getAccounts`, `nearbyWifiDevices`, `changeWifiState`, `changeNetworkState` | `GET_ACCOUNTS` y `NEARBY` en batch; cambios de red son install-time |
+| Otros | `bluetoothPrivileged`, `infrared`, `vibrate` | Manifest (+ `uses-feature` donde aplica) |
+
+Si mañana el spec crece, estos switches aparecen solos: la UI se renderiza desde `GET /api/permissions/spec`.
+
+## 14. Cómo funciona el runtime por dentro (verificable en el ZIP)
+
+1. `NativePermissions.java` trae un `BATCH[]` generado exactamente con tus permisos runtime (sin background, sin manage-storage). `requestAll()` pide solo lo declarado y no concedido.
+2. `ACCESS_BACKGROUND_LOCATION` va en **two-step**: `requestBackground()` solo se llama tras conceder foreground (Android 11+ ignora el background pedido en lote).
+3. `SpecialAccess.java` abre **Settings** para overlay, instalador, alarmas exactas y manage-storage. Se genera solo si los pides.
+4. `patch-permissions.js` inyecta `WebChromeClient.onPermissionRequest` con grant **selectivo** (VIDEO→cámara, AUDIO→mic, GEO→ubicación) y `deny()` por defecto.
+5. El Manifest declara `uses-feature ... required="false"` (cámara, BT LE, GPS, NFC, micrófono) y filtro `TECH_DISCOVERED` + `nfc_tech_filter.xml` si pides NFC.
+6. En el log del workflow busca: `permisos nativos instalados`, `accesos especiales instalados`, `filtro NFC instalado`.
+
 ## Flujo recomendado de pruebas reales
 
 ```

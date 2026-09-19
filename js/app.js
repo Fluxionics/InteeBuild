@@ -114,6 +114,34 @@ document.querySelectorAll('.perm-tile').forEach((tile) => {
   }
 });
 
+// Switches granulares renderizados desde /api/permissions/spec:
+// si mañana el spec crece, la UI crece sola. Nada se pierde en silencio.
+(async function renderGranularPerms() {
+  try {
+    const r = await fetch('/api/permissions/spec');
+    if (!r.ok) return;
+    const spec = await r.json();
+    const covered = new Set(['internet', 'foregroundService']);
+    document.querySelectorAll('#permEasy input[type="checkbox"], #permAdvanced input[type="checkbox"]').forEach((el) => {
+      if (el.name) covered.add(el.name);
+    });
+    const keys = Object.keys(spec).filter((k) => !covered.has(k));
+    if (!keys.length) return;
+    const adv = document.getElementById('permAdvanced');
+    if (!adv) return;
+    const wrap = document.createElement('div');
+    wrap.innerHTML = '<p class="hint" style="margin:12px 0 4px">Permisos granulares técnicos (con Audit y código nativo real):</p>' + keys.map((k) => {
+      const s = spec[k] || {};
+      const mans = (s.manifest || []).map((m) => String(m).split('.').pop()).join(', ');
+      const mech = s.runtime ? (s.minSdk >= 31 ? 'runtime API' + s.minSdk + '+' : 'runtime') : (s.specialAccess ? 'Settings' : 'install');
+      return '<label class="switch"><input type="checkbox" name="' + k + '" data-perm-key="' + k + '" />'
+        + '<span class="trk"><span class="knob"></span></span>'
+        + '<span class="txt"><b>' + escHtml(s.title || k) + '</b><small>' + escHtml(mans) + ' · ' + escHtml(mech) + (s.specialAccess ? ' · ' + escHtml(String(s.specialAccess).slice(0, 60)) : '') + '</small></span></label>';
+    }).join('');
+    adv.appendChild(wrap);
+  } catch (_) {}
+})();
+
 document.querySelectorAll('.plugin-tab').forEach((tab) => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.plugin-tab').forEach((t) => t.classList.remove('active'));
@@ -658,7 +686,7 @@ async function runAudit(){
       const manOk=(i.manifest||'').startsWith('GENERATED');
       const runOk=(i.runtime||'').startsWith('GENERATED');
       const natOk=(i.native||'').startsWith('GENERATED');
-      return `<div class="audit-item ${i.status}"><span class="audit-ico">${icon}</span><div class="audit-main"><b>${escHtml(i.title)}</b> <small>(${escHtml(i.key)})</small> ${i.verified?'<small style="color:var(--success)">· verificado en APK</small>':'<small style="color:var(--danger)">· NO generado</small>'}<div class="audit-meta"><span class="audit-chip ${manOk?'ok':'fail'}">Manifest ${escHtml(i.manifest)}</span><span class="audit-chip ${runOk?'ok':(i.runtime||'').startsWith('N/A')?'warn':'fail'}">Runtime ${escHtml((i.runtime||'').slice(0,70))}</span><span class="audit-chip ${natOk?'ok':'fail'}">Native ${escHtml((i.native||i.handler||'').slice(0,80))}</span><span class="audit-chip">Bridge ${escHtml((i.bridge||'').slice(0,50))}</span>${i.version!=='OK'?`<span class="audit-chip warn">${escHtml(i.version)} · minSdk ${i.minSdk}</span>`:''}${i.special?`<span class="audit-chip warn">⚠ ${escHtml((i.special||'').slice(0,90))}</span>`:''}${i.provider&&i.provider.startsWith('WARN')?`<span class="audit-chip warn">${escHtml(i.provider)}</span>`:''}</div></div><span class="audit-badge ${i.status}">${i.status}</span></div>`;
+      return `<div class="audit-item ${i.status}"><span class="audit-ico">${icon}</span><div class="audit-main"><b>${escHtml(i.title)}</b> <small>(${escHtml(i.key)})</small> ${i.verified?'<small style="color:var(--success)">· verificado en APK</small>':'<small style="color:var(--danger)">· NO generado</small>'}<div class="audit-meta"><span class="audit-chip ${manOk?'ok':'fail'}">Manifest ${escHtml(i.manifest)}</span><span class="audit-chip ${runOk?'ok':(i.runtime||'').startsWith('N/A')?'warn':'fail'}">Runtime ${escHtml((i.runtime||'').slice(0,70))}</span><span class="audit-chip ${natOk?'ok':'fail'}">Native ${escHtml((i.native||i.handler||'').slice(0,80))}</span><span class="audit-chip">Bridge ${escHtml((i.bridge||'').slice(0,50))}</span>${i.mechanism?`<span class="audit-chip">${escHtml(i.mechanism)}</span>`:''}${i.version!=='OK'?`<span class="audit-chip warn">${escHtml(i.version)} · minSdk ${i.minSdk}</span>`:''}${i.special?`<span class="audit-chip warn">⚠ ${escHtml((i.special||'').slice(0,90))}</span>`:''}${i.provider&&i.provider.startsWith('WARN')?`<span class="audit-chip warn">${escHtml(i.provider)}</span>`:''}</div></div><span class="audit-badge ${i.status}">${i.status}</span></div>`;
     }).join('');
     auditBox.innerHTML = j.total? items + `<div class="audit-summary ${j.canBuild?'good':'bad'}"><b>${j.ok}/${j.total} OK</b> · Readiness ${j.readiness}% ${j.canBuild?'· ✓ Listo para compilar':'· ✕ Bloqueado: revisa permisos'}</div>` : '<small style="color:var(--muted)">Selecciona al menos un permiso para auditar. Sin permisos el APK solo usa INTERNET.</small>';
     if(readinessBox){
@@ -790,6 +818,10 @@ function collect() {
     biometric: !!data.biometric,
     activityRecognition: !!data.activityRecognition
   };
+  // Switches granulares dinámicos ([data-perm-key]): nunca se desfasan del spec
+  document.querySelectorAll('input[data-perm-key]').forEach((el) => {
+    if (el.type === 'checkbox') data.permissions[el.getAttribute('data-perm-key')] = el.checked;
+  });
 
   data.notifyDelayMinutes = Number(data.notifyDelayMinutes || 0);
   data.versionCode = Number(data.versionCode || 1);
