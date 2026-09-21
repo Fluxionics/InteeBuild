@@ -613,6 +613,8 @@ app.get('/api/docs', (req,res)=>{
       gitConnect:'POST /api/git/connect {repo,branch,token}',
       gitWebhook:'POST /api/git/webhook',
       decompile:'POST /api/decompile (JSON {apkBase64} o raw octet-stream)',
+      manifestDiff:'POST /api/manifest-diff (pedido vs generado)',
+      inspect:'POST /api/inspect (ficha + score del APK)',
       templates:'GET /api/templates, GET /api/templates/:id',
       listing:'POST /api/listing (ficha Play Store gratis)',
       securityAudit:'POST /api/security-audit (GDPR + permisos + privacy)',
@@ -740,6 +742,71 @@ app.post('/api/git/webhook', async (req,res)=>{
     const result=await startBuild(cfg, ip);
     res.json({ok:true, buildId: result.id, branch});
   }catch(e){ res.status(500).json({error:e.message}); }
+});
+
+// Manifest Diff: pedido vs generado (pre-build). Detecta permisos de más o de menos.
+app.post('/api/manifest-diff', (req,res)=>{
+  try{
+    const cfg=generator.normalizeConfig(templates.applyTemplate(req.body||{}, (req.body||{}).template));
+    const xml=generator.generateAndroidManifest(cfg);
+    const generated=[...new Set([...xml.matchAll(/android:name="([^"]+)"/g)].map(m=>m[1]).filter(n=>n.includes('.permission.') || n==='com.android.vending.BILLING'))];
+    const requested=[...new Set(Object.entries(cfg.permissions||{}).filter(([,v])=>v).flatMap(([k])=>(generator.PERMISSION_SPEC[k]?.manifest||[])))];
+    if(cfg.iapEnabled && !requested.includes('com.android.vending.BILLING')) requested.push('com.android.vending.BILLING');
+    const base=['android.permission.INTERNET','android.permission.ACCESS_NETWORK_STATE','android.permission.ACCESS_WIFI_STATE'];
+    const missing=requested.filter(p=>!generated.includes(p));
+    const unexpected=generated.filter(p=>!requested.includes(p) && !base.includes(p));
+    const rows=requested.map(p=>({permission:p, generated:generated.includes(p), status:generated.includes(p)?'MATCH':'MISSING'}));
+    res.json({ok:missing.length===0, requested, generated, missing, unexpected, base, rows});
+  }catch(e){ res.status(400).json({error:e.message}); }
+});
+
+// App Inspector: sube un APK y recibe ficha técnica + score de seguridad (heurística honesta).
+app.post('/api/inspect', async (req,res)=>{
+  try{
+    let buf=null;
+    if(req.body.apkBase64){
+      const b64=String(req.body.apkBase64).replace(/^data:.*?;base64/, '');
+      buf=Buffer.from(b64.replace(/^,/,''),'base64');
+    }
+    if(!buf || buf.length<100) return res.status(400).json({error:'Envía apkBase64. Tamaño min 100 bytes'});
+    if(buf.length>30*1024*1024) return res.status(400).json({error:'APK demasiado grande (max 30MB)'});
+    let zip;
+    try{ zip=await JSZip.loadAsync(buf); }catch{ return res.status(400).json({error:'No es un APK/ZIP válido'}); }
+    const entries=Object.keys(zip.files);
+    let manifestRaw='';
+    if(zip.files['AndroidManifest.xml']){
+      try{ manifestRaw=await zip.files['AndroidManifest.xml'].async('nodebuffer').then(b=>b.toString('latin1')); }catch{ manifestRaw=''; }
+    }
+    const isTextManifest=manifestRaw.includes('<manifest');
+    const perms=[...new Set([...manifestRaw.matchAll(/android\.permission\.([A-Z_]+)/g)].map(m=>'android.permission.'+m[1]))];
+    const pkg=(manifestRaw.match(/package="([^"]+)"/)||[])[1]||'desconocido (binario)';
+    const version=(manifestRaw.match(/versionName="([^"]+)"/)||[])[1]||'?';
+    const hasDex=entries.some(e=>e.endsWith('.dex'));
+    const dexCount=entries.filter(e=>e.endsWith('.dex')).length;
+    const soCount=entries.filter(e=>e.endsWith('.so')).length;
+    const iconCount=entries.filter(e=>/mipmap.*\.png|app-icon/i.test(e)).length;
+    const DANGEROUS=['READ_SMS','SEND_SMS','RECEIVE_SMS','CALL_PHONE','READ_CALL_LOG','PROCESS_OUTGOING_CALLS','READ_CONTACTS','WRITE_CONTACTS','READ_CALENDAR','WRITE_CALENDAR','ACCESS_BACKGROUND_LOCATION','REQUEST_INSTALL_PACKAGES','SYSTEM_ALERT_WINDOW','MANAGE_EXTERNAL_STORAGE','READ_PHONE_STATE','READ_PHONE_NUMBERS','ANSWER_PHONE_CALLS','BODY_SENSORS','ACTIVITY_RECOGNITION','RECORD_AUDIO','CAMERA','ACCESS_FINE_LOCATION'];
+    const risky=perms.filter(p=>DANGEROUS.includes(p.split('.').pop()));
+    const findings=[];
+    if(!isTextManifest) findings.push({level:'info', msg:'Manifest binario (AXML): análisis por heurística de strings, no 100% exacto'});
+    if(!hasDex) findings.push({level:'warn', msg:'Sin classes.dex: puede no ser un APK instalable'});
+    risky.forEach(p=>findings.push({level:'warn', msg:'Permiso sensible: '+p}));
+    if(manifestRaw.includes('android:debuggable="true"')) findings.push({level:'fail', msg:'debuggable=true: no publiques así'});
+    else if(isTextManifest) findings.push({level:'ok', msg:'debuggable no activo'});
+    if(!perms.length) findings.push({level:'warn', msg:'Sin permisos detectados'});
+    let score=100;
+    score-=risky.length*4;
+    if(manifestRaw.includes('android:debuggable="true"')) score-=25;
+    if(!hasDex) score-=15;
+    if(!isTextManifest) score-=5;
+    score=Math.max(0,score);
+    res.json({
+      ok:true, confidence:isTextManifest?'alta (manifest en texto)':'media (manifest binario, heurística)',
+      meta:{packageName:pkg, version, sizeKB:Math.round(buf.length/1024), fileCount:entries.length, hasDex, dexCount, soCount, iconCount},
+      permissions:perms, riskyPermissions:risky, findings,
+      security:{score, level:score>=90?'Excelente':score>=70?'Bueno':score>=50?'Revisar':'Crítico'}
+    });
+  }catch(e){ res.status(500).json({error:'No se pudo inspeccionar: '+e.message}); }
 });
 
 // APK Decompiler - mejorado para APK reales y ZIPs InteeBuild

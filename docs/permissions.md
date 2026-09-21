@@ -16,7 +16,13 @@ Cada permiso necesita 3 capas y el Audit las verifica contra el ZIP generado (no
 2. **Runtime** — `NativePermissions.java` + patch en `MainActivity.java` lo pide con `requestPermissions()`.
 3. **WebView bridge** — `onPermissionRequest` solo hace `grant()` si el recurso está en Manifest **y** el runtime fue concedido. Si no, `deny()`.
 
-Cómo leer el Audit: `GENERATED OK` = existe en el proyecto que se compila. `SPEC ONLY, NOT GENERATED` = no instales. `warn` = compila pero revisa Play Store / versión / provider. `fail` = bloquea el botón Generar APK.
+Cómo leer el Audit: `GENERATED OK` = existe en el proyecto que se compila. `SPEC ONLY, NOT GENERATED` = no instales. `warn` = compila pero revisa Play Store / versión / provider. `fail` = bloquea el botón Generar APK. Cada fila trae su `mechanism`: `runtime` (diálogo), `background` (two-step), `special` (Settings), `install-time` (al instalar).
+
+La UI agrupa por **capacidad** (ej: Cámara → fotos, vídeo, flash), no por permiso: cada switch muestra su permiso Android real debajo. Dependencias inválidas se corrigen solas (background sin foreground auto-activa GPS; doble alarma se resuelve a SCHEDULE).
+
+**Niveles de verdad:** el Audit prueba que el proyecto *contiene* el permiso (nivel B). Que Android lo *conceda* (C) y que la función *sirva* (D) solo se demuestra en dispositivo: usa la plantilla **Permission Test Lab** (`RUN ALL TESTS`) y anota tu matriz por versión Android.
+
+**Post-build:** `POST /api/manifest-diff` compara pedido vs generado (`MATCH/MISSING`, inesperados) y `POST /api/inspect` da la ficha del APK con score. Úsalo antes de cada release.
 
 ---
 

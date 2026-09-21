@@ -125,20 +125,58 @@ document.querySelectorAll('.perm-tile').forEach((tile) => {
     document.querySelectorAll('#permEasy input[type="checkbox"], #permAdvanced input[type="checkbox"]').forEach((el) => {
       if (el.name) covered.add(el.name);
     });
-    const keys = Object.keys(spec).filter((k) => !covered.has(k));
+    const keys = Object.keys(spec).filter((k) => !covered.has(k) && k !== 'ads');
     if (!keys.length) return;
     const adv = document.getElementById('permAdvanced');
     if (!adv) return;
+    // Agrupado por CAPACIDAD (api), no por permiso: cada grupo muestra
+    // qué permiso Android real requiere debajo.
+    const groups = {};
+    keys.forEach((k) => {
+      const api = (spec[k] && spec[k].api) || 'otros';
+      (groups[api] = groups[api] || []).push(k);
+    });
     const wrap = document.createElement('div');
-    wrap.innerHTML = '<p class="hint" style="margin:12px 0 4px">Permisos granulares técnicos (con Audit y código nativo real):</p>' + keys.map((k) => {
-      const s = spec[k] || {};
-      const mans = (s.manifest || []).map((m) => String(m).split('.').pop()).join(', ');
-      const mech = s.runtime ? (s.minSdk >= 31 ? 'runtime API' + s.minSdk + '+' : 'runtime') : (s.specialAccess ? 'Settings' : 'install');
-      return '<label class="switch"><input type="checkbox" name="' + k + '" data-perm-key="' + k + '" />'
-        + '<span class="trk"><span class="knob"></span></span>'
-        + '<span class="txt"><b>' + escHtml(s.title || k) + '</b><small>' + escHtml(mans) + ' · ' + escHtml(mech) + (s.specialAccess ? ' · ' + escHtml(String(s.specialAccess).slice(0, 60)) : '') + '</small></span></label>';
-    }).join('');
+    wrap.innerHTML = '<p class="hint" style="margin:12px 0 4px">Capacidades granulares (cada una muestra su permiso Android real):</p>' + Object.entries(groups).map(([api, ks]) => {
+      return '<p class="hint" style="margin:10px 0 2px;text-transform:capitalize;font-weight:700;color:var(--text)">' + escHtml(api) + '</p>' + ks.map((k) => {
+        const s = spec[k] || {};
+        const mans = (s.manifest || []).map((m) => String(m).split('.').pop()).join(', ');
+        const mech = s.runtime ? 'diálogo runtime' : (s.specialAccess ? 'Settings' : 'al instalar');
+        return '<label class="switch"><input type="checkbox" name="' + k + '" data-perm-key="' + k + '" />'
+          + '<span class="trk"><span class="knob"></span></span>'
+          + '<span class="txt"><b>' + escHtml(s.title || k) + '</b><small>Requiere: ' + escHtml(mans) + ' · ' + escHtml(mech) + (s.specialAccess ? ' · ' + escHtml(String(s.specialAccess).slice(0, 60)) : '') + '</small></span></label>';
+      }).join('');
+    }).join('')
+      + '<p class="hint" style="margin:8px 0 0;font-size:11px">AdMob está en COMING SOON (requiere SDK real, el Audit lo bloquea si se pide por API).</p>';
     adv.appendChild(wrap);
+    // Grafo de dependencias: impide configs inválidas antes de generar
+    adv.addEventListener('change', (e) => {
+      const el = e.target;
+      if (!el || !el.getAttribute) return;
+      const key = el.getAttribute('data-perm-key') || el.name;
+      if (!key || !el.checked) return;
+      const need = (k, dep, depLabel) => {
+        if (key === k) {
+          const d = document.querySelector('[name="' + dep + '"]');
+          if (d && !d.checked) {
+            d.checked = true;
+            const tile = d.closest('.perm-tile');
+            if (tile) tile.classList.add('checked');
+            alert(depLabel + ' requiere ubicación en primer plano: se activó GPS automáticamente.');
+          }
+        }
+      };
+      need('gpsBackground', 'gps', 'La ubicación en segundo plano');
+      need('accessBackgroundLocation', 'gps', 'La ubicación en segundo plano');
+      if ((key === 'alarmSchedule' && document.querySelector('[name="alarmUse"]')?.checked) ||
+          (key === 'alarmUse' && document.querySelector('[name="alarmSchedule"]')?.checked)) {
+        alert('Elige UNA alarma: SCHEDULE (recomendado) o USE (solo reloj). Se usará SCHEDULE.');
+        const use = document.querySelector('[name="alarmUse"]');
+        if (use) use.checked = false;
+        const sched = document.querySelector('[name="alarmSchedule"]');
+        if (sched) sched.checked = true;
+      }
+    });
   } catch (_) {}
 })();
 

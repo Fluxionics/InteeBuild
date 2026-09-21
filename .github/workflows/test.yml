@@ -1,0 +1,38 @@
+name: test
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npm test
+  projects:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Generate minimal + radio + lab projects
+        run: >
+          node -e "const g=require('./server/generator');const t=require('./server/templates');
+          const min=g.normalizeConfig({appName:'CI Min',url:'https://example.com',permissions:{}});
+          const f1=g.generateFiles(min);
+          if(f1['NativePermissions.java']) throw new Error('minimal no debe traer runtime');
+          const radio=g.normalizeConfig({appName:'CI Radio',url:'https://example.com',...t.getTemplate('radio').config,streamUrl:'https://example.com/s.mp3'});
+          const f2=g.generateFiles(radio);
+          if(!f2['RadioService.java'].includes('MediaPlayer')) throw new Error('radio sin player nativo');
+          if(!f2['AudioBridge.java']) throw new Error('radio sin bridge');
+          const lab=g.normalizeConfig({appName:'CI Lab',url:'https://example.com',...t.getTemplate('lab').config});
+          const a=g.getPermissionAudit(lab);
+          if(!a.canBuild) throw new Error('lab no audita');
+          console.log('CI projects OK');"

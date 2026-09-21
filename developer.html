@@ -87,6 +87,16 @@ curl -X POST /api/analyze/html -d '{"html":"<html>...</html>"}'</div>
 <div class="code">curl -X POST /api/decompile -H "Content-Type: application/json" -d '{"apkBase64":"data:application/vnd.android.package-archive;base64,UEs..."}'</div>
 </div>
 
+<div class="endpoint"><b>POST /api/manifest-diff</b> <span class="badge-api">audit</span>
+<p class="hint">Compara permisos pedidos vs generados: `missing`, `unexpected`, filas `MATCH/MISSING`. Frena releases con permisos de más.</p>
+<div class="code">curl -X POST /api/manifest-diff -H "Content-Type: application/json" -d '{"appName":"MiApp","url":"https://example.com","permissions":{"cameraMic":true}}'</div>
+</div>
+
+<div class="endpoint"><b>POST /api/inspect</b> <span class="badge-api">APK</span>
+<p class="hint">Ficha del APK (`package, version, tamaño, dex/so`) + permisos riesgosos + score de seguridad. Indica confianza del análisis (manifest texto vs binario).</p>
+<div class="code">curl -X POST /api/inspect -H "Content-Type: application/json" -d '{"apkBase64":"UEs..."}'</div>
+</div>
+
 <div class="endpoint"><b>API Keys</b> `GET /api/keys` `POST /api/keys {name}` `DELETE /api/keys/:id` <span class="badge-api">panel</span>
 <p class="hint">Máx 10 keys. `keyMask` en listado, `key` solo al crear (cópiala).</p>
 </div>

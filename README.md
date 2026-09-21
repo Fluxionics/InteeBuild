@@ -119,8 +119,19 @@ InteeBuild/
   js/inteebridge.js
   server/
     server.js
-    generator.js
     github.js
+    templates.js
+    generator/
+      index.js (config + proyectos)
+      permissions.js (spec 68 permisos)
+      manifest.js (manifest + features + NFC)
+      runtime.js (runtime + special access)
+      audio.js (radio/audio nativo)
+      providers.js (WebView + catálogo)
+      workflow.js (GitHub Actions)
+      audit.js (audit + readiness)
+      signing.js (iOS)
+      versions.js (SDKs + plugins)
   assets/icon.svg
   render.yaml
   package.json
