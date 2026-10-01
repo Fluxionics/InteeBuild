@@ -4,207 +4,495 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>InteeBuild — Developer API Panel</title>
-<meta name="description" content="API completa para compilar APK/AAB, decompilar, analizar y automatizar. Panel para desarrolladores."/>
+<meta name="description" content="API completa para compilar APK/AAB/IPA, descompilar, analizar y automatizar. Panel para desarrolladores con ejemplos y playground."/>
 <link rel="stylesheet" href="./css/style.css"/>
 <link rel="icon" href="./assets/icon.svg" type="image/svg+xml"/>
 <style>
-.dev-wrap{max-width:1080px;margin:0 auto;padding:24px;}
-.dev-hero{padding:20px 0 10px;}
-.dev-hero h1{font-size:28px;margin:0;}
-.dev-hero p{color:var(--muted);margin:6px 0 14px;}
-.dev-grid{display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start;}
-@media(max-width:900px){.dev-grid{grid-template-columns:1fr}}
-.code{background:#0f172a;border:1px solid var(--border);border-radius:8px;padding:12px;font-family:monospace;font-size:12px;color:#38bdf8;white-space:pre-wrap;word-break:break-all;overflow:auto}
+.dev-wrap{max-width:1160px;margin:0 auto;padding:22px 20px 40px}
+.dev-hero{position:relative;overflow:hidden;border:1px solid var(--glass-border);border-radius:var(--radius-lg);background:var(--glass-bg);backdrop-filter:blur(var(--glass-blur));box-shadow:var(--glass-shadow);padding:26px 26px 22px;margin-bottom:20px}
+.dev-hero::after{content:"";position:absolute;inset:auto -40px -70px auto;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,.35),transparent 65%);pointer-events:none}
+.dev-hero h1{font-size:26px;margin:0 0 6px;letter-spacing:-.4px}
+.dev-hero>p{color:var(--muted);margin:0 0 14px;max-width:640px;font-size:13.5px;line-height:1.55}
+.base-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.base-chip{display:inline-flex;align-items:center;gap:8px;background:#0f172a;border:1px solid rgba(56,189,248,.25);border-radius:9px;padding:7px 12px;font-family:monospace;font-size:12.5px;color:#38bdf8;word-break:break-all}
+.pill-row{display:flex;gap:7px;flex-wrap:wrap}
+.pill{font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:var(--accent-soft);border:1px solid rgba(99,102,241,.32);color:#a5b4fc}
+.pill.g{background:var(--success-soft);border-color:rgba(16,185,129,.3);color:#6ee7b7}
+.pill.a{background:rgba(56,189,248,.1);border-color:rgba(56,189,248,.3);color:#7dd3fc}
+.pill.w{background:var(--warn-soft);border-color:rgba(245,158,11,.3);color:#fcd34d}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+@media(max-width:760px){.steps{grid-template-columns:1fr}}
+.step{border:1px solid var(--glass-border);border-radius:14px;background:var(--glass-bg-2);padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
+.step-n{flex:none;width:24px;height:24px;border-radius:8px;background:var(--gradient-1);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center;box-shadow:0 4px 12px rgba(99,102,241,.4)}
+.step b{display:block;font-size:12.5px;color:#fff;margin-bottom:2px}
+.step small{color:var(--muted);font-size:11.5px;line-height:1.45}
+.dev-grid{display:grid;grid-template-columns:1fr 336px;gap:18px;align-items:start}
+@media(max-width:980px){.dev-grid{grid-template-columns:1fr}}
+.side{position:sticky;top:14px;display:flex;flex-direction:column;gap:14px}
+@media(max-width:980px){.side{position:static}}
+.code{position:relative;background:#0b1120;border:1px solid #1e293b;border-radius:10px;padding:12px 12px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:#7dd3fc;white-space:pre-wrap;word-break:break-all;overflow:auto;line-height:1.6;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
+.code .k{color:#c4b5fd}
+.code .s{color:#86efac}
+.code .c{color:#64748b}
+.code-wrap{position:relative;margin-top:10px}
+.copy-btn{position:absolute;top:8px;right:8px;z-index:2;opacity:0;transition:var(--transition);background:rgba(15,23,42,.9);border:1px solid var(--glass-border)!important;color:var(--muted);font-size:11px;padding:4px 9px!important}
+.code-wrap:hover .copy-btn{opacity:1}
+@media(hover:none){.copy-btn{opacity:1}}
 .kbd{font-family:monospace;background:var(--surface-2);border:1px solid var(--border);padding:2px 6px;border-radius:6px;font-size:11px}
-.endpoint{border:1px solid var(--border);border-radius:10px;padding:14px;background:var(--surface);margin-bottom:12px}
-.endpoint b{color:#fff}
-.badge-api{font-size:10px;padding:3px 7px;border-radius:999px;background:var(--accent-soft);border:1px solid rgba(99,102,241,.3);color:var(--accent);font-weight:700}
-.try{border:1px solid var(--border);border-radius:10px;padding:14px;background:var(--surface-2)}
-.try input,.try textarea,.try select{width:100%;margin-top:6px}
+.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.search-box{position:relative;flex:1;min-width:220px}
+.search-box input{width:100%;padding-left:36px!important}
+.search-box .s-ic{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--faint);display:flex;pointer-events:none}
+.ep-count{font-size:11.5px;color:var(--faint);white-space:nowrap}
+.ep-group{margin-bottom:6px}
+.ep-group-title{font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--faint);margin:18px 0 9px;display:flex;align-items:center;gap:8px}
+.ep-group-title:first-child{margin-top:0}
+.ep-group-title::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+.endpoint{border:1px solid var(--border);border-radius:12px;padding:13px 14px;background:var(--surface);margin-bottom:9px;transition:var(--transition)}
+.endpoint:hover{border-color:rgba(99,102,241,.4);background:var(--surface-2);transform:translateY(-1px);box-shadow:var(--shadow)}
+.endpoint.hide{display:none}
+.ep-head{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:7px}
+.m{font-size:10px;font-weight:800;letter-spacing:.7px;padding:3px 8px;border-radius:6px;font-family:monospace}
+.m.get{background:var(--success-soft);color:#6ee7b7;border:1px solid rgba(16,185,129,.35)}
+.m.post{background:var(--accent-soft);color:#a5b4fc;border:1px solid rgba(99,102,241,.4)}
+.m.del{background:var(--danger-soft);color:#fca5a5;border:1px solid rgba(239,68,68,.35)}
+.ep-path{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#fff;font-weight:600;word-break:break-all}
+.tag{font-size:10px;padding:2.5px 8px;border-radius:999px;background:var(--surface-3);border:1px solid var(--border);color:var(--muted);margin-left:auto}
+.endpoint .hint{margin:0 0 8px}
+.endpoint .hint:last-child{margin-bottom:0}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tab{font-size:12px;padding:6px 13px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:var(--transition)}
+.tab:hover{color:#fff;border-color:rgba(99,102,241,.4)}
+.tab.on{background:var(--accent-soft);border-color:rgba(99,102,241,.45);color:#a5b4fc;font-weight:700}
+.tabpane{display:none}
+.tabpane.on{display:block}
+.try{border:1px solid var(--glass-border);border-radius:14px;padding:15px;background:var(--glass-bg);backdrop-filter:blur(12px);box-shadow:var(--glass-shadow)}
+.try label{font-size:11.5px;color:var(--muted);font-weight:600;display:block;margin-top:9px}
+.try input,.try select{width:100%;margin-top:5px}
+.try .btn{margin-top:11px;width:100%}
+.try pre{margin-top:10px;max-height:220px}
+.list-line{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.list-line:last-child{border-bottom:none}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:2px}
+@media(max-width:760px){.stat-grid{grid-template-columns:1fr}}
+.stat{border:1px solid var(--border);border-radius:12px;background:var(--surface);padding:13px 14px;text-align:center}
+.stat b{display:block;font-size:21px;background:var(--gradient-1);-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat small{font-size:10.5px;color:var(--faint);letter-spacing:.4px;text-transform:uppercase}
+.foot{max-width:1160px;margin:0 auto;padding:6px 20px 34px;display:flex;gap:8px;justify-content:center;color:var(--faint);font-size:12px;flex-wrap:wrap}
 </style>
 </head>
 <body>
 <header class="topbar">
 <div class="brand"><span class="logo"><img src="./assets/icon.svg" width="22" height="22"/></span><div class="brand-txt"><strong>InteeBuild</strong><small>Developer API</small></div></div>
-<div class="topbar-right"><a href="./index.html" class="btn ghost sm">← Volver al Studio</a><a href="/api/docs" class="btn ghost sm">JSON /api/docs</a><a href="/api/health" class="btn ghost sm">Health</a></div>
+<div class="topbar-right"><a href="./index.html" class="btn ghost sm"><span data-ib-icon="arrow-left"></span> Studio</a><a href="/api/docs" class="btn ghost sm">JSON /api/docs</a><a href="/api/health" class="btn ghost sm">Health</a></div>
 </header>
+
 <main class="dev-wrap">
 <section class="dev-hero">
-<h1>Panel para Desarrolladores</h1>
-<p>Compila, descompila, analiza y automatiza sin tocar la UI. Todo es <b>API-first</b> + `X-API-Key` opcional. Base URL: <span class="kbd" id="baseUrl"></span></p>
-<div style="display:flex;gap:8px;flex-wrap:wrap">
-<span class="badge-api">REST JSON</span>
-<span class="badge-api">CORS abierto</span>
-<span class="badge-api">Rate 10/h por IP</span>
-<span class="badge-api">Webhook + Polling</span>
+<h1>Panel de Desarrolladores</h1>
+<p>Compila, descompila, analiza y automatiza todo por HTTP. API-first, respuestas JSON, <b>API key opcional</b> y webhooks para encadenar builds en tu propio CI.</p>
+<div class="base-row">
+<span class="base-chip"><span data-ib-icon="globe"></span><span id="baseUrl"></span></span>
+<button class="btn ghost sm" id="copyBase"><span data-ib-icon="copy"></span> Copiar</button>
+</div>
+<div class="pill-row">
+<span class="pill">REST JSON</span>
+<span class="pill g">CORS abierto</span>
+<span class="pill a">Rate 10/h por IP</span>
+<span class="pill w">Webhook + Polling</span>
+</div>
+<div class="steps">
+<div class="step"><span class="step-n">1</span><div><b>Crea tu API key</b><small>POST /api/keys — mientras no exista ninguna, la API es pública.</small></div></div>
+<div class="step"><span class="step-n">2</span><div><b>Lanza la build</b><small>POST /api/v1/build con tu URL, nombre y paquete. Responde 202 con buildId.</small></div></div>
+<div class="step"><span class="step-n">3</span><div><b>Consulta y descarga</b><small>Polling cada 3 s y baja el APK/AAB/exe con /api/download/:id.</small></div></div>
 </div>
 </section>
 
 <div class="dev-grid">
 <div>
-<div class="card">
-<div class="card-title">Autenticación</div>
-<p class="hint">Si no hay keys, la API es pública. Si creas al menos una key, <b>POST /api/v1/build</b> exige <code>X-API-Key</code> o <code>Authorization: Bearer ib_...</code>. Genera y gestiona keys abajo. Las keys se guardan en <code>data/apikeys.json</code> (ignorado en git, no se sube).</p>
-<div class="code">curl -H "X-API-Key: ib_xxx" https://TU_DOMINIO/api/v1/build -d '{"url":"https://example.com","name":"MiApp"}'</div>
-</div>
 
 <div class="card">
-<div class="card-title">Endpoints</div>
-
-<div class="endpoint"><b>POST /api/build</b> <span class="badge-api">compilar</span>
-<p class="hint">Body `appName, url|htmlCode, packageName, permissions{}, plugins{}, compileSdk, outputType (apk/aab/both), platform` → <code>{id, branch, status}</code> 202. Usa `token GitHub` en servidor.</p>
-<div class="code">curl -X POST /api/build -H "Content-Type: application/json" -d '{"appName":"Mi Tienda","url":"https://mi-tienda.com","packageName":"com.miempresa.miapp","permissions":{"gps":true,"cameraMic":true}}'</div>
+<div class="card-title"><span class="card-icon" data-ib-icon="key"></span> Autenticación</div>
+<p class="hint">Si no hay keys, la API está abierta. En cuanto creas la primera, <b>POST /api/v1/build</b> exige <code>X-API-Key</code> o <code>Authorization: Bearer ib_...</code>. Las keys se guardan en <code>data/apikeys.json</code> (ignorado en git): en disco sólo queda su hash sha256 y el prefijo.</p>
+<div class="code-wrap"><button class="btn ghost sm copy-btn" data-copy>Copiar</button><div class="code">curl -X POST /api/keys -H "Content-Type: application/json" -d '{"name":"ci"}'
+curl -H "X-API-Key: ib_xxx" https://TU_DOMINIO/api/v1/build -d '{"url":"https://example.com","name":"MiApp"}'</div></div>
 </div>
 
-<div class="endpoint"><b>POST /api/v1/build</b> <span class="badge-api">API key</span>
-<p class="hint">Alias de `/api/build` con auth si hay keys. Campos `url, name, package, output, permissions, plugins, webhookUrl`.</p>
-<div class="code">curl -X POST /api/v1/build -H "X-API-Key: ib_xxx" -H "Content-Type: application/json" -d '{"url":"https://example.com","name":"MiApp","package":"com.example.app"}'</div>
+<div class="card">
+<div class="card-title"><span class="card-icon" data-ib-icon="terminal"></span> Endpoints <span class="tag" style="margin-left:auto">filtra con el buscador</span></div>
+
+<div class="toolbar">
+<div class="search-box"><span class="s-ic" data-ib-icon="search"></span><input id="epSearch" placeholder="Buscar endpoint: build, download, decompile, keys..." autocomplete="off"/></div>
+<span class="ep-count" id="epCount"></span>
 </div>
 
-<div class="endpoint"><b>GET /api/build/:id</b> + <b>GET /api/v1/build/:id</b>
-<p class="hint">Polling cada 3s: `status queued|building|success|failed`, `step`, `runUrl`, `apkUrl`.</p>
-<div class="code">curl /api/build/abc123
-# → {"id":"abc123","status":"success","apkUrl":"/api/download/abc123"}</div>
+<div class="ep-group">
+<div class="ep-group-title">Compilar</div>
+
+<div class="endpoint">
+<div class="ep-head"><span class="m post">POST</span><span class="ep-path">/api/build</span><span class="tag">estudio</span></div>
+<p class="hint">Config completa: <code>appName</code>, <code>url</code> o <code>htmlCode</code>, <code>packageName</code>, <code>outputs</code> (apk, aab, xapk, apks, ipa, exe, msi, dmg, appimage), <code>platform</code> (android/ios/both), <code>permissions</code>, <code>plugins</code>, <code>provider</code>, <code>template</code>, <code>streamUrl</code>, firma y <code>webhookUrl</code> → 202 <code>{id, branch, status}</code>.</p>
+<div class="code-wrap"><button class="btn ghost sm copy-btn" data-copy>Copiar</button><div class="code">curl -X POST /api/build -H "Content-Type: application/json" \
+  -d '{"appName":"Mi Tienda","url":"https://mi-tienda.com","packageName":"com.miempresa.miapp","outputs":["apk","aab"],"permissions":{"gps":true,"cameraMic":true}}'</div></div>
 </div>
 
-<div class="endpoint"><b>GET /api/download/:id</b> <span class="badge-api">APK</span> <b>/aab</b> <b>/ipa</b>
-<p class="hint">Descarga directa ZIP→APK/AAB. Si no hay `runId` → 404 aún en progreso.</p>
+<div class="endpoint">
+<div class="ep-head"><span class="m post">POST</span><span class="ep-path">/api/v1/build</span><span class="tag">API key</span></div>
+<p class="hint">Versión versionada y más estrecha: <code>url</code>, <code>name</code>, <code>package</code>, <code>output</code>, <code>outputs</code>, <code>platform</code>, <code>template</code>, <code>permissions</code>, <code>plugins</code>, <code>webhookUrl</code>. Exige key si existe al menos una → 202 <code>{buildId, status, branch}</code>.</p>
+<div class="code-wrap"><button class="btn ghost sm copy-btn" data-copy>Copiar</button><div class="code">curl -X POST /api/v1/build -H "X-API-Key: ib_xxx" -H "Content-Type: application/json" \
+  -d '{"url":"https://example.com","name":"MiApp","package":"com.example.app","output":"apk"}'</div></div>
 </div>
 
-<div class="endpoint"><b>POST /api/project</b> <span class="badge-api">ZIP</span>
-<p class="hint">Genera proyecto nativo ZIP sin compilar en GitHub. Útil para CI local.</p>
-<div class="code">curl -X POST /api/project -H "Content-Type: application/json" -d '{"appName":"Test","url":"https://example.com"}' --output proyecto.zip</div>
+<div class="endpoint">
+<div class="ep-head"><span class="m get">GET</span><span class="ep-path">/api/build/:id</span><span class="tag">polling</span></div>
+<p class="hint">Estado cada 3 s: <code>status queued|building|success|failed</code>, <code>step</code>, <code>runUrl</code>, <code>apkUrl</code>. Si ya no está en memoria, mira el historial con <code>fromHistory: true</code>.</p>
+<div class="code-wrap"><button class="btn ghost sm copy-btn" data-copy>Copiar</button><div class="code">curl /api/build/abc123
+# → {"id":"abc123","status":"success","step":"Build completado","apkUrl":"/api/download/abc123"}</div></div>
 </div>
 
-<div class="endpoint"><b>GET /api/analyze?url=</b> + <b>POST /api/analyze/html</b> + <b>POST /api/analyze/fix</b>
-<p class="hint">Security `score/level/issues`, `errors/warnings`, `optimization grade/tips`, `autoFix preview`. Para HTML directo usa `POST`.</p>
-<div class="code">curl "/api/analyze?url=https://example.com"
-curl -X POST /api/analyze/html -d '{"html":"<html>...</html>"}'</div>
+<div class="endpoint">
+<div class="ep-head"><span class="m get">GET</span><span class="ep-path">/api/v1/build/:id</span><span class="tag">polling</span></div>
+<p class="hint">Mismo estado en forma versionada con <code>apkUrl</code>, <code>aabUrl</code>, <code>ipaUrl</code>, <code>outputs</code> (lo que pediste) y <code>formats</code> (lo que existe de verdad).</p>
 </div>
 
-<div class="endpoint"><b>POST /api/decompile</b> <span class="badge-api">APK</span>
-<p class="hint">Sube APK (`apkBase64` dataURL/base64 o `octet-stream` raw, max 100MB) → extrae `packageName, permissions, hasDex, fileCount, manifestPreview, importConfig` (re-importable en Studio).</p>
-<div class="code">curl -X POST /api/decompile -H "Content-Type: application/json" -d '{"apkBase64":"data:application/vnd.android.package-archive;base64,UEs..."}'</div>
+<div class="endpoint">
+<div class="ep-head"><span class="m post">POST</span><span class="ep-path">/api/project</span><span class="tag">ZIP</span></div>
+<p class="hint">Genera el proyecto nativo en ZIP sin compilar en GitHub. Sirve para CI local o revisar los ficheros que saldrían.</p>
+<div class="code-wrap"><button class="btn ghost sm copy-btn" data-copy>Copiar</button><div class="code">curl -X POST /api/project -H "Content-Type: application/json" \
+  -d '{"appName":"Test","url":"https://example.com","template":"radio"}' --output proyecto.zip</div></div>
+</div>
 </div>
 
-<div class="endpoint"><b>POST /api/decompile/cloud</b> <span class="badge-api">APK</span>
-<p class="hint">jadx 1.5.1 + apktool 2.9.3 en GitHub Actions (mismo runner que compila). Devuelve `{id, statusUrl, downloadUrl}`; consulta `GET /api/decompile/cloud/{id}/status` y baja el ZIP en `GET /api/decompile/cloud/{id}/download`. Máx 60MB, requiere `GITHUB_TOKEN` + `INTEE_BUILDS_REPO`.</p>
-<div class="code">curl -X POST /api/decompile/cloud -H "Content-Type: application/json" -d '{"apkBase64":"UEs..."}'
+<div class="ep-group">
+<div class="ep-group-title">Descargas</div>
+
+<div class="endpoint">
+<div class="ep-head"><span class="m get">GET</span><span class="ep-path">/api/download/:id/:fmt</span><span class="tag">9 formatos</span></div>
+<p class="hint">Formatos: <code>apk</code> (también sin sufijo), <code>aab</code>, <code>ipa</code>, <code>xapk</code>, <code>apks</code>, <code>exe</code>, <code>msi</code>, <code>dmg</code>, <code>appimage</code>. Abre el ZIP que subió Actions y devuelve el binario suelto. Sin <code>runId</code> → 404 "Build aun en progreso".</p>
+<div class="code-wrap"><button class="btn ghost sm copy-btn" data-copy>Copiar</button><div class="code">curl -L -o app.apk /api/download/abc123
+curl -L -o app.dmg /api/download/abc123/dmg
+curl -L -o app.exe /api/download/abc123/exe</div></div>
+</div>
+
+<div class="endpoint">
+<div class="ep-head"><span class="m get">GET</span><span class="ep-path">/api/apk-info/:id</span> <span class="m get">GET</span><span class="ep-path">/api/build/:id/logs</span></div>
+<p class="hint">Ficha del artefacto (nombre, tamaño en MB, enlace por formato) cuando la build ya terminó, y el log del run truncado a 80.000 caracteres.</p>
+</div>
+
+<div class="endpoint">
+<div class="ep-head"><span class="m get">GET</span><span class="ep-path">/api/qr/:id</span></div>
+<p class="hint">PNG del enlace de descarga para pegarlo en tarjetas o packs. <code>?size=400</code> para agrandarlo.</p>
+</div>
+</div>
+
+<div class="ep-group">
+<div class="ep-group-title">Permisos y análisis</div>
+
+<div class="endpoint">
+<div class="ep-head"><span class="m get">GET</span><span class="ep-path">/api/permissions/spec</span><span class="m post">POST</span><span class="ep-path">/api/permissions/audit</span></div>
+<p class="hint">El Permission Engine con 86 entradas: <code>spec</code> devuelve todo; <code>audit</code> devuelve una fila por permiso con <code>status</code> (ok/warn/fail), <code>minSdk</code>, implementación nativa y si el provider lo soporta, más <code>readiness</code> y <code>canBuild</code>.</p>
+<div class="code-wrap"><button class="btn ghost sm copy-btn" data-copy>Copiar</button><div class="code">curl -X POST /api/permissions/audit -H "Content-Type: application/json" \
+  -d '{"appName":"Mi Tienda","url":"https://mi-tienda.com","permissions":{"foreground":true,"cameraMic":true}}'</div></div>
+</div>
+
+<div class="endpoint">
+<div class="ep-head"><span class="m get">GET</span><span class="ep-path">/api/analyze?url=</span><span class="m post">POST</span><span class="ep-path">/api/analyze/html</span></div>
+<p class="hint">Auditoría de la web: <code>score</code> 0-100, <code>security</code>, <code>errors</code>, <code>optimization</code>, <code>frameworks</code>, <code>detectedApis</code> y <code>autoFix.preview</code> con el HTML corregido. <code>POST /api/analyze/fix</code> devuelve sólo el HTML arreglado.</p>
+<div class="code-wrap"><button class="btn ghost sm copy-btn" data-copy>Copiar</button><div class="code">curl "/api/analyze?url=https://example.com"
+curl -X POST /api/analyze/fix -H "Content-Type: application/json" -d '{"html":"<html>...</html>"}'</div></div>
+</div>
+
+<div class="endpoint">
+<div class="ep-head"><span class="m post">POST</span><span class="ep-path">/api/manifest-diff</span><span class="tag">release check</span></div>
+<p class="hint">Compara lo que pediste con lo que se genera: <code>missing</code>, <code>unexpected</code> y filas <code>MATCH/MISSING</code>. Frena releases con permisos de más o de menos.</p>
+<div class="code-wrap"><button class="btn ghost sm copy-btn" data-copy>Copiar</button><div class="code">curl -X POST /api/manifest-diff -H "Content-Type: application/json" \
+  -d '{"appName":"MiApp","url":"https://example.com","permissions":{"cameraMic":true}}'</div></div>
+</div>
+
+<div class="endpoint">
+<div class="ep-head"><span class="m post">POST</span><span class="ep-path">/api/listing</span><span class="m post">POST</span><span class="ep-path">/api/security-audit</span></div>
+<p class="hint">Ficha de Play Store (título, descripción, keywords, categoría con los límites de Play Console) y auditoría con <code>score</code>, <code>issues</code> y comprobaciones GDPR. <code>GET /api/privacy-policy?appName=&amp;package=</code> devuelve una base de política.</p>
+</div>
+</div>
+
+<div class="ep-group">
+<div class="ep-group-title">APK: inspección y descompilación</div>
+
+<div class="endpoint">
+<div class="ep-head"><span class="m post">POST</span><span class="ep-path">/api/inspect</span><span class="tag">≤30 MB</span></div>
+<p class="hint">Ficha técnica (<code>packageName</code>, versión, tamaño, <code>.dex</code>, <code>.so</code>, iconos), permisos detectados, <code>riskyPermissions</code>, <code>findings</code> y <code>security.score</code>.</p>
+<div class="code-wrap"><button class="btn ghost sm copy-btn" data-copy>Copiar</button><div class="code">curl -X POST /api/inspect -H "Content-Type: application/json" -d '{"apkBase64":"UEs..."}'</div></div>
+</div>
+
+<div class="endpoint">
+<div class="ep-head"><span class="m post">POST</span><span class="ep-path">/api/decompile</span><span class="tag">local ≤100 MB</span></div>
+<p class="hint">Descompilación local: devuelve <code>meta</code>, <code>importConfig</code> (reimportable en el Studio), <code>sourceZipBase64</code> y <code>manifestPreview</code>. Acepta <code>apkBase64</code> con o sin prefijo <code>data:</code>, o cuerpo <code>application/octet-stream</code>.</p>
+<div class="code-wrap"><button class="btn ghost sm copy-btn" data-copy>Copiar</button><div class="code">curl -X POST /api/decompile -H "Content-Type: application/json" \
+  -d '{"apkBase64":"data:application/vnd.android.package-archive;base64,UEs..."}'</div></div>
+</div>
+
+<div class="endpoint">
+<div class="ep-head"><span class="m post">POST</span><span class="ep-path">/api/decompile/cloud</span><span class="tag">jadx + apktool</span></div>
+<p class="hint">jadx 1.5.1 + apktool 2.9.3 en GitHub Actions (mismo runner que compila), límite 60 MB. Devuelve <code>{id, statusUrl, downloadUrl}</code>; consulta el estado y baja el ZIP. La rama se borra a los 20 minutos.</p>
+<div class="code-wrap"><button class="btn ghost sm copy-btn" data-copy>Copiar</button><div class="code">curl -X POST /api/decompile/cloud -H "Content-Type: application/json" -d '{"apkBase64":"UEs..."}'
 curl "/api/decompile/cloud/{id}/status"
-curl -L -o decompiled.zip "/api/decompile/cloud/{id}/download"</div>
+curl -L -o decompiled.zip "/api/decompile/cloud/{id}/download"</div></div>
+</div>
 </div>
 
-<div class="endpoint"><b>POST /api/manifest-diff</b> <span class="badge-api">audit</span>
-<p class="hint">Compara permisos pedidos vs generados: `missing`, `unexpected`, filas `MATCH/MISSING`. Frena releases con permisos de más.</p>
-<div class="code">curl -X POST /api/manifest-diff -H "Content-Type: application/json" -d '{"appName":"MiApp","url":"https://example.com","permissions":{"cameraMic":true}}'</div>
+<div class="ep-group">
+<div class="ep-group-title">Automatización</div>
+
+<div class="endpoint">
+<div class="ep-head"><span class="m get">GET</span><span class="ep-path">/api/keys</span><span class="m post">POST</span><span class="ep-path">/api/keys</span><span class="m del">DELETE</span><span class="ep-path">/api/keys/:id</span></div>
+<p class="hint">Máximo 10 keys activas. El listado trae <code>keyMask</code>, uso y última llamada; la key en claro sólo se devuelve al crearla. <code>DELETE</code> hace borrado lógico (<code>revokedAt</code>) y esa key deja de servir.</p>
 </div>
 
-<div class="endpoint"><b>POST /api/inspect</b> <span class="badge-api">APK</span>
-<p class="hint">Ficha del APK (`package, version, tamaño, dex/so`) + permisos riesgosos + score de seguridad. Indica confianza del análisis (manifest texto vs binario).</p>
-<div class="code">curl -X POST /api/inspect -H "Content-Type: application/json" -d '{"apkBase64":"UEs..."}'</div>
+<div class="endpoint">
+<div class="ep-head"><span class="m post">POST</span><span class="ep-path">/api/git/connect</span><span class="m post">POST</span><span class="ep-path">/api/git/webhook</span></div>
+<p class="hint">Conecta <code>usuario/repo#branch</code> con token (guardado con hash): cada <code>push</code> dispara una build. <code>GET /api/git/integrations</code> lista y <code>DELETE /api/git/:id</code> borra.</p>
+<div class="code-wrap"><button class="btn ghost sm copy-btn" data-copy>Copiar</button><div class="code">curl -X POST /api/git/webhook -H "Content-Type: application/json" \
+  -d '{"repository":{"full_name":"usuario/mi-web"},"ref":"refs/heads/main"}'</div></div>
 </div>
 
-<div class="endpoint"><b>API Keys</b> `GET /api/keys` `POST /api/keys {name}` `DELETE /api/keys/:id` <span class="badge-api">panel</span>
-<p class="hint">Máx 10 keys. `keyMask` en listado, `key` solo al crear (cópiala).</p>
+<div class="endpoint">
+<div class="ep-head"><span class="m post">POST</span><span class="ep-path">/api/versions/publish</span><span class="m get">GET</span><span class="ep-path">/api/check-update</span></div>
+<p class="hint">Registro de versiones con <code>changelog</code> (hasta 20 por <code>appId</code>) para tu propio updater, más <code>POST /api/cicd</code> que devuelve el workflow listo para tu repo.</p>
 </div>
 
-<div class="endpoint"><b>Git</b> `POST /api/git/connect {repo, branch}` `GET /api/git/integrations` `POST /api/git/webhook`
-<p class="hint">Conecta `usuario/repo#branch` → cada `push` dispara `startBuild`. Webhook: `{"repository":{"full_name":"u/r"},"ref":"refs/heads/main"}`</p>
+<div class="endpoint">
+<div class="ep-head"><span class="m post">POST</span><span class="ep-path">webhookUrl</span><span class="tag">eventos</span></div>
+<p class="hint">Tu <code>webhookUrl</code> recibe POST con JSON: <code>build.completed</code>, <code>build.failed</code> y <code>build.error</code>.</p>
+</div>
 </div>
 
-<div class="endpoint"><b>Otros</b> `GET /api/health`, `GET /api/diag`, `GET /api/stats`, `GET /api/history`, `GET /api/qr/:id`, `GET /api/apk-info/:id`, `GET /api/docs`
+<div class="ep-group">
+<div class="ep-group-title">Utilidades</div>
+
+<div class="endpoint">
+<div class="ep-head"><span class="m get">GET</span><span class="ep-path">/api/health</span><span class="m get">GET</span><span class="ep-path">/api/diag</span><span class="m get">GET</span><span class="ep-path">/api/docs</span></div>
+<p class="hint"><code>health</code> → <code>{ok, version, githubReady}</code>. <code>diag</code> revisa token, repo, rama y workflow en GitHub y devuelve un <code>hint</code> por paso. <code>docs</code> → resumen JSON de toda la API.</p>
+</div>
+
+<div class="endpoint">
+<div class="ep-head"><span class="m get">GET</span><span class="ep-path">/api/history</span><span class="m get">GET</span><span class="ep-path">/api/stats</span><span class="m get">GET</span><span class="ep-path">/api/templates</span></div>
+<p class="hint">Historial local (30 entradas en el listado, 50 máximo en disco), totales por estado y duración media, y el catálogo de 29 plantillas con su audit resumido. <code>GET /api/templates/:id/native</code> genera los ficheros nativos sin compilar.</p>
+</div>
 </div>
 </div>
 
 <div class="card">
-<div class="card-title">Ejemplos</div>
-<p class="hint"><b>Node.js</b></p>
-<div class="code">const r=await fetch(base+'/api/v1/build',{method:'POST',headers:{'Content-Type':'application/json','X-API-Key':key},body:JSON.stringify({url:'https://example.com',name:'MiApp'})});
-const {buildId}=await r.json();
-let s; do{ await new Promise(r=>setTimeout(r,3000)); s=await (await fetch(base+'/api/v1/build/'+buildId)).json(); console.log(s.status, s.step);}while(s.status==='building')
-console.log(s.apkUrl)</div>
-<p class="hint"><b>Python</b></p>
-<div class="code">import requests, time
-r=requests.post(base+"/api/v1/build", headers={"X-API-Key":key}, json={"url":"https://example.com","name":"MiApp"})
-bid=r.json()["buildId"]
+<div class="card-title"><span class="card-icon" data-ib-icon="code"></span> Ejemplos</div>
+<div class="tabs">
+<button class="tab on" data-tab="node">Node.js</button>
+<button class="tab" data-tab="py">Python</button>
+<button class="tab" data-tab="curl">cURL</button>
+</div>
+<div class="tabpane on" id="tab-node">
+<div class="code-wrap"><button class="btn ghost sm copy-btn" data-copy>Copiar</button><div class="code">const base = location.origin;
+const key = 'ib_xxx';
+
+const r = await fetch(base + '/api/v1/build', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', 'X-API-Key': key },
+  body: JSON.stringify({ url: 'https://example.com', name: 'MiApp', output: 'apk' })
+});
+const { buildId } = await r.json();
+
+let s;
+do {
+  await new Promise(r => setTimeout(r, 3000));
+  s = await (await fetch(base + '/api/v1/build/' + buildId)).json();
+  console.log(s.status, s.step);
+} while (s.status === 'queued' || s.status === 'building');
+
+if (s.status === 'success') location.href = base + s.apkUrl;</div></div>
+</div>
+<div class="tabpane" id="tab-py">
+<div class="code-wrap"><button class="btn ghost sm copy-btn" data-copy>Copiar</button><div class="code">import requests, time
+
+base = "https://TU_DOMINIO"
+key = "ib_xxx"
+
+r = requests.post(f"{base}/api/v1/build",
+    headers={"X-API-Key": key},
+    json={"url": "https://example.com", "name": "MiApp", "output": "apk"})
+bid = r.json()["buildId"]
+
 while True:
-  s=requests.get(base+f"/api/v1/build/{bid}").json()
-  print(s["status"]); 
-  if s["status"] not in ("queued","building"): break
-  time.sleep(3)</div>
+    s = requests.get(f"{base}/api/v1/build/{bid}",
+                     headers={"X-API-Key": key}).json()
+    print(s["status"], s.get("step"))
+    if s["status"] not in ("queued", "building"):
+        break
+    time.sleep(3)
+
+if s["status"] == "success":
+    open("app.apk", "wb").write(requests.get(base + s["apkUrl"]).content)</div></div>
+</div>
+<div class="tabpane" id="tab-curl">
+<div class="code-wrap"><button class="btn ghost sm copy-btn" data-copy>Copiar</button><div class="code">BASE=https://TU_DOMINIO
+
+BUILD=$(curl -s -X POST $BASE/api/v1/build \
+  -H "Content-Type: application/json" -H "X-API-Key: ib_xxx" \
+  -d '{"url":"https://example.com","name":"MiApp","output":"apk"}')
+ID=$(echo $BUILD | grep -o '"buildId":"[^"]*' | cut -d'"' -f4)
+
+while true; do
+  S=$(curl -s $BASE/api/v1/build/$ID)
+  echo $S
+  echo $S | grep -q '"status":"success"' && break
+  echo $S | grep -q '"status":"failed"' && break
+  sleep 3
+done
+
+curl -L -o app.apk $BASE/api/download/$ID</div></div>
 </div>
 </div>
 
-<div>
-<div class="card try">
-<div class="card-title"><span data-ib-icon="key"></span>API Keys</div>
-<p class="hint">Crea hasta 10. Si existe al menos una, `v1/build` exige key.</p>
-<label>Nombre<input id="keyName" placeholder="ci, backend, zapier"/></label>
-<button class="btn primary sm" id="keyCreate" style="margin-top:8px;width:100%">Generar Key</button>
-<button class="btn ghost sm" id="keyList" style="margin-top:6px;width:100%">Listar Keys</button>
+<div class="card">
+<div class="card-title"><span class="card-icon" data-ib-icon="layers"></span> Números</div>
+<div class="stat-grid">
+<div class="stat"><b>29</b><small>plantillas</small></div>
+<div class="stat"><b>86</b><small>permisos en el spec</small></div>
+<div class="stat"><b>9</b><small>formatos de salida</small></div>
+</div>
+</div>
+
+</div>
+
+<div class="side">
+<div class="try">
+<div class="card-title"><span class="card-icon" data-ib-icon="key"></span> API Keys</div>
+<p class="hint" style="margin-bottom:6px">Crea hasta 10. Si existe al menos una, <code>v1/build</code> exige key.</p>
+<label style="display:block;font-size:11.5px;color:var(--muted);font-weight:600">Nombre<input id="keyName" placeholder="ci, backend, zapier"/></label>
+<button class="btn primary sm" id="keyCreate">Generar Key</button>
+<button class="btn ghost sm" id="keyList">Listar Keys</button>
 <div id="keyOut" style="margin-top:10px;font-size:12px;word-break:break-all"></div>
 </div>
 
-<div class="card try" style="margin-top:14px">
-<div class="card-title"><span data-ib-icon="flask"></span>Try API (compilar)</div>
+<div class="try">
+<div class="card-title"><span class="card-icon" data-ib-icon="play"></span> Try API (compilar)</div>
 <label>URL<input id="tryUrl" placeholder="https://example.com"/></label>
 <label>Nombre App<input id="tryName" placeholder="MiApp"/></label>
 <label>API Key (si hay)<input id="tryKey" placeholder="ib_... opcional"/></label>
-<button class="btn primary sm" id="tryBuild" style="margin-top:8px;width:100%">POST /api/v1/build</button>
-<pre id="tryOut" class="code" style="margin-top:10px;max-height:220px;overflow:auto">...</pre>
+<button class="btn primary sm" id="tryBuild">POST /api/v1/build</button>
+<pre id="tryOut" class="code">...</pre>
 </div>
 
-<div class="card try" style="margin-top:14px">
-<div class="card-title"><span data-ib-icon="box"></span>Decompilar APK</div>
-<p class="hint">Sube APK ≤100MB, extrae package/permisos y genera `importConfig`. Con `POST /api/decompile/cloud` corres jadx + apktool en la nube.</p>
+<div class="try">
+<div class="card-title"><span class="card-icon" data-ib-icon="box"></span> Decompilar APK</div>
+<p class="hint" style="margin-bottom:6px">Sube APK ≤100 MB, extrae package/permisos y genera <code>importConfig</code>. Con <code>/api/decompile/cloud</code> corres jadx + apktool en la nube (≤60 MB).</p>
 <input type="file" id="apkFile" accept=".apk,.zip"/>
-<button class="btn primary sm" id="apkBtn" style="margin-top:8px;width:100%">Descompilar</button>
-<pre id="apkOut" class="code" style="margin-top:10px;max-height:260px;overflow:auto">...</pre>
+<button class="btn primary sm" id="apkBtn">Descompilar</button>
+<pre id="apkOut" class="code">...</pre>
 </div>
 
-<div class="card" style="margin-top:14px">
-<div class="card-title">Límites</div>
-<p class="hint" style="margin:0">• Rate 10 builds/h y 10 descompilados en la nube/h por IP<br/>• HTML ≤500KB, icono ≤7MB, APK decompile ≤100MB (local) / ≤60MB (nube)<br/>• CORS abierto (o `CORS_ORIGIN` en env)<br/>• Webhook firma no requerida (valida repo/branch)<br/>• `data/` y `.env` nunca se suben a git</p>
+<div class="card">
+<div class="card-title"><span class="card-icon" data-ib-icon="shield-check"></span> Límites</div>
+<p class="hint" style="margin:0">10 builds/h y 10 descompilados en la nube/h por IP<br/>HTML ≤500 KB, icono ≤7 MB<br/>APK local ≤100 MB / nube ≤60 MB<br/>CORS abierto (o <code>CORS_ORIGIN</code> en env)<br/>Los artefactos caducan a los 30 minutos<br/><code>data/</code> y <code>.env</code> nunca se suben a git</p>
 </div>
 </div>
 </div>
 </main>
-<footer style="max-width:1080px;margin:0 auto;padding:0 24px 30px;display:flex;gap:8px;color:var(--faint);font-size:12px;justify-content:center">
-<span>Developer Panel</span><span class="sep">·</span><a href="./index.html">Studio</a><span class="sep">·</span><a href="/api/docs">/api/docs</a>
+
+<footer class="foot">
+<span>Developer Panel</span><span>·</span><a href="./index.html">Studio</a><span>·</span><a href="./docs.html">Docs</a><span>·</span><a href="/api/docs">/api/docs</a>
 </footer>
+
 <script src="./js/icons.js"></script>
 <script>
-const base=location.origin;
-document.getElementById('baseUrl').textContent=base;
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')}
-async function jfetch(u,o){const r=await fetch(u,o);const t=await r.text();let j=null;try{j=JSON.parse(t)}catch{};return {status:r.status,j,t};}
-document.getElementById('keyCreate').onclick=async()=>{
-  const name=document.getElementById('keyName').value||'default';
-  const r=await jfetch('/api/keys',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
-  if(r.status!==200) return document.getElementById('keyOut').innerHTML='<span style="color:var(--danger)">'+esc(r.j?.error||r.t)+'</span>';
-  document.getElementById('keyOut').innerHTML='<div style="background:var(--success-soft);border:1px solid rgba(16,185,129,.3);padding:8px;border-radius:8px"><b>Key:</b><br><code style="font-size:11px;word-break:break-all">'+esc(r.j.key)+'</code><br><small>ID '+esc(r.j.id)+' — cópiala ahora</small></div>';
+const base = location.origin;
+document.getElementById('baseUrl').textContent = base;
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+async function jfetch(u,o){ const r=await fetch(u,o); const t=await r.text(); let j=null; try{j=JSON.parse(t)}catch(e){} return {status:r.status,j,t}; }
+function copyText(t){ if(navigator.clipboard) return navigator.clipboard.writeText(t); const a=document.createElement('textarea'); a.value=t; document.body.appendChild(a); a.select(); try{document.execCommand('copy')}catch(e){} a.remove(); return Promise.resolve(); }
+
+document.addEventListener('click', (e) => {
+  const cbtn = e.target.closest('[data-copy]');
+  if (cbtn) {
+    const box = cbtn.parentElement.querySelector('.code');
+    if (!box) return;
+    copyText(box.innerText);
+    const old = cbtn.textContent;
+    cbtn.textContent = 'Copiado';
+    setTimeout(() => { cbtn.textContent = old; }, 1400);
+    return;
+  }
+  const tab = e.target.closest('.tab');
+  if (tab) {
+    const wrap = tab.closest('.card');
+    wrap.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t === tab));
+    wrap.querySelectorAll('.tabpane').forEach(p => p.classList.toggle('on', p.id === 'tab-' + tab.dataset.tab));
+  }
+});
+
+document.getElementById('copyBase').onclick = () => {
+  copyText(base);
+  const b = document.getElementById('copyBase');
+  const old = b.innerHTML;
+  b.innerHTML = '<span data-ib-icon="check"></span> Copiado';
+  IBIcon.paint(b);
+  setTimeout(() => { b.innerHTML = old; IBIcon.paint(b); }, 1400);
 };
-document.getElementById('keyList').onclick=async()=>{
-  const r=await jfetch('/api/keys'); if(!r.j) return;
-  if(!r.j.length) return document.getElementById('keyOut').innerHTML='<small>Sin keys</small>';
-  document.getElementById('keyOut').innerHTML=r.j.map(k=>'<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)"><span><b>'+esc(k.name)+'</b> <code style="font-size:10px">'+esc(k.keyMask)+'</code> <small>usos:'+(k.uses||0)+'</small></span><button class="btn ghost sm" onclick="fetch(\'/api/keys/'+k.id+'\',{method:\'DELETE\'}).then(()=>alert(\'Borrada\'))">Borrar</button></div>').join('');
+
+const epSearch = document.getElementById('epSearch');
+const epCount = document.getElementById('epCount');
+function applyFilter(){
+  const q = epSearch.value.trim().toLowerCase();
+  const eps = document.querySelectorAll('.endpoint');
+  let shown = 0;
+  eps.forEach(el => {
+    const hit = !q || el.innerText.toLowerCase().indexOf(q) !== -1;
+    el.classList.toggle('hide', !hit);
+    if (hit) shown++;
+  });
+  document.querySelectorAll('.ep-group').forEach(g => {
+    const any = g.querySelectorAll('.endpoint:not(.hide)').length;
+    g.style.display = any ? '' : 'none';
+  });
+  epCount.textContent = shown + ' / ' + eps.length + ' endpoints';
+}
+if (epSearch) { epSearch.addEventListener('input', applyFilter); applyFilter(); }
+
+document.getElementById('keyCreate').onclick = async () => {
+  const name = document.getElementById('keyName').value || 'default';
+  const r = await jfetch('/api/keys', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name}) });
+  if (r.status !== 200) return document.getElementById('keyOut').innerHTML = '<span style="color:var(--danger)">' + esc(r.j?.error || r.t) + '</span>';
+  document.getElementById('keyOut').innerHTML = '<div style="background:var(--success-soft);border:1px solid rgba(16,185,129,.3);padding:8px;border-radius:8px"><b>Key:</b><br><code style="font-size:11px;word-break:break-all">' + esc(r.j.key) + '</code><br><small>ID ' + esc(r.j.id) + ' — cópiala ahora</small></div>';
 };
-document.getElementById('tryBuild').onclick=async()=>{
-  const url=document.getElementById('tryUrl').value.trim();
-  const name=document.getElementById('tryName').value.trim()||'MiApp';
-  const key=document.getElementById('tryKey').value.trim();
-  if(!url) return alert('Pon URL');
-  const headers={'Content-Type':'application/json'}; if(key) headers['X-API-Key']=key;
-  const r=await jfetch('/api/v1/build',{method:'POST',headers,body:JSON.stringify({url,name})});
-  document.getElementById('tryOut').textContent=JSON.stringify(r.j||r.t,null,2);
+document.getElementById('keyList').onclick = async () => {
+  const r = await jfetch('/api/keys');
+  if (!r.j) return;
+  if (!r.j.length) return document.getElementById('keyOut').innerHTML = '<small>Sin keys</small>';
+  document.getElementById('keyOut').innerHTML = r.j.map(k =>
+    '<div class="list-line"><span><b>' + esc(k.name) + '</b> <code style="font-size:10px">' + esc(k.keyMask) + '</code> <small style="color:var(--faint)">usos:' + (k.uses || 0) + '</small></span>' +
+    '<button class="btn ghost sm" data-del-key="' + esc(k.id) + '">Borrar</button></div>').join('');
 };
-document.getElementById('apkBtn').onclick=async()=>{
-  const f=document.getElementById('apkFile').files[0];
-  if(!f) return alert('Elige APK');
-  const reader=new FileReader();
-  reader.onload=async()=>{
-    const r=await jfetch('/api/decompile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apkBase64:reader.result})});
-    document.getElementById('apkOut').textContent=JSON.stringify(r.j||r.t,null,2).slice(0,4000);
+document.getElementById('keyOut').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-del-key]');
+  if (!b) return;
+  fetch('/api/keys/' + b.getAttribute('data-del-key'), { method:'DELETE' }).then(() => document.getElementById('keyList').click());
+});
+
+document.getElementById('tryBuild').onclick = async () => {
+  const url = document.getElementById('tryUrl').value.trim();
+  const name = document.getElementById('tryName').value.trim() || 'MiApp';
+  const key = document.getElementById('tryKey').value.trim();
+  if (!url) return alert('Pon URL');
+  const headers = {'Content-Type':'application/json'};
+  if (key) headers['X-API-Key'] = key;
+  const r = await jfetch('/api/v1/build', { method:'POST', headers, body: JSON.stringify({url,name}) });
+  document.getElementById('tryOut').textContent = JSON.stringify(r.j || r.t, null, 2);
+};
+
+document.getElementById('apkBtn').onclick = async () => {
+  const f = document.getElementById('apkFile').files[0];
+  if (!f) return alert('Elige APK');
+  const reader = new FileReader();
+  reader.onload = async () => {
+    const r = await jfetch('/api/decompile', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({apkBase64: reader.result}) });
+    document.getElementById('apkOut').textContent = JSON.stringify(r.j || r.t, null, 2).slice(0, 4000);
   };
   reader.readAsDataURL(f);
 };

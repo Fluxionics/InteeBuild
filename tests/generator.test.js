@@ -120,3 +120,25 @@ test('build-config.json incluye provider para la eleccion de provider en CI', ()
   assert.equal(bc.targetSdk, cfg.targetSdk);
   assert.equal(bc.minSdk, cfg.minSdk);
 });
+
+test('platform ios/both instala @capacitor/ios para que cap add ios no falle', () => {
+  const { packageFiles } = require('../server/generator/package-files');
+  const deps = (p) => JSON.parse(packageFiles(g.normalizeConfig({ appName: 'Plat Test', url: 'https://example.com', platform: p }))['package.json']).dependencies;
+  assert.ok(deps('ios')['@capacitor/ios'], 'ios incluye @capacitor/ios');
+  assert.ok(deps('both')['@capacitor/ios'], 'both incluye @capacitor/ios');
+  assert.ok(!deps('android')['@capacitor/ios'], 'android no arrastra @capacitor/ios');
+});
+
+test('outputs de escritorio (exe/msi/dmg/appimage) generan el proyecto desktop', () => {
+  const cfg = g.normalizeConfig({ appName: 'Desk Test', url: 'https://example.com', outputs: ['dmg', 'exe', 'msi', 'appimage'] });
+  assert.equal(cfg.desktopEnabled, true, 'desktopEnabled autoactivado por los outputs');
+  const files = g.generateFiles(cfg);
+  assert.ok(files['desktop/package.json'], 'desktop/package.json presente');
+  assert.ok(files['desktop/main.js'], 'desktop/main.js presente');
+  const pkg = JSON.parse(files['desktop/package.json']);
+  assert.ok(pkg.build.mac && pkg.build.win && pkg.build.linux, 'targets win/mac/linux configurados');
+
+  const plain = g.normalizeConfig({ appName: 'Plain Test', url: 'https://example.com', outputs: ['apk'] });
+  assert.equal(plain.desktopEnabled, false, 'apk solo no activa desktop');
+  assert.ok(!g.generateFiles(plain)['desktop/package.json'], 'sin desktop si no se pide');
+});

@@ -58,6 +58,7 @@ function appDependencies(cfg) {
     '@capacitor/core': pv('core', cap),
     '@capacitor/android': pv('core', cap)
   };
+  if (cfg.platform === 'ios' || cfg.platform === 'both') deps['@capacitor/ios'] = pv('core', cap);
 
   if (cfg.plugins.camera) deps['@capacitor/camera'] = pv('camera', cap);
   if (cfg.plugins.geolocation) deps['@capacitor/geolocation'] = pv('geolocation', cap);

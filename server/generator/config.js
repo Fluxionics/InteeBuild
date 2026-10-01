@@ -388,6 +388,7 @@ function normalizeConfig(raw) {
   const androidSigning = readAndroidSigning(raw);
   const iosSigning = readIosSigning(raw);
   const iconBase64 = readIcon(raw);
+  const wantsDesktopOutput = outputs.some(f => ['exe', 'msi', 'dmg', 'appimage'].includes(f));
 
   return {
     appName,
@@ -420,6 +421,7 @@ function normalizeConfig(raw) {
     nativeAudio: build.nativeAudio,
     nativeAutoplay: build.nativeAutoplay,
     ...catalog,
+    desktopEnabled: catalog.desktopEnabled || wantsDesktopOutput,
     ...androidSigning,
     ...iosSigning,
     iconBase64
