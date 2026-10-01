@@ -1,6 +1,6 @@
 # Salidas de una compilación
 
-El `outputType` clásico sigue aceptando tres valores: `apk`, `aab` y `both`. Encima está `outputs`, una lista (también acepta texto con comas) que manda sobre él: `apk`, `aab`, `xapk`, `apks`, `ipa`, `exe`, `msi`, `dmg`, `appimage`. El workflow tiene un paso por formato condicionado a la lista, así que sólo corre el que pediste, y el campo `platform` (`android`, `ios` o `both`) decide si se lanzan los jobs de Android, los de iOS o los dos. El campo `GET /api/v1/build/:id` devuelve `outputs` y `formats`, el segundo con lo que el artefacto confirma que existe de verdad.
+El `outputType` clásico sigue aceptando tres valores: `apk`, `aab` y `both`. Encima está `outputs`, una lista (también acepta texto con comas) que manda sobre él: `apk`, `aab`, `xapk`, `apks`, `ipa`, `exe`, `msi`, `dmg`, `appimage`. El workflow tiene un paso por formato condicionado a la lista, así que sólo corre el que pediste, y el campo `platform` (`android`, `ios` o `both`) decide si se lanzan los jobs de Android, los de iOS o los dos. Cuando `platform` es `ios` o `both`, el `package.json` del ZIP incluye `@capacitor/ios` para que el paso `npx cap add ios` no falle con "Could not find the ios platform". El campo `GET /api/v1/build/:id` devuelve `outputs` y `formats`, el segundo con lo que el artefacto confirma que existe de verdad.
 
 ## Lo que descargas cuando el build termina
 
@@ -21,7 +21,7 @@ Además, el ZIP del proyecto está disponible sin compilar con `POST /api/projec
 
 ## Lo que sólo es código fuente en el ZIP
 
-- **Desktop** — si activas `desktopEnabled`, aparece `desktop/` con un proyecto Electron (`package.json`, `main.js`, README) y el selector "Desktop .EXE/.APP" del estudio escribe esa carpeta. Para que salga un binario hay que pedir `exe`, `msi`, `dmg` o `appimage` en `outputs`: entonces el workflow lanza `electron-builder` en Windows, macOS o Linux según el formato. `desktopPlatform` (`win`, `mac`, `both`) se valida, se guarda en `build-config.json` y lo usa el generador de `desktop/package.json` para fijar los targets de `electron-builder`.
+- **Desktop** — si activas `desktopEnabled` **o pides `exe`, `msi`, `dmg` o `appimage` en `outputs`** (el motor autoactiva `desktopEnabled` en ese caso), aparece `desktop/` con un proyecto Electron (`package.json`, `main.js`, README) y el selector "Desktop .EXE/.APP" del estudio escribe esa carpeta. Para que salga un binario hay que pedir `exe`, `msi`, `dmg` o `appimage` en `outputs`: entonces el workflow lanza `electron-builder` en Windows, macOS o Linux según el formato. `desktopPlatform` (`win`, `mac`, `both`) se valida, se guarda en `build-config.json` y lo usa el generador de `desktop/package.json` para fijar los targets de `electron-builder`.
 - **TWA** — `twa-manifest.json`, `assetlinks.json` y un README con el comando de bubblewrap. La Trusted Web Activity real se construye fuera, con tus herramientas.
 - **Flutter** — `flutter/pubspec.yaml`, `flutter/lib/main.dart` y su manifiesto. El workflow lo ignora.
 - **Tauri** — `tauri/Cargo.toml`, `tauri/tauri.conf.json`, `tauri/src-tauri/src/main.rs`. El workflow lo ignora.
