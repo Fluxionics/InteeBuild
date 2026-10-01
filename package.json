@@ -1,0 +1,24 @@
+{
+  "name": "inteebuild",
+  "version": "4.2.0",
+  "description": "Convierte tu web o HTML en APK/AAB nativo con permisos Android granulares, audio nativo, 2 providers WebView listos, splash screen, historial de builds y configuracion completa.",
+  "main": "server/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node --watch server/server.js",
+    "test": "node --test tests/permissions.test.js tests/generator.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^4.19.2",
+    "jszip": "^3.10.1"
+  },
+  "devDependencies": {
+    "js-yaml": "^5.4.2"
+  }
+}

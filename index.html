@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InteeBuild — Convierte tu web en APK Android gratis</title>
+  <meta name="description" content="InteeBuild convierte cualquier web o HTML en una app Android nativa (APK/AAB) en minutos. Permisos granulares, audio nativo, compilación en la nube. Gratis y open source." />
+  <meta name="theme-color" content="#4f46e5" />
+  <meta property="og:title" content="InteeBuild — Convierte tu web en APK Android" />
+  <meta property="og:description" content="URL o HTML → APK/AAB nativo en minutos. Permission Engine, 7 providers, API y decompiler. Gratis y open source." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="./assets/social-preview.svg" />
+  <meta property="og:image:width" content="1280" />
+  <meta property="og:image:height" content="640" />
+  <meta property="og:image:alt" content="InteeBuild — Web a App Nativa Android" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="InteeBuild — Web a APK gratis" />
+  <meta name="twitter:description" content="Convierte cualquier web en app Android nativa. Permission Engine, providers y API. Gratis y open source." />
+  <meta name="twitter:image" content="./assets/social-preview.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/style.css" />
+  <link rel="icon" href="./assets/icon.svg" type="image/svg+xml" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo"><img src="./assets/icon.svg" alt="IB" width="22" height="22" /></span>
+      <div class="brand-txt">
+        <strong>InteeBuild</strong>
+        <small>Platform Studio</small>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <select id="templateSelect" class="template-select">
+        <option value="">Plantilla predefinida…</option>
+        <option value="web">Web estándar</option>
+        <option value="pwa">PWA Nativa</option>
+        <option value="radio">Radio & Audio Stream</option>
+        <option value="ecommerce">Tienda Ecommerce</option>
+        <option value="blog">Portal Noticias / Blog</option>
+        <option value="portafolio">Portafolio / CV</option>
+        <option value="game">Juego HTML5</option>
+        <option value="edu">Educación & Cursos</option>
+        <option value="empresa">Corporativa</option>
+        <option value="comunidad">Comunidad & Social</option>
+        <option value="streaming">Video & Streaming</option>
+        <option value="dashboard">Panel & Analytics</option>
+        <option value="ai">AI Web Application</option>
+        <option value="maps">Mapas & Geolocalización</option>
+        <option value="finanzas">Finanzas & Pagos</option>
+        <option value="eventos">Eventos & Tickets</option>
+        <option value="podcast">Podcast & Audio On-Demand</option>
+        <option value="salud">Salud & Fitness</option>
+        <option value="delivery">Delivery & Rastreo</option>
+        <option value="banking">Banking & FinTech</option>
+        <option value="social">Social Network</option>
+        <option value="travel">Travel & Turismo</option>
+        <option value="news">News & Medios</option>
+        <option value="fitness">Fitness & Deportes</option>
+        <option value="food">Food Delivery</option>
+        <option value="realestate">Real Estate</option>
+        <option value="marketplace">Marketplace</option>
+        <option value="emergency">Emergency & SOS</option>
+        <option value="lab">Permission Test Lab</option>
+      </select>
+      <a href="./docs.html" class="btn ghost sm" style="text-decoration:none">Docs</a>
+      <a href="./developer.html" class="btn ghost sm" style="text-decoration:none">API Docs</a>
+      <button id="modeToggle" class="btn ghost sm">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Modo avanzado
+      </button>
+      <div id="ghBadge" class="badge badge-warn">Verificando…</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero hero-perrona">
+      <div class="hero-bg" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="grid"></span></div>
+      <div class="hero-badges">
+        <span class="hbadge"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> APK + AAB</span>
+        <span class="hbadge"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg> Permission Engine</span>
+        <span class="hbadge"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> 7 Providers</span>
+        <span class="hbadge"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg> 30+ Plantillas</span>
+        <span class="hbadge"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> MIT Open Source</span>
+      </div>
+      <h1>Convierte tu web en una <span class="grad">App Nativa Android</span>.</h1>
+      <p class="sub">URL o HTML → APK/AAB con permisos granulares reales, audit, readiness, 2 motores WebView listos, 28 plantillas verificadas, API para developers y decompiler. Compilación en GitHub Actions.</p>
+      <div class="hero-cta">
+        <a href="#wizard" class="btn primary btn-glow" onclick="goToStep(0);return false;"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12l3 3a22 22 0 0 0 2-3.95A12.88 12.88 0 0 0 2 2c0 2.72.78 7.5 6 11a22.35 22.35 0 0 0 4 2z"/><path d="M14.5 9.5l1.5 1.5"/></svg> Crear mi app ahora</a>
+        <a href="./developer.html" class="btn ghost"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg> Developer API</a>
+        <a href="#como-funciona" class="btn ghost">Cómo funciona</a>
+      </div>
+      <div class="hero-mini">
+        <div class="mini-card"><b>68</b><small>permisos granulares</small></div>
+        <div class="mini-card"><b>28</b><small>plantillas</small></div>
+        <div class="mini-card"><b>2</b><small>providers listos</small></div>
+        <div class="mini-card"><b>100%</b><small>audit + readiness</small></div>
+      </div>
+      <div class="stats-strip" id="landingStats">
+        <span><b id="statLandTotal">–</b> APKs compilados</span>
+        <span><b id="statLandOk">–</b> exitosos</span>
+        <span><b id="statLandAvg">–</b> tiempo promedio</span>
+      </div>
+    </section>
+
+    <section class="landing" id="features">
+      <h2>Todo lo que necesitas, gratis</h2>
+      <div class="feat-grid">
+        <div class="card feat"><b>URL o HTML</b><p class="hint">Pega tu sitio o escribe el código directo. Plantillas listas para usar.</p></div>
+        <div class="card feat"><b>68 permisos granulares</b><p class="hint">Runtime, Settings y manifest verificados con audit real y readiness.</p></div>
+        <div class="card feat"><b>28 plantillas</b><p class="hint">Radio, Podcast, Banking, Social, Delivery, Emergency y más. Todo verificado.</p></div>
+        <div class="card feat"><b>Splash a medida</b><p class="hint">Color, duración e icono adaptativo con mipmap-anydpi-v26.</p></div>
+        <div class="card feat"><b>APK + AAB</b><p class="hint">Instalable directo o bundle para Google Play con firma personalizada.</p></div>
+        <div class="card feat"><b>Diagnóstico web</b><p class="hint">Puntuación 0-100 antes de compilar con auto-fix de problemas comunes.</p></div>
+        <div class="card feat"><b>Audio nativo</b><p class="hint">Reproducción en segundo plano con Foreground Service y Wake Lock real.</p></div>
+        <div class="card feat"><b>100% open source</b><p class="hint">Compilación transparente en GitHub Actions. Código verificable.</p></div>
+      </div>
+    </section>
+
+    <section class="landing" id="como-funciona">
+      <h2>Cómo funciona</h2>
+      <div class="steps-explain">
+        <div class="card"><b>1. Elige tu fuente</b><p class="hint">URL de tu sitio o HTML directo. Prueba la URL con el analizador web 0-100.</p></div>
+        <div class="card"><b>2. Selecciona plantilla</b><p class="hint">30+ plantillas verificadas (Radio, Banking, Social, etc.) configuran permisos automáticamente.</p></div>
+        <div class="card"><b>3. Personaliza</b><p class="hint">Ajusta nombre, icono, colores, splash y ajustes avanzados según necesites.</p></div>
+        <div class="card"><b>4. Compila y descarga</b><p class="hint">Sigue el progreso en vivo en GitHub Actions y descarga tu APK o AAB.</p></div>
+      </div>
+      <div class="hero-cta">
+        <a href="#wizard" class="btn primary" onclick="goToStep(0);return false;">Crear APK gratis</a>
+      </div>
+    </section>
+
+    <section class="landing" id="faq">
+      <h2>Preguntas frecuentes</h2>
+      <details class="card faq"><summary>¿Es gratis?</summary><p class="hint">Sí. La compilación usa GitHub Actions y el proyecto es open source.</p></details>
+      <details class="card faq"><summary>¿Puedo publicar en Google Play?</summary><p class="hint">Sí. Marca el chip AAB en el paso 3, firma con tu keystore y sube el bundle a Play Console.</p></details>
+      <details class="card faq"><summary>¿Qué pasa con mis datos?</summary><p class="hint">La rama con tu código se borra al terminar el build (no queda código en el repo). Artefactos y runs se auto-limpian después. Ver Política de Privacidad.</p></details>
+      <details class="card faq"><summary>¿Funciona sin programar?</summary><p class="hint">Sí. Plantillas y presets configuran todo por ti; el modo avanzado es opcional.</p></details>
+    </section>
+
+    <div class="ad-container ad-banner" data-ad="banner"></div>
+
+    <div id="alertConfig" class="alert hidden"></div>
+
+    <div class="layout">
+      <div class="wizard" id="wizard">
+        <nav class="steps-bar">
+          <button class="step-dot active" data-step="0"><span>1</span><span class="sdot-label">Aplicación</span></button>
+          <button class="step-dot" data-step="1"><span>2</span><span class="sdot-label">Permisos</span></button>
+          <button class="step-dot" data-step="2"><span>3</span><span class="sdot-label">Plugins</span></button>
+          <button class="step-dot" data-step="3"><span>4</span><span class="sdot-label">Ajustes</span></button>
+          <button class="step-dot" data-step="4"><span>5</span><span class="sdot-label">Preview</span></button>
+          <button class="step-dot" data-step="5"><span>6</span><span class="sdot-label">QA + Seguridad</span></button>
+          <button class="step-dot" data-step="6"><span>7</span><span class="sdot-label">Compilar</span></button>
+        </nav>
+
+        
+        <div class="step active" data-step="0">
+          <div class="card">
+            <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+              Origen de la Aplicación
+            </div>
+            <div class="input-type-toggle">
+              <div class="toggle-group">
+                <button type="button" class="toggle-btn active" data-input="url">Dirección URL</button>
+                <button type="button" class="toggle-btn" data-input="html">Código HTML Directo</button>
+              </div>
+            </div>
+            <p class="hint" style="font-size:11px">Plantillas 100% nativas y verificadas: al elegir una arriba se configura todo (permisos + provider + UI). <button type="button" class="btn ghost sm" id="templateZipBtn" style="padding:4px 10px"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Ver código (ZIP) de la plantilla</button></p>
+            <div id="urlGroup">
+              <label>URL del sitio web
+                <div style="display:flex;gap:8px">
+                  <input type="url" name="url" placeholder="https://tu-sitio-web.com" style="flex:1" />
+                  <button type="button" class="btn ghost sm" id="analyzeBtn">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                    Analizar salud web
+                  </button>
+                </div>
+              </label>
+              <div id="analyzeBox" class="analyze hidden">
+                <div class="analyze-header">
+                  <div class="analyze-score-ring">
+                    <svg width="56" height="56" viewBox="0 0 56 56">
+                      <circle cx="28" cy="28" r="22" fill="none" stroke="var(--border)" stroke-width="5"/>
+                      <circle id="analyzeRing" cx="28" cy="28" r="22" fill="none" stroke="var(--accent)" stroke-width="5" stroke-dasharray="138.2" stroke-dashoffset="138.2" stroke-linecap="round" style="transition:stroke-dashoffset .6s ease"/>
+                    </svg>
+                    <div class="score-text"><span id="analyzeScore">0</span></div>
+                  </div>
+                  <div class="analyze-diag">
+                    <span id="analyzeDiag">Analizando página…</span>
+                    <small id="analyzeSubDiag"></small>
+                  </div>
+                </div>
+                <div id="analyzeGrid" class="analyze-grid"></div>
+                <div id="analyzeFramework" class="analyze-framework hidden"></div>
+                <div id="analyzePwa" class="analyze-pwa hidden">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+                  PWA Detectada — metadatos e iconos se importarán automáticamente.
+                </div>
+                <div id="autopilotBox" class="autopilot-box hidden">
+                  <div class="autopilot-title">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                    Recomendaciones AutoPilot
+                  </div>
+                  <div id="autopilotItems"></div>
+                  <button type="button" class="btn primary sm" id="autopilotApply" style="margin-top:10px">
+                    Aplicar recomendados automáticamente
+                  </button>
+                </div>
+                <div id="securityBox" class="hidden" style="margin-top:14px;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--surface)">
+                  <div style="font-weight:700;font-size:13px;margin-bottom:8px;display:flex;align-items:center;gap:8px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Seguridad <span id="secScore" style="margin-left:auto;background:var(--accent);color:#fff;padding:2px 8px;border-radius:999px;font-size:11px"></span></div>
+                  <div id="secIssues" style="font-size:12px;line-height:1.6"></div>
+                </div>
+                <div id="errorsBox" class="hidden" style="margin-top:12px;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--surface)">
+                  <div style="font-weight:700;font-size:13px;margin-bottom:8px"><span data-ib-icon="search"></span>Detección de errores</div>
+                  <div id="errorsList" style="font-size:12px"></div>
+                </div>
+                <div id="optBox" class="hidden" style="margin-top:12px;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--surface)">
+                  <div style="font-weight:700;font-size:13px;margin-bottom:8px"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Optimización <span id="optScore" style="margin-left:6px;color:var(--muted)"></span></div>
+                  <div id="optTips" style="font-size:12px"></div>
+                  <button type="button" class="btn ghost sm" id="applyFixBtn" style="margin-top:10px"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><path d="M12 2a10 10 0 0 1 10 10h-10V2z"/><path d="M12 12v10a10 10 0 0 1-10-10h10z"/></svg> Aplicar Auto-Fix y previsualizar HTML optimizado</button>
+                </div>
+              </div>
+            </div>
+            <div id="htmlGroup" class="hidden">
+              <label>Código HTML Fuente
+                <textarea name="htmlCode" rows="7" placeholder="&lt;!DOCTYPE html&gt;&#10;&lt;html&gt;..."></textarea>
+              </label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button type="button" class="btn ghost sm" id="exampleHtmlBtn">Descargar ejemplo HTML</button>
+                <button type="button" class="btn ghost sm hidden" id="faceBtn"><span data-ib-icon="mask"></span>Usar cara de la plantilla</button>
+                <label class="btn ghost sm" style="cursor:pointer">Importar archivo .html
+                  <input type="file" id="htmlFileInput" accept=".html,.htm,text/html" class="hidden" />
+                </label>
+              </div>
+              <p class="hint" style="font-size:11px;margin-top:6px">Tu HTML es la <b>cara</b>; todo lo demás (permisos, splash, menú, PWA) lo pone el nativo. O pega tu URL arriba.</p>
+            </div>
+            <label title="Nombre visible de la app. Solo letras, números, espacios, guiones y puntos (2-40 caracteres). Ejemplo: Mi Tienda">Nombre de la Aplicación
+              <input type="text" name="appName" placeholder="Mi Aplicación Nativa" maxlength="40" id="appNameInput" />
+            </label>
+            <div class="row">
+              <label title="Identificador único. Solo minúsculas, números y puntos, con al menos un punto. Ejemplo: com.miempresa.miapp. Se genera solo si lo dejas vacío.">Package ID (Nombre de paquete)
+                <input type="text" name="packageName" placeholder="com.miempresa.miapp" />
+              </label>
+              <label title="Versión visible. Solo números separados por puntos. Ejemplo: 1.0.0">Versión (Version Name)
+                <input type="text" name="versionName" value="1.0.0" />
+              </label>
+            </div>
+            <div class="row advanced hidden">
+              <label>Autor / Organización
+                <input type="text" name="author" placeholder="Nombre de desarrollador" />
+              </label>
+              <label>Código Interno (Version Code)
+                <input type="number" name="versionCode" value="1" min="1" />
+              </label>
+            </div>
+            <div class="advanced hidden">
+              <label>Sitio Web Oficial
+                <input type="url" name="website" placeholder="https://..." />
+              </label>
+              <label>Descripción corta
+                <input type="text" name="description" placeholder="Aplicación nativa de alta eficiencia" />
+              </label>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+              Proveedor de Compilación <span class="pro-badge">PRO</span>
+            </div>
+            <p class="hint">Elige el motor WebView. Solo READY genera APK funcional hoy.</p>
+            <div class="provider-grid">
+              <label class="plugin-card" style="cursor:pointer"><input type="radio" name="provider" value="capacitor" checked style="display:none"/><div class="pi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><div class="pl"><b>Capacitor 7 <span class="audit-badge ok" style="font-size:9px">READY</span></b><small>Plugins + InteeBridge + Ads</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" style="cursor:pointer"><input type="radio" name="provider" value="native" style="display:none"/><div class="pi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div><div class="pl"><b>Native WebView <span class="audit-badge ok" style="font-size:9px">READY</span></b><small>APK ultra ligero ~1.5MB</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" style="cursor:pointer;opacity:.6"><input type="radio" name="provider" value="flutter" disabled style="display:none"/><div class="pi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="pl"><b>Flutter <span class="audit-badge fail" style="font-size:9px">PLANNED</span></b><small>Solo README por ahora</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" style="cursor:pointer;opacity:.6"><input type="radio" name="provider" value="tauri" disabled style="display:none"/><div class="pi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="pl"><b>Tauri <span class="audit-badge fail" style="font-size:9px">PLANNED</span></b><small>Solo README por ahora</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" style="cursor:pointer;opacity:.85"><input type="radio" name="provider" value="twa" style="display:none"/><div class="pi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div><div class="pl"><b>TWA Chrome <span class="audit-badge warn" style="font-size:9px">EXPERIMENTAL</span></b><small>Requiere Chrome + assetlinks</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" style="cursor:pointer;opacity:.85"><input type="radio" name="provider" value="gecko" style="display:none"/><div class="pi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div><div class="pl"><b>GeckoView <span class="audit-badge warn" style="font-size:9px">EXPERIMENTAL</span></b><small>Requiere dependencia manual</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" style="cursor:pointer;opacity:.85"><input type="radio" name="provider" value="cordova" style="display:none"/><div class="pi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div><div class="pl"><b>Cordova <span class="audit-badge warn" style="font-size:9px">EXPERIMENTAL</span></b><small>Solo config.xml de referencia</small></div><div class="plugin-check"></div></label>
+            </div>
+            <p class="hint" style="margin-top:8px;font-size:11px">READY = compila hoy. EXPERIMENTAL = genera proyecto pero requiere pasos manuales. PLANNED = roadmap.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Logotipo e Icono
+            </div>
+            <label>
+              <div class="file" id="iconDrop">
+                <input type="file" id="iconInput" accept="image/png,image/jpeg,image/webp" />
+                <span>Seleccionar imagen PNG / JPG / WebP (512×512 píxeles)</span>
+              </div>
+              <img id="iconPreview" class="icon-preview hidden" alt="preview" />
+            </label>
+            <label class="switch">
+              <input type="checkbox" name="adaptiveIconEnabled" id="adaptiveCheck" />
+              <span class="trk"><span class="knob"></span></span>
+              <span class="txt"><b>Generar icono adaptativo</b><small>Genera recursos ic_launcher.xml para Android 8.0+</small></span>
+            </label>
+            <div id="adaptiveBox" class="hidden" style="padding-top:10px">
+              <div class="row">
+                <label>Color de fondo del icono
+                  <input type="color" name="adaptiveIconBg" value="#4f46e5" />
+                </label>
+                <label>Capa de primer plano (Foreground PNG)
+                  <div class="file" style="padding:10px">
+                    <input type="file" id="adaptiveFgInput" accept="image/png,image/jpeg,image/webp" />
+                    <span style="font-size:12px">Seleccionar capa foreground</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-nav"><span></span><button type="button" class="btn primary next-btn">Siguiente paso <span data-ib-icon="arrow-right"></span></button></div>
+        </div>
+
+        
+        <div class="step" data-step="1">
+          <div class="card">
+            <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              Permisos del Sistema Android
+            </div>
+            <p class="hint">Selecciona únicamente los permisos que tu aplicación requerirá para su funcionamiento.</p>
+            <div class="preset-row">
+              <button type="button" class="btn ghost sm" data-preset="foto">Cámara + Foto</button>
+              <button type="button" class="btn ghost sm" data-preset="ubicacion">Ubicación</button>
+              <button type="button" class="btn ghost sm" data-preset="audio">Audio</button>
+              <button type="button" class="btn ghost sm" data-preset="limpiar">Limpiar todo</button>
+            </div>
+            <div class="perm-tabs">
+              <button type="button" class="perm-tab active" data-ptab="easy">Vista Simplificada</button>
+              <button type="button" class="perm-tab" data-ptab="advanced">Manifiesto Técnico</button>
+            </div>
+
+            <div id="permEasy" class="perm-easy">
+              <label class="perm-tile" data-perm="notifications">
+                <input type="checkbox" name="notifications" checked />
+                <div class="perm-check"></div>
+                <div class="perm-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg></div>
+                <div class="perm-name">Notificaciones</div>
+                <div class="perm-code">POST_NOTIFICATIONS</div>
+              </label>
+              <label class="perm-tile" data-perm="cameraMic">
+                <input type="checkbox" name="cameraMic" />
+                <div class="perm-check"></div>
+                <div class="perm-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+                <div class="perm-name">Cámara</div>
+                <div class="perm-code">CAMERA</div>
+              </label>
+              <label class="perm-tile" data-perm="microphone">
+                <input type="checkbox" name="microphone" />
+                <div class="perm-check"></div>
+                <div class="perm-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg></div>
+                <div class="perm-name">Micrófono</div>
+                <div class="perm-code">RECORD_AUDIO</div>
+              </label>
+              <label class="perm-tile" data-perm="gps">
+                <input type="checkbox" name="gps" />
+                <div class="perm-check"></div>
+                <div class="perm-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+                <div class="perm-name">Ubicación GPS</div>
+                <div class="perm-code">ACCESS_FINE_LOCATION</div>
+              </label>
+              <label class="perm-tile" data-perm="storage">
+                <input type="checkbox" name="storage" />
+                <div class="perm-check"></div>
+                <div class="perm-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></div>
+                <div class="perm-name">Archivos & Galería</div>
+                <div class="perm-code">READ_MEDIA_*</div>
+              </label>
+              <label class="perm-tile" data-perm="bluetooth">
+                <input type="checkbox" name="bluetooth" />
+                <div class="perm-check"></div>
+                <div class="perm-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5"/></svg></div>
+                <div class="perm-name">Bluetooth</div>
+                <div class="perm-code">BLUETOOTH_CONNECT</div>
+              </label>
+              <label class="perm-tile" data-perm="nfc">
+                <input type="checkbox" name="nfc" />
+                <div class="perm-check"></div>
+                <div class="perm-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 12a6 6 0 016-6v0a6 6 0 016 6v0a6 6 0 01-6 6v0a6 6 0 01-6-6v0z"/></svg></div>
+                <div class="perm-name">NFC</div>
+                <div class="perm-code">NFC</div>
+              </label>
+              <label class="perm-tile" data-perm="foreground">
+                <input type="checkbox" name="foreground" checked />
+                <div class="perm-check"></div>
+                <div class="perm-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div>
+                <div class="perm-name">Servicio Foreground</div>
+                <div class="perm-code">FOREGROUND_SERVICE</div>
+              </label>
+              <label class="perm-tile" data-perm="wakeLock">
+                <input type="checkbox" name="wakeLock" />
+                <div class="perm-check"></div>
+                <div class="perm-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div>
+                <div class="perm-name">Pantalla Encendida</div>
+                <div class="perm-code">WAKE_LOCK</div>
+              </label>
+              <label class="perm-tile" data-perm="biometric">
+                <input type="checkbox" name="biometric" />
+                <div class="perm-check"></div>
+                <div class="perm-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 11c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/><path d="M12 2a10 10 0 00-10 10c0 4.4 2.9 8.2 7 9.5M12 6a6 6 0 00-6 6c0 2.4 1.4 4.5 3.5 5.4"/></svg></div>
+                <div class="perm-name">Autenticación Biométrica</div>
+                <div class="perm-code">USE_BIOMETRIC</div>
+              </label>
+            </div>
+
+            <div id="permAdvanced" class="hidden" style="margin-top:4px">
+              <label class="switch"><input type="checkbox" name="phone" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Llamadas telefónicas <span class="warn-tag">Restricción Play Store</span></b><small>CALL_PHONE, READ_PHONE_STATE</small></span></label>
+              <label class="switch"><input type="checkbox" name="sms" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Envío de SMS <span class="warn-tag">Restricción Play Store</span></b><small>SEND_SMS, READ_SMS</small></span></label>
+              <label class="switch"><input type="checkbox" name="contacts" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Libreta de Contactos</b><small>READ_CONTACTS, WRITE_CONTACTS</small></span></label>
+              <label class="switch"><input type="checkbox" name="calendar" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Calendario de Eventos</b><small>READ_CALENDAR, WRITE_CALENDAR</small></span></label>
+              <label class="switch"><input type="checkbox" name="sensors" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Sensores Biológicos</b><small>BODY_SENSORS</small></span></label>
+              <label class="switch"><input type="checkbox" name="activityRecognition" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Reconocimiento de Actividad</b><small>ACTIVITY_RECOGNITION</small></span></label>
+              <label class="switch"><input type="checkbox" name="gpsBackground" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Ubicación en segundo plano <span class="warn-tag">Requiere justificación Play</span></b><small>ACCESS_BACKGROUND_LOCATION (solo si gps preciso ya concedido)</small></span></label>
+              <label class="switch"><input type="checkbox" name="bluetoothScan" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Bluetooth · Escanear</b><small>BLUETOOTH_SCAN (Android 12+)</small></span></label>
+              <label class="switch"><input type="checkbox" name="bluetoothConnect" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Bluetooth · Conectar</b><small>BLUETOOTH_CONNECT (Android 12+)</small></span></label>
+              <label class="switch"><input type="checkbox" name="bluetoothAdvertise" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Bluetooth · Anunciar</b><small>BLUETOOTH_ADVERTISE (Android 12+)</small></span></label>
+              <label class="switch"><input type="checkbox" name="alarmSchedule" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Alarmas exactas · SCHEDULE (recomendado)</b><small>SCHEDULE_EXACT_ALARM, revocable por usuario</small></span></label>
+              <label class="switch"><input type="checkbox" name="alarmUse" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Alarmas exactas · USE (solo reloj/calendario)</b><small>USE_EXACT_ALARM</small></span></label>
+              <label class="switch"><input type="checkbox" name="systemAlert" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Superposición de Pantalla <span class="warn-tag">Acceso especial</span></b><small>SYSTEM_ALERT_WINDOW → Settings overlay</small></span></label>
+              <label class="switch"><input type="checkbox" name="installPackages" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Instalador de Paquetes <span class="warn-tag">Restricción Play Store</span></b><small>REQUEST_INSTALL_PACKAGES</small></span></label>
+              <label class="switch"><input type="checkbox" name="alarm" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Alarmas (legacy → SCHEDULE)</b><small>Compat, usa SCHEDULE_EXACT_ALARM</small></span></label>
+              <label class="switch"><input type="checkbox" name="nearby" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Dispositivos WiFi Cercanos</b><small>NEARBY_WIFI_DEVICES</small></span></label>
+              <label class="switch"><input type="checkbox" name="vibration" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Vibración Háptica</b><small>VIBRATE</small></span></label>
+              <label class="switch"><input type="checkbox" name="ar" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Realidad Aumentada (ARCore) <span class="warn-tag">APK pesado +80MB</span></b><small>CAMERA + ARCore + SceneView + model-viewer fallback</small></span></label>
+              <label class="switch"><input type="checkbox" name="voiceRec" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Reconocimiento de Voz</b><small>RECORD_AUDIO + SpeechRecognizer</small></span></label>
+              <label class="switch"><input type="checkbox" name="envSensors" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Sensores Ambientales</b><small>BODY_SENSORS + acelerómetro/giroscopio/barómetro + actividad</small></span></label>
+              <label class="switch"><input type="checkbox" name="aiSuite" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Inteligencia Artificial (ML Kit) <span class="warn-tag">APK pesado</span></b><small>on-device label/barcode/face/text + fallback cloud</small></span></label>
+              <label class="switch"><input type="checkbox" name="powerMgmt" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Gestión de Energía</b><small>WAKE_LOCK + ignorar optimización batería</small></span></label>
+              <label class="switch"><input type="checkbox" name="adaptiveNotif" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Notificaciones Adaptativas</b><small>POST_NOTIFICATIONS + alarmas exactas + hábitos</small></span></label>
+              <label class="switch"><input type="checkbox" name="advSecurity" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Seguridad Avanzada</b><small>biometría + cifrado + anti-root</small></span></label>
+              <label class="switch"><input type="checkbox" name="dynamicUI" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Personalización Dinámica</b><small>temas/flags + Preferences</small></span></label>
+              <label class="switch"><input type="checkbox" name="socialAnalytics" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Análisis de Redes Sociales</b><small>share + cuentas + insights cloud</small></span></label>
+              <label class="switch"><input type="checkbox" name="advGeo" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Geolocalización Avanzada <span class="warn-tag">Requiere justificación Play</span></b><small>tracking + geofencing + background</small></span></label>
+              <label class="switch"><input type="checkbox" name="dataAnalytics" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Análisis de Datos Avanzado</b><small>eventos + dashboards + predictivo (cloud)</small></span></label>
+              <label class="switch"><input type="checkbox" name="vr" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Realidad Virtual <span class="warn-tag">APK pesado</span></b><small>Cardboard/Daydream + WebXR</small></span></label>
+              <label class="switch"><input type="checkbox" name="blockchain" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Blockchain / dApps</b><small>wallet + firma + RPC (web3j)</small></span></label>
+              <label class="switch"><input type="checkbox" name="rpa" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>RPA Automatización</b><small>macros + bots + overlay</small></span></label>
+              <label class="switch"><input type="checkbox" name="vulnScan" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Análisis Vulnerabilidades</b><small>root/debug/SSL/backup/CSP</small></span></label>
+              <label class="switch"><input type="checkbox" name="emoAI" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Inteligencia Emocional</b><small>emociones + respuesta empática</small></span></label>
+              <label class="switch"><input type="checkbox" name="iot" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>IoT (BLE + MQTT)</b><small>hogar/salud/agro</small></span></label>
+              <label class="switch"><input type="checkbox" name="mr" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Realidad Mixta <span class="warn-tag">APK más pesado</span></b><small>AR + VR combinados</small></span></label>
+            </div>
+          </div>
+            <div class="card engine-card" style="margin-top:14px">
+              <div class="card-title">
+                <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Permission Engine <span class="pro-badge">PRO</span>
+              </div>
+              <p class="hint">Manifest + Runtime + Handler + Android version. Solo se genera lo necesario, nada de más.</p>
+              <div class="perm-mode-group">
+                <label><input type="radio" name="permMode" value="manual" checked> Manual</label>
+                <label><input type="radio" name="permMode" value="recommended"> Recomendado</label>
+                <label><input type="radio" name="permMode" value="auto"> Automático</label>
+              </div>
+              <div class="engine-actions">
+                <button type="button" class="btn primary sm" id="runAuditBtn"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg> Ejecutar Audit</button>
+                <button type="button" class="btn ghost sm" id="autoSuggestBtn"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><path d="M12 2a10 10 0 0 1 10 10h-10V2z"/><path d="M12 12v10a10 10 0 0 1-10-10h10z"/></svg> Sugerir por Web API</button>
+              </div>
+              <div id="auditBox" class="audit-list"></div>
+              <div id="buildReadinessBox"></div>
+            </div>
+          <div class="step-nav"><button type="button" class="btn ghost prev-btn"><span data-ib-icon="arrow-left"></span> Paso anterior</button><button type="button" class="btn primary next-btn">Siguiente paso <span data-ib-icon="arrow-right"></span></button></div>
+        </div>
+
+        
+        <div class="step" data-step="2">
+          <div class="card">
+            <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+              InteeBuild Plugin Hub
+            </div>
+            <p class="hint">Módulos nativos integrados. Selecciona los plugins que se incluirán en la compilación.</p>
+            <div class="plugin-tabs">
+              <button type="button" class="plugin-tab active" data-ptab="device">Dispositivo</button>
+              <button type="button" class="plugin-tab" data-ptab="files">Archivos</button>
+              <button type="button" class="plugin-tab" data-ptab="comm">Comunicación</button>
+              <button type="button" class="plugin-tab" data-ptab="ui">Interfaz UI</button>
+              <button type="button" class="plugin-tab" data-ptab="droncito">Droncito Pack</button>
+              <button type="button" class="plugin-tab" data-ptab="advanced">Native Bridge</button>
+            </div>
+
+            <div class="plugin-cat active" data-pcat="device">
+              <label class="plugin-card" data-plugin="plugin_camera">
+                <input type="checkbox" name="plugin_camera" />
+                <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+                <div class="pl"><b>Camera API</b><small>@capacitor/camera</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_geolocation">
+                <input type="checkbox" name="plugin_geolocation" />
+                <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+                <div class="pl"><b>Geolocation</b><small>@capacitor/geolocation</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_bluetooth">
+                <input type="checkbox" name="plugin_bluetooth" />
+                <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5"/></svg></div>
+                <div class="pl"><b>Bluetooth LE</b><small>@capacitor-community/bluetooth-le</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_nfc">
+                <input type="checkbox" name="plugin_nfc" />
+                <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 12a6 6 0 016-6v0a6 6 0 016 6v0a6 6 0 01-6 6v0a6 6 0 01-6-6v0z"/></svg></div>
+                <div class="pl"><b>NFC Reader</b><small>phonegap-nfc</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_biometrics">
+                <input type="checkbox" name="plugin_biometrics" />
+                <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 11c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/><path d="M12 2a10 10 0 00-10 10c0 4.4 2.9 8.2 7 9.5M12 6a6 6 0 00-6 6c0 2.4 1.4 4.5 3.5 5.4"/></svg></div>
+                <div class="pl"><b>Biometric Auth</b><small>@capacitor/biometrics</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_haptics">
+                <input type="checkbox" name="plugin_haptics" />
+                <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg></div>
+                <div class="pl"><b>Haptic Feedback</b><small>@capacitor/haptics</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_device">
+                <input type="checkbox" name="plugin_device" />
+                <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+                <div class="pl"><b>Device Info</b><small>@capacitor/device</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_network">
+                <input type="checkbox" name="plugin_network" />
+                <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/></svg></div>
+                <div class="pl"><b>Network Status</b><small>@capacitor/network</small></div>
+                <div class="plugin-check"></div>
+              </label>
+            </div>
+
+            <div class="plugin-cat" data-pcat="files">
+              <label class="plugin-card" data-plugin="plugin_filesystem">
+                <input type="checkbox" name="plugin_filesystem" />
+                <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></div>
+                <div class="pl"><b>Filesystem</b><small>@capacitor/filesystem</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_share">
+                <input type="checkbox" name="plugin_share" />
+                <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
+                <div class="pl"><b>Native Share</b><small>@capacitor/share</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_clipboard">
+                <input type="checkbox" name="plugin_clipboard" />
+                <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></div>
+                <div class="pl"><b>Clipboard API</b><small>@capacitor/clipboard</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_preferences">
+                <input type="checkbox" name="plugin_preferences" />
+                <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div>
+                <div class="pl"><b>Preferences Storage</b><small>@capacitor/preferences</small></div>
+                <div class="plugin-check"></div>
+              </label>
+            </div>
+
+            <div class="plugin-cat" data-pcat="comm">
+              <label class="plugin-card" data-plugin="plugin_notifications">
+                <input type="checkbox" name="plugin_notifications" />
+                <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg></div>
+                <div class="pl"><b>Push Notifications</b><small>@capacitor/push-notifications</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_localNotifications">
+                <input type="checkbox" name="plugin_localNotifications" />
+                <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 17H2a3 3 0 003-3V9a7 7 0 0114 0v5a3 3 0 003 3zm-8.27 4a2 2 0 01-3.46 0"/></svg></div>
+                <div class="pl"><b>Local Notifications</b><small>@capacitor/local-notifications</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_browser">
+                <input type="checkbox" name="plugin_browser" />
+                <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg></div>
+                <div class="pl"><b>In-App Browser</b><small>@capacitor/browser</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_dialog">
+                <input type="checkbox" name="plugin_dialog" />
+                <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+                <div class="pl"><b>Native Dialogs</b><small>@capacitor/dialog</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_toast">
+                <input type="checkbox" name="plugin_toast" />
+                <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2z"/></svg></div>
+                <div class="pl"><b>Toast Messages</b><small>@capacitor/toast</small></div>
+                <div class="plugin-check"></div>
+              </label>
+            </div>
+
+            <div class="plugin-cat" data-pcat="ui">
+              <label class="plugin-card" data-plugin="plugin_statusBar">
+                <input type="checkbox" name="plugin_statusBar" />
+                <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+                <div class="pl"><b>Status Bar Controller</b><small>@capacitor/status-bar</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_screenReader">
+                <input type="checkbox" name="plugin_screenReader" />
+                <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+                <div class="pl"><b>Screen Reader Access</b><small>@capacitor/screen-reader</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_admob">
+                <input type="checkbox" name="plugin_admob" />
+                <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+                <div class="pl"><b>AdMob Ads Integration</b><small>@capacitor-community/admob</small></div>
+                <div class="plugin-check"></div>
+              </label>
+              <label class="plugin-card" data-plugin="plugin_app">
+                <input type="checkbox" name="plugin_app" />
+                <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg></div>
+                <div class="pl"><b>App State Listener</b><small>@capacitor/app</small></div>
+                <div class="plugin-check"></div>
+              </label>
+            </div>
+
+            <div class="plugin-cat" data-pcat="droncito">
+              <label class="plugin-card" data-plugin="plugin_ar"><input type="checkbox" name="plugin_ar" /><div class="pi" data-ib-icon="glasses"></div><div class="pl"><b>AR Engine</b><small>ARCore + SceneView (pesado)</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" data-plugin="plugin_voice"><input type="checkbox" name="plugin_voice" /><div class="pi" data-ib-icon="mic"></div><div class="pl"><b>Voz</b><small>speech-recognition</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" data-plugin="plugin_envSensors"><input type="checkbox" name="plugin_envSensors" /><div class="pi" data-ib-icon="thermometer"></div><div class="pl"><b>Sensores Ambientales</b><small>acel/giro/barómetro</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" data-plugin="plugin_ai"><input type="checkbox" name="plugin_ai" /><div class="pi" data-ib-icon="brain"></div><div class="pl"><b>IA Suite</b><small>ML Kit on-device + cloud</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" data-plugin="plugin_power"><input type="checkbox" name="plugin_power" /><div class="pi" data-ib-icon="battery"></div><div class="pl"><b>Gestión Energía</b><small>batería + Doze</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" data-plugin="plugin_adaptiveNotif"><input type="checkbox" name="plugin_adaptiveNotif" /><div class="pi" data-ib-icon="bell"></div><div class="pl"><b>Notifs Adaptativas</b><small>hábitos + schedule</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" data-plugin="plugin_advSecurity"><input type="checkbox" name="plugin_advSecurity" /><div class="pi" data-ib-icon="shield"></div><div class="pl"><b>Seguridad Avanzada</b><small>MFA + cifrado</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" data-plugin="plugin_dynamicUI"><input type="checkbox" name="plugin_dynamicUI" /><div class="pi" data-ib-icon="palette"></div><div class="pl"><b>Personalización Dinámica</b><small>temas + flags</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" data-plugin="plugin_social"><input type="checkbox" name="plugin_social" /><div class="pi" data-ib-icon="megaphone"></div><div class="pl"><b>Social Analytics</b><small>share + insights</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" data-plugin="plugin_advGeo"><input type="checkbox" name="plugin_advGeo" /><div class="pi" data-ib-icon="pin"></div><div class="pl"><b>Geo Avanzada</b><small>tracking + geofence</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" data-plugin="plugin_dataAnalytics"><input type="checkbox" name="plugin_dataAnalytics" /><div class="pi" data-ib-icon="chart"></div><div class="pl"><b>Data Analytics</b><small>dashboards + predictivo</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" data-plugin="plugin_vr"><input type="checkbox" name="plugin_vr" /><div class="pi" data-ib-icon="glasses"></div><div class="pl"><b>VR Engine</b><small>Cardboard + WebXR</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" data-plugin="plugin_blockchain"><input type="checkbox" name="plugin_blockchain" /><div class="pi" data-ib-icon="chain"></div><div class="pl"><b>Blockchain</b><small>wallet + dApps</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" data-plugin="plugin_rpa"><input type="checkbox" name="plugin_rpa" /><div class="pi" data-ib-icon="bot"></div><div class="pl"><b>RPA Bots</b><small>macros + tareas</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" data-plugin="plugin_vulnScan"><input type="checkbox" name="plugin_vulnScan" /><div class="pi" data-ib-icon="radar"></div><div class="pl"><b>Vuln Scan</b><small>auditoría seguridad</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" data-plugin="plugin_emoAI"><input type="checkbox" name="plugin_emoAI" /><div class="pi" data-ib-icon="heart"></div><div class="pl"><b>Emo AI</b><small>emociones + empatía</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" data-plugin="plugin_iot"><input type="checkbox" name="plugin_iot" /><div class="pi" data-ib-icon="wifi"></div><div class="pl"><b>IoT Hub</b><small>BLE + MQTT</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" data-plugin="plugin_mr"><input type="checkbox" name="plugin_mr" /><div class="pi" data-ib-icon="cube"></div><div class="pl"><b>MR Mixta</b><small>AR + VR</small></div><div class="plugin-check"></div></label>
+            </div>
+
+            <div class="plugin-cat" data-pcat="advanced">
+              <label class="plugin-card" data-plugin="plugin_inteebridge">
+                <input type="checkbox" name="plugin_inteebridge" />
+                <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg></div>
+                <div class="pl"><b>InteeBridge SDK Inyección</b><small>Puente nativo Intee.location(), .camera()…</small></div>
+                <div class="plugin-check"></div>
+              </label>
+            </div>
+
+            <div id="integridgeInfo" class="inteebridge-box hidden" style="margin-top:12px">
+              <div class="inteebridge-title">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                InteeBridge JavaScript Bridge
+              </div>
+              <div style="margin-bottom:6px;font-size:12px;color:var(--muted)">Invoca APIs nativas directamente desde el código JavaScript de tu sitio web:</div>
+              <span class="inteebridge-api">await Intee.location()</span>
+              <span class="inteebridge-api">Intee.camera()</span>
+              <span class="inteebridge-api">Intee.share({title, url})</span>
+              <span class="inteebridge-api">Intee.vibrate()</span>
+              <span class="inteebridge-api">Intee.clipboard.write(text)</span>
+              <span class="inteebridge-api">Intee.biometric()</span>
+            </div>
+          </div>
+          <div class="step-nav"><button type="button" class="btn ghost prev-btn"><span data-ib-icon="arrow-left"></span> Paso anterior</button><button type="button" class="btn primary next-btn">Siguiente paso <span data-ib-icon="arrow-right"></span></button></div>
+        </div>
+
+        
+        <div class="step" data-step="3">
+          <div class="card">
+            <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="15" x2="23" y2="15"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="15" x2="4" y2="15"/></svg>
+              Configuración de SDK Android
+            </div>
+            <div class="row-3">
+              <label>compileSdk<select name="compileSdk"><option>33</option><option>34</option><option selected>35</option><option>36</option></select></label>
+              <label>targetSdk<select name="targetSdk"><option>27</option><option>28</option><option>29</option><option>30</option><option>31</option><option>32</option><option>33</option><option>34</option><option selected>35</option><option>36</option></select></label>
+              <label>minSdk<select name="minSdk"><option>23</option><option>24</option><option>26</option><option>27</option><option>28</option><option>29</option></select></label>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+              Tipo de Compilación
+            </div>
+            <div class="row" style="align-items:flex-start">
+              <div>
+                <p class="hint" style="margin:0 0 8px;font-weight:700;color:var(--text)">Formatos de salida</p>
+                <div class="fmt-group" role="group" aria-label="Formatos de salida">
+                  <label class="fmt-chip"><input type="checkbox" name="outputs" value="apk" checked><span>APK</span></label>
+                  <label class="fmt-chip"><input type="checkbox" name="outputs" value="aab"><span>AAB</span></label>
+                  <label class="fmt-chip"><input type="checkbox" name="outputs" value="ipa"><span>IPA</span></label>
+                  <label class="fmt-chip"><input type="checkbox" name="outputs" value="xapk"><span>XAPK</span></label>
+                  <label class="fmt-chip"><input type="checkbox" name="outputs" value="apks"><span>APKS</span></label>
+                  <label class="fmt-chip"><input type="checkbox" name="outputs" value="exe"><span>EXE</span></label>
+                  <label class="fmt-chip"><input type="checkbox" name="outputs" value="dmg"><span>DMG</span></label>
+                  <label class="fmt-chip"><input type="checkbox" name="outputs" value="appimage"><span>AppImage</span></label>
+                  <label class="fmt-chip"><input type="checkbox" name="outputs" value="msi"><span>MSI</span></label>
+                </div>
+                <p class="hint" id="fmtNote" style="margin:6px 0 0;font-size:11px;min-height:14px"></p>
+              </div>
+              <label>Plataforma<select name="platform" id="platformSelect"><option value="android">Android</option><option value="ios">iOS (iPhone)</option><option value="both">Android + iOS</option></select></label>
+            </div>
+            <p class="hint" style="font-size:11px">Cada build entrega además los archivos PWA (<code>manifest.webmanifest</code> + <code>sw.js</code>). <b>EXE / DMG / AppImage / MSI se compilan de verdad en GitHub Actions</b> (Windows, macOS y Ubuntu) y añaden ~2-4 min al build; en macOS salen sin firma de Apple, así que Gatekeeper avisará al abrirlos. El destino Win/Mac lo fija el selector “Destinos escritorio” de este mismo paso.</p>
+            <div class="row">
+              <label>Webhook de Notificación (opcional)<input type="url" name="webhookUrl" placeholder="https://..." /></label>
+              <span></span>
+            </div>
+            <p class="hint" id="iosHint" style="display:none">iOS: sin firma solo se valida en simulador. Para el chip IPA (y un .ipa instalable) sube tu .p12 + .mobileprovision en Firma.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg>
+              Audio 100% nativo <span class="pro-badge">PRO</span>
+            </div>
+            <p class="hint">El audio lo reproduce Java nativo (MediaPlayer en foreground service), no el WebView. Tu HTML es solo la cara con botones que llaman <code>window.InteeAudio.play(url)</code>. Se activa solo con las plantillas Radio y Streaming.</p>
+            <label class="switch"><input type="checkbox" name="nativeAudio" id="nativeAudioCheck" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Reproducir audio en Java nativo</b><small>MediaPlayer + MediaSession + notificación con Play/Pausa. Sin esto el audio depende del WebView y se puede cortar</small></span></label>
+            <div id="nativeAudioBox" class="hidden" style="padding-top:8px">
+              <label>URL del stream (tu servidor)<input type="url" name="streamUrl" placeholder="https://tu-servidor.com:8000/stream" /></label>
+              <label class="switch"><input type="checkbox" name="nativeAutoplay" checked /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Auto-play al abrir la app</b><small>Empieza a sonar solo con la URL de arriba</small></span></label>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+              Estilo y Apariencia
+            </div>
+            <div class="row">
+              <label>Tema del sistema<select name="appTheme"><option value="system">Sugerido por sistema</option><option value="light">Fuerza claro</option><option value="dark">Fuerza oscuro</option></select></label>
+              <label>Transición inicial<select name="entryAnimation"><option value="none">Sin transición</option><option value="fade">Disolución (Fade)</option><option value="slide">Desplazamiento (Slide)</option></select></label>
+            </div>
+            <div class="row">
+              <label>Color principal de acento<input type="color" name="accentColor" value="#4f46e5" /></label>
+              <label>Color barra de estado (Status Bar)<input type="color" name="statusBarColor" value="#ffffff" /></label>
+            </div>
+            <div class="row advanced hidden">
+              <label>Color barra de navegación<input type="color" name="navigationBarColor" value="#ffffff" /></label>
+              <span>&nbsp;</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+              Comportamiento de Pantalla
+            </div>
+            <label>Orientación fijada<select name="orientation"><option value="any">Automática</option><option value="portrait">Vertical fija (Portrait)</option><option value="landscape">Horizontal fija (Landscape)</option><option value="sensor">Controlada por sensores</option></select></label>
+            <label class="switch"><input type="checkbox" name="fullscreen" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Modo pantalla completa</b><small>Oculta barra de estado superior</small></span></label>
+            <label class="switch"><input type="checkbox" name="edgeToEdge" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Diseño Edge-to-Edge</b><small>Renderiza contenido debajo de las barras del sistema</small></span></label>
+            <label class="switch"><input type="checkbox" name="keepScreenOn" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Mantener pantalla encendida</b><small>Evita que la pantalla se bloquee mientras la app esté visible</small></span></label>
+            <label class="switch"><input type="checkbox" name="useCleartext" checked /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Permitir tráfico inseguro (Cleartext HTTP)</b><small>Permite conexiones a URLs no encrypted http://</small></span></label>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Pantalla de Carga (Splash Screen)
+            </div>
+            <label class="switch"><input type="checkbox" name="splashEnabled" id="splashCheck" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Habilitar Splash Screen</b><small>Muestra imagen o fondo personalizado al abrir</small></span></label>
+            <div id="splashOptions" class="hidden" style="padding-top:8px">
+              <div class="row">
+                <label>Color de fondo Splash<input type="color" name="splashColor" value="#ffffff" /></label>
+                <label>Tiempo de espera (Milisegundos)<input type="number" name="splashDuration" value="2000" min="500" max="5000" /></label>
+              </div>
+            </div>
+          </div>
+
+          <div class="card advanced hidden">
+            <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+              Enlaces Profundos (Deep Links)
+            </div>
+            <label class="switch"><input type="checkbox" name="deepLinksEnabled" id="dlCheck" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Habilitar Android App Links</b><small>Abre la aplicación al hacer clic en URLs con tu dominio web</small></span></label>
+            <div id="dlBox" class="hidden" style="padding-top:8px">
+              <label>Dominio web asociado<input type="text" name="deepLinkDomain" placeholder="midominio.com" /></label>
+              <label>Rutas permitidas (separadas por comas)<input type="text" name="deepLinkPaths" placeholder="/producto/*, /articulo/*" /></label>
+            </div>
+          </div>
+
+          <div class="card advanced hidden">
+            <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              Developer Mode & Archivos Nativo
+            </div>
+            <p class="hint">Inspecciona la estructura de código generada antes de la compilación.</p>
+            <div style="display:flex;gap:12px;margin-bottom:12px">
+              <div style="width:180px;border:1px solid var(--border);border-radius:8px;padding:8px;background:var(--surface-2);font-size:11px;font-family:monospace">
+                <div style="font-weight:bold;margin-bottom:4px;color:var(--text)"><svg class="ico" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg> Archivos</div>
+                <div style="color:var(--accent);cursor:pointer" data-devview="capacitor">capacitor.config.json</div>
+                <div style="color:var(--muted);cursor:pointer;margin-top:2px" data-devview="manifest">AndroidManifest.xml</div>
+                <div style="color:var(--muted);cursor:pointer;margin-top:2px" data-devview="package">package.json</div>
+                <div style="color:var(--muted);cursor:pointer;margin-top:2px" data-devview="res">res/</div>
+              </div>
+              <div style="flex:1;min-width:0">
+                <pre id="devCodeView" class="console" style="margin-top:0;height:120px;background:#0f172a;color:#38bdf8">{
+  "appId": "com.inteebuild.app",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}</pre>
+              </div>
+            </div>
+            <div style="background:#090d16;padding:8px 12px;border-radius:6px;font-family:monospace;font-size:11px;color:#4ade80">
+              $ npx cap sync android<br/>
+              <span style="color:#94a3b8">> Syncing Android tasks completed in 1.2s. Ready for build.</span>
+            </div>
+          </div>
+
+          <div class="card advanced hidden">
+            <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+              Ajustes de WebView Nativa
+            </div>
+            <label>User-Agent personalizado<input type="text" name="userAgent" placeholder="InteeBuild/1.0 WebView" /></label>
+            <label>Acción del botón Atrás (Back Button)<select name="backButtonBehavior"><option value="back">Volver al historial anterior</option><option value="exit">Cerrar la aplicación</option><option value="confirm">Solicitar confirmación antes de salir</option><option value="none">Sin acción</option></select></label>
+            <label>Modo de almacenamiento en caché<select name="cacheMode"><option value="normal">Normal (Estándar Web)</option><option value="no-cache">Deshabilitar caché</option><option value="force-cache">Forzar uso de caché offline</option></select></label>
+            <label>Inyección de código JavaScript<textarea name="jsInjection" rows="4" placeholder="// Código JS inyectado tras la carga de la WebView&#10;console.log('WebView lista');"></textarea></label>
+            <label class="switch"><input type="checkbox" name="minify" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Minificar HTML (gratis)</b><small>Quita comentarios y espacios extra del código generado</small></span></label>
+            <label>Inyección de estilos CSS<textarea name="cssInjection" rows="4" placeholder="/* Estilos personalizados aplicados a la WebView */&#10;body { -webkit-user-select: none; }"></textarea></label>
+            <label>Cabeceras HTTP Personalizadas (clave: valor)<textarea name="customHeaders" rows="3" placeholder="X-App-Platform: Android-Nativo&#10;X-InteeBuild-Client: 1.0"></textarea></label>
+          </div>
+
+          <div class="card advanced hidden">
+            <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+              Canales de Notificación
+            </div>
+            <label>Nombre del canal por defecto<input type="text" name="notifChannel" value="General" /></label>
+            <div class="row">
+              <label>Prioridad de entrega<select name="notifImportance"><option value="low">Baja</option><option value="default">Media</option><option value="high" selected>Alta (Alerta visual)</option></select></label>
+              <div style="display:flex;flex-direction:column;gap:4px;padding-top:5px">
+                <label class="switch" style="border:none;padding:4px 0"><input type="checkbox" name="notifSound" checked /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Reproducir sonido</b></span></label>
+                <label class="switch" style="border:none;padding:4px 0"><input type="checkbox" name="notifVibration" checked /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Activar vibración</b></span></label>
+              </div>
+            </div>
+            <hr class="section-divider" />
+            <p class="hint" style="font-weight:600;color:var(--text)">Notificaciones programadas (solo modo HTML)</p>
+            <label class="switch"><input type="checkbox" name="notifyOnOpen" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Al abrir la app</b><small>Muestra un aviso cada vez que se abre</small></span></label>
+            <label class="switch"><input type="checkbox" name="notifyOnClose" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Al cerrar / minimizar</b><small>Aviso cuando la app pasa a segundo plano</small></span></label>
+            <div class="row">
+              <label>Después de (minutos, 0 = no)<input type="number" name="notifyDelayMinutes" value="0" min="0" max="1440" /></label>
+              <label>Título del aviso<input type="text" name="notifyTitle" placeholder="El Buen Samaritano 106.5 FM" maxlength="60" /></label>
+            </div>
+            <label>Texto del aviso<input type="text" name="notifyText" placeholder="Sintoniza en vivo las 24 horas" maxlength="200" /></label>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h6"/></svg>
+              Catálogo Consolidado — Funciones Nativas Completas
+            </div>
+            <p class="hint">Activa todas las capacidades del catálogo. Todo genera código nativo real (Java/JS) y se incluye en el APK/AAB.</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <label class="switch" style="border:none;padding:8px 0"><input type="checkbox" name="pullRefresh" checked /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Pull-to-Refresh</b><small>Deslizar para recargar</small></span></label>
+              <label class="switch" style="border:none;padding:8px 0"><input type="checkbox" name="offlineScreen" checked /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Offline Screen</b><small>Pantalla sin conexión</small></span></label>
+              <label class="switch" style="border:none;padding:8px 0"><input type="checkbox" name="flagSecure" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>FLAG_SECURE</b><small>Bloquea screenshots</small></span></label>
+              <label class="switch" style="border:none;padding:8px 0"><input type="checkbox" name="blockSelection" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Bloqueo selección</b><small>Sin copiar texto</small></span></label>
+              <label class="switch" style="border:none;padding:8px 0"><input type="checkbox" name="downloadManager" checked /><span class="trk"><span class="knob"></span></span><span class="txt"><b>DownloadManager</b><small>Descargas nativas</small></span></label>
+              <label class="switch" style="border:none;padding:8px 0"><input type="checkbox" name="encryptedStorage" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Encrypted Storage</b><small>Storage cifrado</small></span></label>
+              <label class="switch" style="border:none;padding:8px 0"><input type="checkbox" name="rootDetection" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Root/Jailbreak detect</b></span></label>
+              <label class="switch" style="border:none;padding:8px 0"><input type="checkbox" name="firebaseEnabled" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Firebase Analytics</b></span></label>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <label>Mensaje offline<input type="text" name="offlineMessage" value="Sin conexión. Revisa tu internet." /></label>
+              <label>Loading indicator<select name="loadingIndicator"><option value="spinner">Spinner nativo</option><option value="bar">Barra superior</option><option value="none">Ninguno</option></select></label>
+            </div>
+            <hr class="section-divider" />
+            <label class="switch"><input type="checkbox" name="drawerEnabled" id="drawerCheck" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Navigation Drawer (menú lateral)</b><small>Ej: Inicio, Tienda, Blog</small></span></label>
+            <div id="drawerBox" class="hidden" style="padding:8px 0">
+              <label>Items Drawer (JSON: [{label,url,icon}])<textarea name="drawerItems" rows="3" placeholder='[{"label":"Inicio","url":"https://miweb.com/"},{"label":"Tienda","url":"https://miweb.com/tienda"}]'></textarea></label>
+            </div>
+            <label class="switch"><input type="checkbox" name="bottomNavEnabled" id="bottomCheck" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Bottom Navigation (tabs inferior)</b><small>Máx 5 tabs</small></span></label>
+            <div id="bottomBox" class="hidden" style="padding:8px 0">
+              <label>Items Bottom Nav (JSON)<textarea name="bottomNavItems" rows="3" placeholder='[{"label":"Inicio","url":"https://miweb.com/","icon":"home"},{"label":"Ofertas","url":"https://miweb.com/ofertas","icon":"tag"}]'></textarea></label>
+            </div>
+            <hr class="section-divider" />
+            <div class="row">
+              <label>AdMob App ID<input type="text" name="admobAppId" placeholder="ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy" /></label>
+              <label>IAP Product IDs (comma)<input type="text" name="iapProducts" placeholder="premium,coins_100" /></label>
+            </div>
+            <div style="display:flex;gap:12px">
+              <label class="switch" style="flex:1;border:none"><input type="checkbox" name="admobInterstitial" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Intersticial</b></span></label>
+              <label class="switch" style="flex:1;border:none"><input type="checkbox" name="admobRewarded" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Rewarded</b></span></label>
+              <label class="switch" style="flex:1;border:none"><input type="checkbox" name="iapEnabled" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>IAP Billing</b></span></label>
+            </div>
+            <hr class="section-divider" />
+            <div class="row">
+              <label>TWA Domain (para Trusted Web Activity)<input type="text" name="twaDomain" placeholder="miweb.com" /></label>
+              <label>Destinos escritorio<select name="desktopPlatform"><option value="both">Win + Mac</option><option value="win">Solo Windows</option><option value="mac">Solo macOS</option></select></label>
+            </div>
+            <div style="display:flex;gap:12px">
+              <label class="switch" style="flex:1;border:none"><input type="checkbox" name="twaEnabled" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>TWA Mode</b></span></label>
+              <label class="switch" style="flex:1;border:none"><input type="checkbox" name="desktopEnabled" /><span class="trk"><span class="knob"></span></span><span class="txt"><b>Desktop (EXE / DMG / AppImage / MSI)</b><small>Compila de verdad en CI: Windows, macOS y Ubuntu (~2-4 min extra)</small></span></label>
+            </div>
+            <label>Firebase config JSON (opcional)<textarea name="firebaseConfig" rows="3" placeholder='{"project_id":"mi-proyecto"}'></textarea></label>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><key><path d="M21 2l-2 2m-2 2l-2 2m7-2l-3 3m-3 3l-3 3M3 21l9-9m0 0l2 2m-2-2l-2-2"/></key></svg>
+              Firma Digital Keystore (.JKS)
+            </div>
+            <p class="hint">Carga tu certificado privado para firmar en Release (Play Store) y aplicar ofuscación ProGuard. Sin archivo se compilará en modo Debug.</p>
+            <div class="file"><input type="file" id="ksInput" accept=".jks,.keystore" /><span id="ksLabel">Seleccionar archivo Keystore (.jks)</span></div>
+            <div id="ksFields" class="hidden" style="padding-top:12px">
+              <div class="row">
+                <label>Contraseña del Keystore<input type="password" name="keystorePassword" id="ksPass" /></label>
+                <label>Alias de la clave<input type="text" name="keyAlias" id="ksAlias" /></label>
+              </div>
+              <label>Contraseña de la clave privada<input type="password" name="keyPassword" id="ksKeyPass" /></label>
+            </div>
+            <hr class="section-divider" />
+            <p class="hint" style="font-weight:600;color:var(--text)">Firma iOS (iPhone / App Store)</p>
+            <p class="hint">Sube tu certificado .p12 y tu perfil .mobileprovision de Apple Developer. Sin esto, iOS solo se valida en simulador. Con cuenta gratuita funciona para tus dispositivos (7 días); con cuenta de pago ($99/año) para App Store.</p>
+            <div class="row">
+              <label>Certificado .p12
+                <div class="file" style="padding:10px"><input type="file" id="iosP12Input" accept=".p12,.pfx" /><span id="iosP12Label" style="font-size:12px">Elegir .p12</span></div>
+              </label>
+              <label>Perfil .mobileprovision
+                <div class="file" style="padding:10px"><input type="file" id="iosProfileInput" accept=".mobileprovision" /><span id="iosProfileLabel" style="font-size:12px">Elegir .mobileprovision</span></div>
+              </label>
+            </div>
+            <div id="iosSignFields" class="hidden">
+              <div class="row">
+                <label>Contraseña del .p12<input type="password" name="iosP12Password" id="iosP12Pass" /></label>
+                <label>Tipo de exportación<select name="iosExportMethod"><option value="development">Development (pruebas)</option><option value="ad-hoc">Ad Hoc (dispositivos)</option><option value="app-store">App Store</option></select></label>
+              </div>
+              <p class="hint">Se usa solo en este build y se auto-borra con la rama temporal (al terminar el build).</p>
+            </div>
+          </div>
+
+          <div class="step-nav"><button type="button" class="btn ghost prev-btn"><span data-ib-icon="arrow-left"></span> Paso anterior</button><button type="button" class="btn primary next-btn">Siguiente paso <span data-ib-icon="arrow-right"></span></button></div>
+        </div>
+
+        
+        <div class="step" data-step="4">
+          <div class="card">
+            <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+              Simulador e Inspección Visual
+            </div>
+            <p class="hint">Comprueba el diseño de tu interfaz en diferentes pantallas y resoluciones.</p>
+            <div style="display:flex;justify-content:center;padding:24px 0">
+              <div class="phone" id="phonePreviewMain">
+                <div class="phone-status"><span>12:30</span><span>100%</span></div>
+                <div class="phone-notch"></div>
+                <div class="phone-screen" id="ppScreen">
+                  <div class="phone-bar" id="previewBarMain">Mi App</div>
+                  <div class="phone-icon" id="previewIconMain"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+                  <div class="phone-url" id="previewUrlMain">https://mi-web.com</div>
+                  <div class="phone-splash hidden" id="previewSplashMain">Pantalla de Carga</div>
+                  <div class="phone-iframe-wrap hidden" id="ppIframe"></div>
+                </div>
+                <div class="phone-nav"><span>◁</span><span>○</span><span>□</span></div>
+              </div>
+            </div>
+            <div class="preview-device-select">
+              <select id="deviceSelect">
+                <option value="pixel">Google Pixel 9 (360×800)</option>
+                <option value="galaxy">Samsung Galaxy S25 (384×854)</option>
+                <option value="tablet">Tablet Genérica (600×960)</option>
+              </select>
+            </div>
+            <div class="preview-controls">
+              <button type="button" class="btn ghost sm" id="ppRotate">Rotar orientación</button>
+              <button type="button" class="btn ghost sm" id="ppFullscreen">Alternar Fullscreen</button>
+              <button type="button" class="btn ghost sm" id="ppSplashBtn">Probar Splash</button>
+              <button type="button" class="btn ghost sm" id="ppTheme">Modo Oscuro</button>
+              <button type="button" class="btn ghost sm" id="ppLive">Cargar URL Real</button>
+            </div>
+          </div>
+          <div class="step-nav"><button type="button" class="btn ghost prev-btn"><span data-ib-icon="arrow-left"></span> Paso anterior</button><button type="button" class="btn primary next-btn">Siguiente paso <span data-ib-icon="arrow-right"></span></button></div>
+        </div>
+
+        
+        <div class="step" data-step="5">
+          <div class="card">
+            <div class="card-title">
+              <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+              Fase Final: Control de Calidad y Seguridad
+            </div>
+            <p class="hint">Revisión automática de tu configuración antes de compilar. Corrige los puntos en rojo y confirma los términos para continuar.</p>
+            <div id="qaList" class="qa-list">
+              <p class="hint">Entrando a la fase QA…</p>
+            </div>
+            <div id="qaSummary" class="alert hidden" style="margin-top:12px"></div>
+            <label class="switch" style="margin-top:12px">
+              <input type="checkbox" id="qaTerms" />
+              <span class="trk"><span class="knob"></span></span>
+              <span class="txt"><b>Acepto los Términos de Uso</b><small>He leído los <a href="./terms.html" target="_blank" rel="noopener">Términos</a>, la <a href="./privacy.html" target="_blank" rel="noopener">Política de Privacidad</a> y la <a href="./license.html" target="_blank" rel="noopener">Licencia</a>. Declaro tener derechos sobre el contenido a convertir.</small></span>
+            </label>
+          </div>
+          <div class="step-nav"><button type="button" class="btn ghost prev-btn"><span data-ib-icon="arrow-left"></span> Paso anterior</button><button type="button" class="btn primary next-btn" id="qaNextBtn" disabled>Ir a compilar <span data-ib-icon="arrow-right"></span></button></div>
+        </div>
+
+        
+        <div class="step" data-step="6">
+          <div class="card build-card">
+            <div id="buildReady">
+              <div class="card-title" style="justify-content:center;font-size:18px">
+                <svg class="card-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11"/></svg>
+                Iniciar Compilación en la Nube
+              </div>
+              <p class="hint">Se generará la estructura Capacitor y se enviará la orden de build a los servidores de GitHub Actions.</p>
+              <div class="build-actions">
+                <button type="button" class="btn primary" id="buildBtn" style="padding:12px 32px;font-size:15px">Compilar Aplicación</button>
+                <button type="button" class="btn ghost" id="zipBtn">Descargar Código (.zip)</button>
+              </div>
+            </div>
+
+            <div id="buildProgress" class="hidden">
+              <div class="progress-steps">
+                <div class="pstep" id="ps0"><span class="pdot"></span><span class="pstep-label">Proyecto generado</span></div>
+                <div class="pstep" id="ps1"><span class="pdot"></span><span class="pstep-label">Workflow de CI/CD sincronizado</span></div>
+                <div class="pstep" id="ps2"><span class="pdot"></span><span class="pstep-label">Repositorio actualizado</span></div>
+                <div class="pstep" id="ps3"><span class="pdot"></span><span class="pstep-label">Ejecución en GitHub Actions</span></div>
+                <div class="pstep" id="ps4"><span class="pdot"></span><span class="pstep-label">Permisos y manifiesto aplicados</span></div>
+                <div class="pstep" id="ps5"><span class="pdot"></span><span class="pstep-label">Compilación de APK finalizada</span></div>
+                <div class="pstep" id="ps6"><span class="pdot"></span><span class="pstep-label">Generación de Bundle AAB</span></div>
+              </div>
+              <div class="progress"><span id="progressBar"></span></div>
+              <pre id="buildConsole" class="console hidden"></pre>
+              <button type="button" class="btn ghost sm" id="toggleConsole" style="margin-top:10px">Ver registros en vivo</button>
+            </div>
+
+            <div id="buildResult" class="hidden">
+              <div class="result-ok">
+                <div class="result-icon">
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div><b>COMPILACIÓN EXITOSA</b><small id="resultAppName">—</small></div>
+              </div>
+              <div class="result-info">
+                <span>ID: <code id="resultId">—</code></span>
+                <span>Tiempo: <code id="resultTime">—</code></span>
+                <span>Formato: <code id="resultOutput">—</code></span>
+              </div>
+              <div class="result-actions" id="resultActions"></div>
+              <div class="result-actions">
+                <button type="button" class="btn ghost sm" id="showQrBtn">Código QR de descarga</button>
+                <button type="button" class="btn ghost sm" id="showApkInfoBtn">Detalles del APK</button>
+                <button type="button" class="btn ghost sm" id="downloadZipBtn">Código Fuente (.zip)</button>
+              </div>
+              <div id="apkInfoBox" class="apk-info hidden">
+                <hr class="section-divider" />
+                <div class="apk-info-grid" id="apkInfoGrid"></div>
+              </div>
+            </div>
+
+            <div id="resultError" class="alert error hidden" style="white-space:pre-wrap;text-align:left"></div>
+          </div>
+          <div class="step-nav"><button type="button" class="btn ghost prev-btn" id="backFromBuild"><span data-ib-icon="arrow-left"></span> Paso anterior</button><span></span></div>
+        </div>
+
+        
+        <div class="step" data-step="7">
+          <div class="card" id="statsCard">
+            <h2>Historial de Compilaciones</h2>
+            <div class="stats-grid">
+              <div class="stat"><b id="statTotal">0</b><small>Total Compilados</small></div>
+              <div class="stat ok"><b id="statOk">0</b><small>Exitosos</small></div>
+              <div class="stat fail"><b id="statFail">0</b><small>Fallidos</small></div>
+              <div class="stat"><b id="statAvg">—</b><small>Tiempo Promedio</small></div>
+            </div>
+            <div class="stats-row">
+              <span>APK: <b id="statApk">0</b></span>
+              <span>AAB: <b id="statAab">0</b></span>
+              <span>Ambos: <b id="statBoth">0</b></span>
+            </div>
+          </div>
+          <div class="card">
+            <h2>Registros Recientes</h2>
+            <div class="hist-tools">
+              <input type="text" id="histSearch" placeholder="Buscar por nombre o ID…" />
+              <select id="histStatus">
+                <option value="">Todos los estados</option>
+                <option value="success">Exitosos</option>
+                <option value="failed">Fallidos</option>
+                <option value="error">Errores</option>
+                <option value="building">En progreso</option>
+              </select>
+            </div>
+            <div id="historyList" class="history-list"><p class="hint">Cargando datos del servidor…</p></div>
+          </div>
+          <div class="card" style="margin-top:16px">
+            <div class="card-title"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg> API Keys & Integración</div>
+            <p class="hint">Genera una API Key para compilar desde tu backend, CI o automatizaciones. <a href="/api/docs" target="_blank">Ver docs</a></p>
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <input type="text" id="apiKeyName" placeholder="Nombre ej: mi-backend" style="flex:1" />
+              <button type="button" class="btn primary sm" id="createKeyBtn">Generar Key</button>
+              <button type="button" class="btn ghost sm" id="listKeysBtn">Listar</button>
+            </div>
+            <div id="apiKeysList" style="font-size:12px;color:var(--muted)"></div>
+          </div>
+          <div class="card" style="margin-top:12px">
+            <div class="card-title"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg> Integración Git (Auto-build on push)</div>
+            <p class="hint">Conecta un repo GitHub: cada push a la rama dispara una compilación automática.</p>
+            <div class="row">
+              <label>Repo (usuario/repo)<input type="text" id="gitRepo" placeholder="tu-usuario/tu-repo" /></label>
+              <label>Rama<input type="text" id="gitBranch" value="main" /></label>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button type="button" class="btn primary sm" id="gitConnectBtn">Conectar Repo</button>
+              <button type="button" class="btn ghost sm" id="gitListBtn">Ver conexiones</button>
+            </div>
+            <div id="gitList" style="font-size:12px;margin-top:10px;color:var(--muted)"></div>
+            <div style="margin-top:10px;padding:10px;background:var(--surface-2);border-radius:8px;font-size:11px;color:var(--muted)">Webhook URL para GitHub: <code id="gitWebhookUrl" style="word-break:break-all">POST /api/git/webhook  { "repository":{"full_name":"usuario/repo"}, "ref":"refs/heads/main" }</code></div>
+          </div>
+          <div class="card" style="margin-top:12px">
+            <div class="card-title"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Descompilador APK</div>
+            <p class="hint">Sube un APK (máx 100MB) y extrae su config para re-importarla en InteeBuild. Con <b>Decompilar en la nube</b> corres jadx + apktool en GitHub Actions y bajas las fuentes Java reales (máx 60MB).</p>
+            <div class="file" style="padding:16px;margin-bottom:8px"><input type="file" id="apkInput" accept=".apk,.zip" /><span>Seleccionar APK</span></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button type="button" class="btn primary sm" id="decompileBtn">Descompilar</button>
+              <button type="button" class="btn ghost sm" id="decompileCloudBtn">Decompilar en la nube (jadx + apktool)</button>
+            </div>
+            <div id="decompileOut" style="margin-top:12px;font-size:12px;white-space:pre-wrap;word-break:break-all"></div>
+          </div>
+          <div class="step-nav"><button type="button" class="btn ghost prev-btn"><span data-ib-icon="arrow-left"></span> Paso anterior</button><span></span></div>
+        </div>
+      </div>
+
+      
+      <div class="preview-panel">
+        <div class="phone" id="phoneMock">
+          <div class="phone-status"><span id="previewTime">12:30</span><span>100%</span></div>
+          <div class="phone-notch"></div>
+          <div class="phone-screen" id="phoneScreen">
+            <div class="phone-bar" id="previewBar">Mi App</div>
+            <div class="phone-icon" id="previewIcon">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            </div>
+            <div class="phone-url" id="previewUrl">https://mi-web.com</div>
+            <div class="phone-splash hidden" id="previewSplash">Splash Screen</div>
+          </div>
+          <div class="phone-nav"><span>◁</span><span>○</span><span>□</span></div>
+        </div>
+        <div class="preview-controls">
+          <button type="button" class="btn ghost sm" id="previewRotate">Rotar</button>
+          <button type="button" class="btn ghost sm" id="previewFullscreen">Full</button>
+          <button type="button" class="btn ghost sm" id="previewSplashBtn">Splash</button>
+          <button type="button" class="btn ghost sm" id="previewTheme">Dark</button>
+        </div>
+        <p class="hint" style="text-align:center;margin-top:8px;font-size:11px">Vista previa interactiva</p>
+      </div>
+    </div>
+  </main>
+
+  
+  <div class="qr-modal hidden" id="qrModal">
+    <div class="qr-box">
+      <h3>Instalación Directa en Android</h3>
+      <p>Escanea el código QR desde la cámara de tu teléfono para descargar el archivo APK.</p>
+      <div class="qr-img" id="qrImgBox"><span style="color:var(--faint);font-size:12px">Generando código QR…</span></div>
+      <div class="result-actions">
+        <a id="qrDirectLink" class="btn primary sm" href="#" download>Descargar APK Directo</a>
+      </div>
+      <span class="qr-close" id="qrClose">Cerrar ventana</span>
+    </div>
+  </div>
+
+  <div class="ad-container ad-mobile" data-ad="mobile"></div>
+
+  <section class="legal-section" aria-label="Información legal">
+    <div class="card">
+      <div class="card-title">
+        <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Información Legal y Políticas
+      </div>
+      <p class="hint">Transparencia total: consulta cómo tratamos tus datos, las reglas de uso y la licencia del proyecto.</p>
+      <div class="legal-grid">
+        <a class="legal-card" href="./about.html">
+          <b>Presentación</b>
+          <small>Qué es InteeBuild y cómo funciona el servicio.</small>
+        </a>
+        <a class="legal-card" href="./privacy.html">
+          <b>Política de Privacidad</b>
+          <small>Qué datos procesamos, borrado en 60 min y tus derechos.</small>
+        </a>
+        <a class="legal-card" href="./terms.html">
+          <b>Términos de Uso</b>
+          <small>Uso permitido, límites, compilación y responsabilidad.</small>
+        </a>
+        <a class="legal-card" href="./license.html">
+          <b>Licencia MIT</b>
+          <small>Uso comercial permitido manteniendo el aviso de copyright.</small>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>InteeBuild Studio</span><span class="sep">·</span>
+    <span>Web to Native Converter</span><span class="sep">·</span>
+    <a href="./about.html">Presentación</a><span class="sep">·</span>
+    <a href="./privacy.html">Privacidad</a><span class="sep">·</span>
+    <a href="./terms.html">Términos</a><span class="sep">·</span>
+    <a href="./license.html">Licencia</a><span class="sep">·</span>
+    <a href="./docs.html" style="color:var(--accent);font-size:11px;text-decoration:none;font-weight:700">Docs</a><span class="sep">·</span>
+    <a href="./developer.html" style="color:var(--accent);font-size:11px;text-decoration:none;font-weight:700">Developer API</a><span class="sep">·</span>
+    <a href="/api/v1/build" style="color:var(--faint);font-size:11px;text-decoration:none">API REST v1</a><span class="sep">·</span>
+    <a href="/api/diag" target="_blank" rel="noopener" style="color:var(--muted);font-size:11px;">Diagnóstico</a><span class="sep">·</span>
+    <a href="#" onclick="document.getElementById('legalModal').classList.remove('hidden');return false;" style="color:var(--muted);font-size:11px;text-decoration:underline">Términos & Legal</a>
+  </footer>
+
+  
+  <div class="qr-modal hidden" id="legalModal">
+    <div class="qr-box" style="max-width:560px;text-align:left">
+      <h3 style="margin-bottom:10px">Términos de Uso y Políticas</h3>
+      <div style="max-height:280px;overflow-y:auto;font-size:12px;color:var(--muted);line-height:1.6;padding-right:6px">
+        <p><b>1. Propiedad Intelectual:</b> InteeBuild es una herramienta de conversión técnica. El usuario declara y garantiza ser el propietario o contar con las licencias correspondientes sobre la URL o el contenido HTML introducido.</p>
+        <p><b>2. Responsabilidad de Contenido:</b> InteeBuild no se hace responsable por las marcas, derechos de autor o aplicaciones generadas por los usuarios que infrinjan derechos de terceros o las políticas de Google Play Store.</p>
+        <p><b>3. Uso del Servicio:</b> El servicio se proporciona "tal cual" (AS IS) sin garantías explícitas sobre la publicación final en tiendas de aplicaciones.</p>
+        <p><b>4. Uso Aceptable:</b> Límite de 10 compilaciones por hora e IP. Prohibido convertir contenido ilegal, malicioso o sin autorización, así como usar el servicio como proxy o para eludir bloqueos de red. Las URLs privadas (localhost, redes locales, metadatos de nube) están bloqueadas.</p>
+        <p><b>5. Privacidad:</b> No pedimos registro. Tu keystore solo vive en la rama temporal del build y se elimina automáticamente junto con ramas, ejecuciones y artefactos de más de 60 minutos. Detalles en la <a href="./privacy.html">Política de Privacidad</a>.</p>
+        <p><b>6. Licencia:</b> El código es abierto bajo licencia MIT (<a href="./license.html">ver licencia</a>). Puedes usarlo personal y comercialmente manteniendo el aviso de copyright.</p>
+      </div>
+      <div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <span style="font-size:11px"><a href="./terms.html">Términos completos</a> · <a href="./privacy.html">Privacidad</a> · <a href="./about.html">Presentación</a></span>
+        <button type="button" class="btn primary sm" onclick="document.getElementById('legalModal').classList.add('hidden')">Entendido y Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/ads.js"></script>
+  <script src="./js/icons.js"></script>
+  <script src="./js/modules/util.js"></script>
+  <script src="./js/modules/form.js"></script>
+  <script src="./js/modules/permissions.js"></script>
+  <script src="./js/modules/plugins.js"></script>
+  <script src="./js/modules/preview.js"></script>
+  <script src="./js/modules/analyze.js"></script>
+  <script src="./js/modules/build.js"></script>
+  <script src="./js/modules/keys.js"></script>
+  <script src="./js/modules/decompile.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>
