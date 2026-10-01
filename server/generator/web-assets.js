@@ -1,7 +1,7 @@
 'use strict';
 
 const { catalogUiJsSrc, patchCatalogSrc } = require('./providers');
-const { notifyScriptSrc } = require('./audio');
+const { notifyScriptSrc, foregroundRuntimeSrc } = require('./audio');
 
 const MINIMAL_WWW = `<!DOCTYPE html>
 <html lang="es">
@@ -54,10 +54,12 @@ function starterHtml(cfg) {
 }
 
 function catalogFiles(cfg) {
-  return {
+  const files = {
     'patch-catalog.js': patchCatalogSrc(cfg),
     'www/catalog.js': catalogUiJsSrc(cfg)
   };
+  if (cfg.permissions.foreground) files['www/catalog.js'] += '\n' + foregroundRuntimeSrc();
+  return files;
 }
 
 function pwaFiles(cfg) {

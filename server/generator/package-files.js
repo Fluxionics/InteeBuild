@@ -108,6 +108,8 @@ function buildConfig(cfg) {
     url: cfg.url,
     inputType: cfg.inputType,
     packageName: cfg.packageName,
+    provider: cfg.provider,
+    providerVersion: cfg.providerVersion,
     versionName: cfg.versionName,
     versionCode: cfg.versionCode,
     compileSdk: cfg.compileSdk,

@@ -108,7 +108,6 @@ function patchCatalogSrc(cfg) {
 
 function nativeMainActivitySrc(pkg, cfg) {
   const url = cfg.inputType === 'url' ? cfg.url : 'file:///android_asset/public/index.html';
-  const useAudio = cfg.nativeAudio && cfg.streamUrl;
   const needPerms = Object.entries(cfg.permissions || {}).some(([k, v]) => v && PERMISSION_SPEC[k]?.runtime);
   const needSpecial = needsSpecialFile(cfg);
 
@@ -125,7 +124,7 @@ function nativeMainActivitySrc(pkg, cfg) {
     return 'if(r.contains("' + resource + '")&&hasAny(new String[]{' + shortNames + '})) ok.add(r);';
   }).filter(Boolean).join(' else ');
 
-  const audioBridgeHook = useAudio ? ' try { wv.addJavascriptInterface(new AudioBridge(this), "InteeAudio"); } catch (Exception ignored) {}' : '';
+  const audioBridgeHook = cfg.permissions.foreground ? ' try { wv.addJavascriptInterface(new AudioBridge(this), "InteeAudio"); } catch (Exception ignored) {}' : '';
   const permsHook = needPerms ? ' try { NativePermissions.requestAll(this); } catch (Exception ignored) {}' : '';
   const specialHook = needSpecial ? ' try { SpecialAccess.ensure(this); } catch (Exception ignored) {}' : '';
 

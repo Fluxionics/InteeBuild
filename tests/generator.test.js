@@ -10,7 +10,22 @@ test('mínimo: solo INTERNET, sin java extra', () => {
   const files = g.generateFiles(cfg);
   assert.ok(!files['NativePermissions.java']);
   assert.ok(!files['RadioService.java']);
+  assert.ok(!files['AudioBridge.java']);
   assert.ok(files['main-manifest.xml'].includes('android.permission.INTERNET'));
+});
+
+test('foreground: servicio completo, puente y WAKE_LOCK', () => {
+  const cfg = g.normalizeConfig({ appName: 'Fg Test', url: 'https://example.com', packageName: 'com.test.fg', permissions: { foreground: true } });
+  const files = g.generateFiles(cfg);
+  assert.ok(files['RadioService.java'].includes('PARTIAL_WAKE_LOCK'));
+  assert.ok(files['RadioService.java'].includes('WIFI_MODE_FULL_HIGH_PERF'));
+  assert.ok(files['RadioService.java'].includes('if (need && !wifiLock.isHeld()) wifiLock.acquire();'));
+  assert.ok(files['RadioService.java'].includes('ACTION_KEEP'));
+  assert.ok(files['RadioService.java'].includes('MediaSession'));
+  assert.ok(files['AudioBridge.java'].includes('keepAwake'));
+  assert.ok(files['patch-audio.js'].includes('BridgeActivity'));
+  assert.ok(files['main-manifest.xml'].includes('android.permission.WAKE_LOCK'));
+  assert.ok(String(files['www/catalog.js']).includes('__ibFg'));
 });
 
 test('plantillas: las 29 verifican canBuild', () => {
@@ -79,4 +94,29 @@ test('github: helpers de decompilation en la nube exportados', () => {
   for (const fn of ['syncWorkflow', 'pushProject', 'dispatchDecompile', 'findRunForBranch', 'downloadArtifact', 'deleteBranchSoon']) {
     assert.equal(typeof gh[fn], 'function', fn);
   }
+});
+
+test('workflow principal: YAML valido y build-config leido sin escapes rotos', () => {
+  const yaml = require('js-yaml');
+  const src = require('../server/generator/workflow');
+  const doc = yaml.load(src.WORKFLOW_YML);
+  assert.ok(doc.jobs, 'jobs presentes');
+  const steps = Object.values(doc.jobs)[0].steps;
+  const read = steps.find((s) => s.name === 'Read build config');
+  assert.ok(read, 'paso Read build config');
+  assert.ok(!read.run.includes('\\"'), 'sin backslash escapado dentro de node -p');
+  const envKeys = { compileSdk: 'COMPILE_SDK', targetSdk: 'TARGET_SDK', minSdk: 'MIN_SDK' };
+  for (const [key, env] of Object.entries(envKeys)) {
+    assert.ok(read.run.includes(`node -p 'require("./build-config.json").${key}'`), `lee ${key}`);
+    assert.ok(read.run.includes(`${env}=$(node -p`), `exporta ${env}`);
+  }
+});
+
+test('build-config.json incluye provider para la eleccion de provider en CI', () => {
+  const cfg = g.normalizeConfig({ appName: 'Provider Test', url: 'https://example.com', provider: 'native' });
+  const bc = JSON.parse(g.generateFiles(cfg)['build-config.json']);
+  assert.equal(bc.provider, 'native');
+  assert.equal(bc.compileSdk, cfg.compileSdk);
+  assert.equal(bc.targetSdk, cfg.targetSdk);
+  assert.equal(bc.minSdk, cfg.minSdk);
 });
