@@ -4,7 +4,7 @@ const { PERMISSION_SPEC, runtimeBatchConsts, wantsBackground, specialNeeds, need
 const { VALID_COMPILE_SDKS, VALID_TARGET_SDKS, VALID_MIN_SDKS } = require('./versions');
 const { permissionManifestBlocks, hardwareFeatureBlocks, nfcTechFilterXml, generateAndroidManifest } = require('./manifest');
 const { nativePermissionsJavaSrc, specialAccessJavaSrc, patchPermissionsSrc, patchSpecialSrc } = require('./runtime');
-const { radioServiceSrc, nativeAudioServiceSrc, audioBridgeSrc, mainActivityPatchSrc, patchAudioSrc } = require('./audio');
+const { nativeAudioServiceSrc, audioBridgeSrc, mainActivityPatchSrc, patchAudioSrc } = require('./audio');
 const { droncitoBridgeJavaSrc, droncitoPatchSrc, droncitoNativePatchSrc, droncitoGradlePatchSrc, droncitoNeedsGradle } = require('./droncito');
 const { WORKFLOW_YML, DECOMPILE_WORKFLOW_YML } = require('./workflow');
 const { getPermissionAudit, suggestPermissionsFromApis } = require('./audit');
@@ -26,18 +26,12 @@ function foregroundAudioFiles(cfg) {
   if (!cfg.permissions.foreground) return {};
 
   const useNativeAudio = cfg.nativeAudio && cfg.streamUrl;
-  const files = {
-    'RadioService.java': useNativeAudio
-      ? nativeAudioServiceSrc(cfg.packageName, cfg.streamUrl, cfg.nativeAutoplay, cfg.appName)
-      : radioServiceSrc(cfg.packageName),
-    'patch-main-activity.js': mainActivityPatchSrc()
+  return {
+    'RadioService.java': nativeAudioServiceSrc(cfg.packageName, cfg.streamUrl || '', !!(useNativeAudio && cfg.nativeAutoplay), cfg.appName),
+    'AudioBridge.java': audioBridgeSrc(cfg.packageName),
+    'patch-main-activity.js': mainActivityPatchSrc(),
+    'patch-audio.js': patchAudioSrc()
   };
-
-  if (useNativeAudio) {
-    files['AudioBridge.java'] = audioBridgeSrc(cfg.packageName);
-    files['patch-audio.js'] = patchAudioSrc();
-  }
-  return files;
 }
 
 function generateFiles(cfg) {

@@ -65,9 +65,9 @@ jobs:
         run: |
           echo '--- build-config.json ---'
           cat build-config.json
-          echo "COMPILE_SDK=$(node -p 'require(\\"./build-config.json\\").compileSdk')" >> "$GITHUB_ENV"
-          echo "TARGET_SDK=$(node -p 'require(\\"./build-config.json\\").targetSdk')" >> "$GITHUB_ENV"
-          echo "MIN_SDK=$(node -p 'require(\\"./build-config.json\\").minSdk')" >> "$GITHUB_ENV"
+          echo "COMPILE_SDK=$(node -p 'require("./build-config.json").compileSdk')" >> "$GITHUB_ENV"
+          echo "TARGET_SDK=$(node -p 'require("./build-config.json").targetSdk')" >> "$GITHUB_ENV"
+          echo "MIN_SDK=$(node -p 'require("./build-config.json").minSdk')" >> "$GITHUB_ENV"
           cat "$GITHUB_ENV"
 
       - name: Setup Android SDK

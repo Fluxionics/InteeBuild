@@ -1,20 +1,27 @@
 # Salidas de una compilación
 
-El `outputType` de una build sólo acepta tres valores: `apk`, `aab` y `both`. El workflow de GitHub Actions tiene pasos de Gradle condicionados a esos tres valores y no compila nada más. Si necesitas un binario de escritorio o un instalador de iOS, hoy tienes que compilarlo tú a partir del código que sí entrega el ZIP.
+El `outputType` clásico sigue aceptando tres valores: `apk`, `aab` y `both`. Encima está `outputs`, una lista (también acepta texto con comas) que manda sobre él: `apk`, `aab`, `xapk`, `apks`, `ipa`, `exe`, `msi`, `dmg`, `appimage`. El workflow tiene un paso por formato condicionado a la lista, así que sólo corre el que pediste, y el campo `platform` (`android`, `ios` o `both`) decide si se lanzan los jobs de Android, los de iOS o los dos. El campo `GET /api/v1/build/:id` devuelve `outputs` y `formats`, el segundo con lo que el artefacto confirma que existe de verdad.
 
 ## Lo que descargas cuando el build termina
 
-- **APK** — `GET /api/download/:id`. Instalable directamente en un dispositivo.
-- **AAB** — `GET /api/download/:id/aab`. Lo que sube Play Console. Sólo aparece si `outputType` fue `aab` o `both`.
-- **IPA** — `GET /api/download/:id/ipa`. Sólo existe si el build corrió en `macos-latest` con `.p12`, `.mobileprovision` y contraseña enviados en el paso de firma iOS. Si no, no hay artefacto y el endpoint devuelve error.
+Cada formato tiene su ruta en `GET /api/download/:id/:fmt`; sin sufijo se asume APK.
 
-Los artefactos viven en GitHub Actions y caducan a los 30 minutos; el servidor los borra también en su limpieza automática. El historial (`GET /api/history`) conserva el enlace mientras dure la entrada local.
+- **APK** — `GET /api/download/:id` (o `.../apk`). Instalable directamente en un dispositivo.
+- **AAB** — `GET /api/download/:id/aab`. Lo que sube Play Console. Sólo aparece si lo pediste en `outputs`.
+- **XAPK** — `GET /api/download/:id/xapk`. APK base más `AndroidManifest.json` con paquete, versión y permisos. Sólo si pediste `xapk`.
+- **APKS** — `GET /api/download/:id/apks`. Bundletool en modo universal, generado desde el AAB. Sólo si pediste `apks`.
+- **IPA** — `GET /api/download/:id/ipa`. Sólo existe si el build corrió en `macos-latest` con `.p12`, `.mobileprovision` y contraseña enviados en el paso de firma iOS. Si no, no hay artefacto y el endpoint devuelve error.
+- **EXE y MSI** — `GET /api/download/:id/exe` y `.../msi`. Job de `windows-latest` con `electron-builder`; sólo corre si pediste esos formatos y el ZIP trae `desktop/`.
+- **DMG** — `GET /api/download/:id/dmg`. Job de `macos-latest`, mismas condiciones que el EXE.
+- **AppImage** — `GET /api/download/:id/appimage`. Job de `ubuntu-latest`, mismas condiciones.
+
+Un formato que no esté en la lista de arriba devuelve `404` con los formatos soportados. Los artefactos viven en GitHub Actions y caducan a los 30 minutos; el servidor los borra también en su limpieza automática. El historial (`GET /api/history`) conserva el enlace mientras dure la entrada local.
 
 Además, el ZIP del proyecto está disponible sin compilar con `POST /api/project`, y con cualquier configuración: incluye `build-config.json`, `main-manifest.xml`, el código Java generado, los scripts de patch y el workflow.
 
 ## Lo que sólo es código fuente en el ZIP
 
-- **Desktop** — si activas `desktopEnabled`, aparece `desktop/` con un proyecto Electron (`package.json`, `main.js`, README). El selector "Desktop .EXE/.APP" del estudio sólo escribe esa carpeta; no hay paso de CI que ejecute `electron-builder`, así que no sale ningún `.exe`, `.msi`, `.dmg` ni `.AppImage`. El campo `desktopPlatform` (`win`, `mac`, `both`) se valida y se guarda en `build-config.json`, pero ni el generador ni el workflow lo leen.
+- **Desktop** — si activas `desktopEnabled`, aparece `desktop/` con un proyecto Electron (`package.json`, `main.js`, README) y el selector "Desktop .EXE/.APP" del estudio escribe esa carpeta. Para que salga un binario hay que pedir `exe`, `msi`, `dmg` o `appimage` en `outputs`: entonces el workflow lanza `electron-builder` en Windows, macOS o Linux según el formato. `desktopPlatform` (`win`, `mac`, `both`) se valida, se guarda en `build-config.json` y lo usa el generador de `desktop/package.json` para fijar los targets de `electron-builder`.
 - **TWA** — `twa-manifest.json`, `assetlinks.json` y un README con el comando de bubblewrap. La Trusted Web Activity real se construye fuera, con tus herramientas.
 - **Flutter** — `flutter/pubspec.yaml`, `flutter/lib/main.dart` y su manifiesto. El workflow lo ignora.
 - **Tauri** — `tauri/Cargo.toml`, `tauri/tauri.conf.json`, `tauri/src-tauri/src/main.rs`. El workflow lo ignora.
@@ -49,4 +56,4 @@ La opción `minify` (o `minify: true` en la API) quita comentarios HTML y espaci
 
 ## Lo que no hay
 
-No hay compilación de escritorio, no hay build de iOS sin certificados de Apple, no hay tienda ni distribución propia, ni ningún plan de pago detrás de todo esto. Lo que sí hay son límites de uso del servidor: 10 builds por hora por IP y los tamaños de entrada detallados en [production.md](./production.md).
+No hay build de iOS sin certificados de Apple (el job sólo valida en simulador; con `.p12` y `.mobileprovision` sí exporta IPA), no hay tienda ni distribución propia, ni ningún plan de pago detrás de todo esto. Lo que sí hay son límites de uso del servidor: 10 builds por hora por IP y los tamaños de entrada detallados en [production.md](./production.md).

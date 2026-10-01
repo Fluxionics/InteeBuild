@@ -67,7 +67,7 @@ El listado de `/api/templates` ejecuta el Audit de cada plantilla con un nombre 
 
 ## Foreground service y audio
 
-Sólo tres plantillas piden `foreground`: `radio`, `streaming` y `podcast`. `wakeLock` aparecen esas mismas tres más `game` y `fitness`, y `keepScreenOn` aparece en `streaming`, `game`, `delivery`, `fitness` y `emergency`. `delivery` no pide `foreground`: su segundo plano lo resuelve con `gpsBackground`, que es otro permiso con otro manifiesto. El detalle de por qué existe ese código y cómo probarlo está en [foreground.md](./foreground.md).
+Sólo tres plantillas piden `foreground`: `radio`, `streaming` y `podcast`. `wakeLock` aparecen esas mismas tres más `game` y `fitness`, y `keepScreenOn` aparece en `streaming`, `game`, `delivery`, `fitness` y `emergency`. `delivery` no pide `foreground`: su segundo plano lo resuelve con `gpsBackground`, que es otro permiso con otro manifiesto. **Adicionalmente, el `wifiLock` (`WIFI_MODE_FULL_HIGH_PERF`) se genera automáticamente para `radio`, `streaming` y `podcast` cuando está `foreground`, evitando que el audio se corte por ahorro de energía del WiFi con la pantalla apagada.** El detalle de por qué existe ese código y cómo probarlo está en [foreground.md](./foreground.md).
 
 ## Personalización
 

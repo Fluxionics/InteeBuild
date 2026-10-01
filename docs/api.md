@@ -37,9 +37,9 @@ curl -X POST /api/v1/build -H "Content-Type: application/json" -H "X-API-Key: ib
 # → 202 {"buildId":"abc123","status":"queued","branch":"build-abc123"}
 ```
 
-`POST /api/build` acepta la configuración completa: `url` o `htmlCode` con `inputType`, `appName`, `packageName`, `outputType` (`apk`/`aab`/`both`), `platform` (`android`/`ios`/`both`), `permissions`, `plugins`, `provider`, `template`, `streamUrl`, `nativeAudio`, `nativeAutoplay`, `orientation`, `iconBase64`, firma de keystore e iOS, `webhookUrl`, `desktopEnabled` y el resto de campos que normalizan los SDK.
+`POST /api/build` acepta la configuración completa: `url` o `htmlCode` con `inputType`, `appName`, `packageName`, `outputType` (`apk`/`aab`/`both`), `outputs` (lista de formatos: `apk`, `aab`, `xapk`, `apks`, `ipa`, `exe`, `msi`, `dmg`, `appimage`), `platform` (`android`/`ios`/`both`), `permissions`, `plugins`, `provider`, `template`, `streamUrl`, `nativeAudio`, `nativeAutoplay`, `orientation`, `iconBase64`, firma de keystore e iOS, `webhookUrl`, `desktopEnabled` y el resto de campos que normalizan los SDK.
 
-`POST /api/v1/build` es deliberadamente más estrecho: sólo reconoce `url`, `name`/`appName`, `package`/`packageName`, `output`/`outputType`, `inputType` + `htmlCode`, `versionName`, `versionCode`, `compileSdk`, `targetSdk`, `minSdk`, `permissions`, `plugins`, `provider`, `template`, `streamUrl`, `nativeAudio`, `nativeAutoplay` y `webhookUrl`. El icono y las banderas de UI no se pasan por ahí; usa `/api/build` si los necesitas.
+`POST /api/v1/build` es deliberadamente más estrecho: sólo reconoce `url`, `name`/`appName`, `package`/`packageName`, `output`/`outputType`, `outputs`, `platform`, `inputType` + `htmlCode`, `versionName`, `versionCode`, `compileSdk`, `targetSdk`, `minSdk`, `permissions`, `plugins`, `provider`, `template`, `streamUrl`, `nativeAudio`, `nativeAutoplay` y `webhookUrl`. El icono y las banderas de UI no se pasan por ahí; usa `/api/build` si los necesitas.
 
 Errores que vas a ver antes de que se lance nada: GitHub sin configurar devuelve `503` con el aviso de `.env`; la URL bloqueada por seguridad devuelve `400`; HTML por encima de 500.000 caracteres devuelve `400`; un icono mayor de 7 MB devuelve `400`; y el límite de 10 builds por hora por IP devuelve `429`. Ese contador es el mismo que usa la descompilación en la nube, así que una pasada de descompilados consume también tu cupo de builds.
 
@@ -56,11 +56,11 @@ curl /api/build/abc123
 
 `status` pasa por `queued` → `building` → `success` o `failed`. Si la build ya no está en memoria, el endpoint mira en el historial y devuelve la entrada con `fromHistory: true`; si no aparece, `404`.
 
-`GET /api/v1/build/:id` devuelve lo mismo con otra forma: `apkUrl`, `aabUrl` y `ipaUrl` relativos a la API (o `null` si ese artefacto no se generó).
+`GET /api/v1/build/:id` devuelve lo mismo con otra forma: `apkUrl`, `aabUrl` y `ipaUrl` relativos a la API (o `null` si ese artefacto no se generó), más `outputs` (lo que pediste) y `formats` (lo que el artefacto en GitHub Actions confirma que existe).
 
 ```bash
 curl /api/v1/build/abc123
-# → {"buildId":"abc123","status":"success","apkUrl":"/api/download/abc123","aabUrl":null,"ipaUrl":null}
+# → {"buildId":"abc123","status":"success","apkUrl":"/api/download/abc123","aabUrl":null,"ipaUrl":null,"outputs":["apk"],"formats":["apk"]}
 ```
 
 Descargas:
@@ -105,6 +105,10 @@ curl -X POST /api/build-readiness -H "Content-Type: application/json" -d '{"appN
 `spec` devuelve las entradas del Permission Engine (86 en la versión actual). `audit` devuelve una fila por permiso con `status` (`ok`/`warn`/`fail`), `minSdk`, implementación nativa y si el provider lo soporta, más `ok`, `total`, `canBuild`, `verifiedAll` y `readiness`. `suggest` acepta `{html}`, `{url}` o `{detectedApis}` y responde `{detected, suggested, count}`.
 
 `build-readiness` es el que usa el paso de Compilar. Devuelve `readiness` (0-100), `checks`, `audit`, `warnings` y `canBuild`. `canBuild` sólo es `true` si el audit pasa, hay URL o HTML, y el audio nativo tiene su stream. Un aviso típico es "Audio nativo activo pero sin URL del stream: pon tu servidor en Audio nativo", que bloquea la radio hasta que escribas `streamUrl`.
+
+**Foreground + WifiLock**: si `permissions.foreground` está activado, el generador incluye ahora `WifiLock` (`WIFI_MODE_FULL_HIGH_PERF`, con `try/catch`) para evitar que el audio se corte cuando la pantalla se apaga por ahorro de energía del WiFi. El `WakeLock` (PARTIAL) sigue activo también. Véase `foreground.md` para los detalles del servicio en segundo plano.
+
+El campo `provider` en la configuración ahora se propaga correctamente a `build-config.json` (antes se perdía con escapes rotos en el workflow) y el pipeline usa ese valor para decidir si inyectar `MainActivity` nativo/gecko o el puente de Capacitor.
 
 `POST /api/manifest-diff` compara lo que pediste con lo que se genera: devuelve `requested`, `generated`, `missing`, `unexpected` y `rows` con estado `MATCH` o `MISSING` por permiso. Sirve para detectar permisos que se quedaron fuera del manifiesto antes de compilar.
 
