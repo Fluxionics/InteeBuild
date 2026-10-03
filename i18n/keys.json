@@ -2940,12 +2940,6 @@
       "index.html"
     ]
   },
-  "En Vivo": {
-    "count": 1,
-    "files": [
-      "docs/radio-face.html"
-    ]
-  },
   "Encrypted Storage": {
     "count": 1,
     "files": [
@@ -2983,9 +2977,8 @@
     ]
   },
   "error": {
-    "count": 5,
+    "count": 4,
     "files": [
-      "docs/radio-face.html",
       "index.html"
     ]
   },
@@ -2994,12 +2987,6 @@
     "files": [
       "historial.html",
       "index.html"
-    ]
-  },
-  "Error al reproducir el stream": {
-    "count": 1,
-    "files": [
-      "docs/radio-face.html"
     ]
   },
   "Error:": {
@@ -4411,18 +4398,6 @@
     "count": 2,
     "files": [
       "index.html"
-    ]
-  },
-  "Mi Radio App": {
-    "count": 1,
-    "files": [
-      "docs/radio-face.html"
-    ]
-  },
-  "Mi Radio Online": {
-    "count": 1,
-    "files": [
-      "docs/radio-face.html"
     ]
   },
   "MiApp": {
@@ -5952,12 +5927,6 @@
       "index.html"
     ]
   },
-  "Señal en Vivo": {
-    "count": 1,
-    "files": [
-      "docs/radio-face.html"
-    ]
-  },
   "Servicio Foreground": {
     "count": 1,
     "files": [
@@ -6431,12 +6400,6 @@
       "index.html"
     ]
   },
-  "Toque play para iniciar": {
-    "count": 1,
-    "files": [
-      "docs/radio-face.html"
-    ]
-  },
   "Total Compilados": {
     "count": 2,
     "files": [
@@ -6460,18 +6423,6 @@
     "count": 1,
     "files": [
       "index.html"
-    ]
-  },
-  "Transmisión en pausa": {
-    "count": 1,
-    "files": [
-      "docs/radio-face.html"
-    ]
-  },
-  "Transmitiendo en directo...": {
-    "count": 1,
-    "files": [
-      "docs/radio-face.html"
     ]
   },
   "Transparencia": {
@@ -6909,11 +6860,10 @@
     ]
   },
   "width=device-width, initial-scale=1.0": {
-    "count": 9,
+    "count": 8,
     "files": [
       "about.html",
       "developer.html",
-      "docs/radio-face.html",
       "docs.html",
       "historial.html",
       "index.html",

@@ -71,16 +71,6 @@
     <changefreq>weekly</changefreq><priority>0.8</priority>
   </url>
   <url>
-    <loc>https://inteebuild.onrender.com/docs/radio-face.html</loc>
-    <xhtml:link rel="alternate" hreflang="es" href="https://inteebuild.onrender.com/es/docs/radio-face.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://inteebuild.onrender.com/en/docs/radio-face.html"/>
-    <xhtml:link rel="alternate" hreflang="ru" href="https://inteebuild.onrender.com/ru/docs/radio-face.html"/>
-    <xhtml:link rel="alternate" hreflang="ch" href="https://inteebuild.onrender.com/ch/docs/radio-face.html"/>
-    <xhtml:link rel="alternate" hreflang="br" href="https://inteebuild.onrender.com/br/docs/radio-face.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://inteebuild.onrender.com/docs/radio-face.html"/>
-    <changefreq>weekly</changefreq><priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://inteebuild.onrender.com/historial.html</loc>
     <xhtml:link rel="alternate" hreflang="es" href="https://inteebuild.onrender.com/es/historial.html"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://inteebuild.onrender.com/en/historial.html"/>

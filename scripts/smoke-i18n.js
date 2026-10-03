@@ -25,7 +25,6 @@ function get(path) {
     ['/docs/br/api.md', s => s.status === 200 && /[ãáõç]/i.test(s.body), 'md br'],
     ['/en/docs.html', s => s.status === 200 && s.body.includes('DOCS_LANG') && s.body.includes('mdUrl'), 'docs.html con mdUrl'],
     ['/i18n/en/docs.json', s => s.status === 200 && JSON.parse(s.body)['Índice'] !== undefined, 'docs dict EN tiene Índice'],
-    ['/i18n/ru/docs/radio-face.json', s => s.status === 200 && JSON.parse(s.body)['Señal en Vivo'] !== undefined, 'radio-face dict RU'],
     ['/es/docs.html', s => s.status === 200 && s.body.includes('Cargando documentación'), 'es docs original']
   ];
   let fail = 0;
