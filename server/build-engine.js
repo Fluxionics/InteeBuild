@@ -85,6 +85,27 @@ function pollBuild(g, state) {
   }, 6000);
 }
 
+const MAX_CONCURRENT_BUILDS = 3;
+let activeBuilds = 0;
+const pendingQueue = [];
+
+function drainQueue() {
+  while (activeBuilds < MAX_CONCURRENT_BUILDS && pendingQueue.length) {
+    const job = pendingQueue.shift();
+    activeBuilds++;
+    job.run()
+      .then(job.resolve, job.reject)
+      .finally(() => { activeBuilds--; drainQueue(); });
+  }
+}
+
+function enqueueBuild(run) {
+  return new Promise((resolve, reject) => {
+    pendingQueue.push({ run, resolve, reject });
+    drainQueue();
+  });
+}
+
 async function startBuild(cfg, ip) {
   const g = gh.config();
   if (!g.ready) throw Object.assign(new Error('GitHub no esta configurado. Define GITHUB_TOKEN e INTEE_BUILDS_REPO en el archivo .env'), { status: 503 });
@@ -98,7 +119,7 @@ async function startBuild(cfg, ip) {
 
   const state = {
     id, branch, appName: cfg.appName, status: 'queued',
-    step: 'Enviando proyecto a GitHub', createdAt: Date.now(),
+    step: 'En cola local', createdAt: Date.now(),
     runUrl: null, runId: null, apkUrl: null, outputType: cfg.outputType,
     outputs, error: null, webhookUrl: cfg.webhookUrl || ''
   };
@@ -113,15 +134,17 @@ async function startBuild(cfg, ip) {
   });
 
   try {
-    state.step = 'Sincronizando workflow';
-    await gh.syncWorkflow(g.owner, g.repo, g.defaultBranch, generator.WORKFLOW_YML);
-    state.step = 'Subiendo proyecto';
-    await gh.pushProject(g.owner, g.repo, branch, files, g.defaultBranch);
-    state.status = 'building';
-    state.step = 'Lanzando compilacion en GitHub Actions';
-    await gh.dispatchBuild(g.owner, g.repo, branch, id, cfg.outputType, cfg.platform, outputs);
-    updateHistory(id, { status: 'building' });
-    pollBuild(g, state);
+    await enqueueBuild(async () => {
+      state.step = 'Sincronizando workflow';
+      await gh.syncWorkflow(g.owner, g.repo, g.defaultBranch, generator.WORKFLOW_YML);
+      state.step = 'Subiendo proyecto';
+      await gh.pushProject(g.owner, g.repo, branch, files, g.defaultBranch);
+      state.status = 'building';
+      state.step = 'Lanzando compilacion en GitHub Actions';
+      await gh.dispatchBuild(g.owner, g.repo, branch, id, cfg.outputType, cfg.platform, outputs, cfg.provider);
+      updateHistory(id, { status: 'building' });
+      pollBuild(g, state);
+    });
   } catch (err) {
     state.status = 'error';
     state.step = 'Error';

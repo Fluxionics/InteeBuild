@@ -46,7 +46,7 @@ Archivos:
 
 - `RadioService.java` — canal `inteebuild_radio` con `IMPORTANCE_LOW`, `startForeground(1, notificación)` y `onStartCommand` que devuelve `START_STICKY` para que el sistema lo reviva. Pide el stream con `MediaPlayer` y envía cabecera `Icy-MetaData: 0` para que Shoutcast no meta metadatos en el MP3. El `PARTIAL_WAKE_LOCK` y el `WifiLock` (`WIFI_MODE_FULL_HIGH_PERF`, para que el WiFi no entre en ahorro de energía con la pantalla apagada y el stream no se quede sin buffer) los pide con `try/catch`: si el permiso falta, sigue sonando sin locks en vez de tumbar el servicio, y se liberan al pausar o destruir. En `onCompletion` sólo reconecta si la URL parece un stream en vivo; un MP3 acaba y para.
 - `AudioBridge.java` — expone `window.InteeAudio` con `play(url)`, `playAt(url, ms)`, `pause()`, `isPlaying()`, `isActive()` y `keepAwake(bool)`. Se genera con `foreground` aunque no uses audio nativo, porque es el destino del traspaso.
-- `patch-main-activity.js` y `patch-audio.js` — inyectan el arranque del servicio y el puente en `MainActivity.java`. `patch-audio.js` sólo toca `MainActivity extends BridgeActivity`; en el provider `native` el puente ya viene horneado en la clase.
+- `patch-main-activity.js` y `patch-audio.js` — inyectan el arranque del servicio y el puente en `MainActivity.java`. `patch-audio.js` sólo toca `MainActivity extends BridgeActivity`; en el provider `native` el puente ya viene horneado en la clase, y en `gecko` el arranque del servicio también viene horneado en `gecko-MainActivity.java` pero el puente no (ver límite abajo).
 - `www/catalog.js` — además de la UI del catálogo, lleva el runtime del traspaso (se reconoce por `window.__ibFg`).
 
 En el log del workflow debe salir `--- audio service installed ---` seguido de `1` y `--- native audio installed ---`. Si ves `0`, el patch no se aplicó: revisa `build-config.json` y `permissions.foreground`.
@@ -61,6 +61,7 @@ Con `foreground` marcado, el runtime de `catalog.js` hace esto en cada página (
 
 Límites que siguen siendo tuyos:
 
+- **Provider `gecko`: no hay puente `InteeAudio`.** GeckoView no expone `addJavascriptInterface`, así que `AudioBridge` no se puede enganchar a la WebView. El servicio `RadioService` sí compila y puede arrancar (el hook viene horneado en `gecko-MainActivity.java`), pero tu HTML no tiene `window.InteeAudio`: los botones caen al `<audio>` web y con pantalla apagada el sonido se corta, porque el runtime de traspaso de `catalog.js` detecta que no hay puente y no hace nada. Para radio en segundo plano con pantalla apagada, usa `capacitor`, `native` o `twa`.
 - URLs `blob:` (hls.js, YouTube embebido, todo lo que pase por Media Source Extensions) no se pueden entregar al nativo: con la pantalla apagada se cortan. Usa una URL directa de stream o el audio nativo.
 - Los iframes no se tocan.
 - Si tu HTML pausa en `visibilitychange`, deshaz ese listener: el traspaso y tu pausa se pelean.
@@ -147,7 +148,7 @@ Reconexión mínima:
 
 `androidx.media.app.NotificationCompat does not exist` aparece en ZIPs generados con una versión anterior del workflow. El servicio usa sólo clases del framework (`Notification.MediaStyle`, `MediaPlayer`, `MediaSession`) y no necesita dependencias androidx de medios: vuelve a compilar y verifica `--- audio nativo instalado ---` en el log.
 
-Si `grep -c RadioService` da `0` en el proyecto generado, no instales ese APK: el servicio no está. Si `grep -c InteeAudio` da `0`, el puente JS no se inyectó y tus botones caerán al fallback web, que con pantalla apagada se corta.
+Si `grep -c RadioService` da `0` en el proyecto generado, no instales ese APK: el servicio no está. Si `grep -c InteeAudio` da `0`, el puente JS no se inyectó y tus botones caerán al fallback web, que con pantalla apagada se corta. La única excepción esperada es el provider `gecko`, donde `InteeAudio` no puede existir (GeckoView no lo permite); en ese caso la cuenta es `0` a propósito y el traspaso no va a funcionar.
 
 ## Antes de publicar
 

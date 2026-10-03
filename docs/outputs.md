@@ -6,12 +6,12 @@ El `outputType` clásico sigue aceptando tres valores: `apk`, `aab` y `both`. En
 
 Cada formato tiene su ruta en `GET /api/download/:id/:fmt`; sin sufijo se asume APK.
 
-- **APK** — `GET /api/download/:id` (o `.../apk`). Instalable directamente en un dispositivo.
-- **AAB** — `GET /api/download/:id/aab`. Lo que sube Play Console. Sólo aparece si lo pediste en `outputs`.
+- **APK** — `GET /api/download/:id` (o `.../apk`). Instalable directamente en un dispositivo. Con provider `flutter` lo compone el job `flutter-build`; con provider `cordova` el job `cordova-build`; no el de Capacitor.
+- **AAB** — `GET /api/download/:id/aab`. Lo que sube Play Console. Sólo aparece si lo pediste en `outputs`. Con provider `flutter` sale del job `flutter-build`; con `cordova` se intenta con `--packageType=bundle` (si la versión de cordova-android no lo soporta en debug, el paso no bloquea y no hay AAB).
 - **XAPK** — `GET /api/download/:id/xapk`. APK base más `AndroidManifest.json` con paquete, versión y permisos. Sólo si pediste `xapk`.
 - **APKS** — `GET /api/download/:id/apks`. Bundletool en modo universal, generado desde el AAB. Sólo si pediste `apks`.
 - **IPA** — `GET /api/download/:id/ipa`. Sólo existe si el build corrió en `macos-latest` con `.p12`, `.mobileprovision` y contraseña enviados en el paso de firma iOS. Si no, no hay artefacto y el endpoint devuelve error.
-- **EXE y MSI** — `GET /api/download/:id/exe` y `.../msi`. Job de `windows-latest` con `electron-builder`; sólo corre si pediste esos formatos y el ZIP trae `desktop/`.
+- **EXE y MSI** — `GET /api/download/:id/exe` y `.../msi`. EXE de Electron: job de `windows-latest` con `electron-builder`, sólo corre si pediste ese formato y el ZIP trae `desktop/`. EXE de Tauri: si el provider es `tauri`, el job `tauri-build` sube el binario de Cargo con el artefacto `-exe` aunque no pidas formato de escritorio. MSI: sólo de Electron.
 - **DMG** — `GET /api/download/:id/dmg`. Job de `macos-latest`, mismas condiciones que el EXE.
 - **AppImage** — `GET /api/download/:id/appimage`. Job de `ubuntu-latest`, mismas condiciones.
 
@@ -23,9 +23,16 @@ Además, el ZIP del proyecto está disponible sin compilar con `POST /api/projec
 
 - **Desktop** — si activas `desktopEnabled` **o pides `exe`, `msi`, `dmg` o `appimage` en `outputs`** (el motor autoactiva `desktopEnabled` en ese caso), aparece `desktop/` con un proyecto Electron (`package.json`, `main.js`, README) y el selector "Desktop .EXE/.APP" del estudio escribe esa carpeta. Para que salga un binario hay que pedir `exe`, `msi`, `dmg` o `appimage` en `outputs`: entonces el workflow lanza `electron-builder` en Windows, macOS o Linux según el formato. `desktopPlatform` (`win`, `mac`, `both`) se valida, se guarda en `build-config.json` y lo usa el generador de `desktop/package.json` para fijar los targets de `electron-builder`.
 - **TWA** — `twa-manifest.json`, `assetlinks.json` y un README con el comando de bubblewrap. La Trusted Web Activity real se construye fuera, con tus herramientas.
-- **Flutter** — `flutter/pubspec.yaml`, `flutter/lib/main.dart` y su manifiesto. El workflow lo ignora.
-- **Tauri** — `tauri/Cargo.toml`, `tauri/tauri.conf.json`, `tauri/src-tauri/src/main.rs`. El workflow lo ignora.
-- **`react-native` e `ionic`** — no generan nada más allá de `provider.json`.
+- **`react-native` e `ionic`** — no generan nada más allá de `provider.json`; el APK que sale es el de Capacitor.
+## Flutter, Tauri y Cordova en la CI
+
+- **Flutter** (`provider: flutter`) — el job `flutter-build` en `ubuntu-latest` ejecuta `flutter create` para generar el host Android, encima coloca tu manifiesto, corrige `applicationId`/`namespace` a tu paquete, mueve `MainActivity.kt` y compila con `flutter build apk --release` (más `appbundle` si pediste `aab`). Artefactos: `-apk` y opcional `-aab`. El job `compile` de Capacitor se salta con este provider, así que no hay doble APK.
+
+- **Tauri** (`provider: tauri`) — el job `tauri-build` en `windows-latest` corre `cargo build --release --manifest-path tauri/src-tauri/Cargo.toml` y sube el binario como artefacto `-exe`. El proyecto Electron (`desktop/`) queda fuera con este provider para no pisarse el nombre de artefacto, y el APK Android lo sigue poniendo el job `compile` (sigue siendo Capacitor por debajo).
+
+- **Cordova** (`provider: cordova`) — el job `cordova-build` en `ubuntu-latest` corre `cordova platform add android` sobre tu `config.xml` real, inyecta los permisos de `main-manifest.xml` en el manifiesto de Cordova, copia el icono a los `mipmap-*` y ejecuta `cordova build android` (artefacto `-apk` debug; `-aab` opcional con `continue-on-error`; `-release-apk` si subiste keystore, vía `build.json`). El job `compile` de Capacitor se salta con este provider: el APK es de Cordova puro.
+
+El workflow recibe el provider como input (`provider`), que el servidor manda en el `workflow_dispatch` junto a `id`, `platform` y `outputs`.
 
 ## PWA dentro del proyecto
 

@@ -119,14 +119,14 @@ async function pushProject(owner, repo, branch, files, baseBranch) {
   return commit.sha;
 }
 
-async function dispatchBuild(owner, repo, branch, id, outputType = 'apk', platform = 'android', outputs = ['apk']) {
+async function dispatchBuild(owner, repo, branch, id, outputType = 'apk', platform = 'android', outputs = ['apk'], provider = 'capacitor') {
 
 
   const outputsInput = (Array.isArray(outputs) ? outputs : String(outputs || '').split(','))
     .map((value) => String(value).trim())
     .filter(Boolean)
     .join(',');
-  const body = { ref: branch, inputs: { id, outputType, platform, outputs: outputsInput || 'apk' } };
+  const body = { ref: branch, inputs: { id, outputType, platform, outputs: outputsInput || 'apk', provider: provider || 'capacitor' } };
   let lastErr = null;
   for (let attempt = 0; attempt < 6; attempt++) {
     try {
@@ -137,7 +137,7 @@ async function dispatchBuild(owner, repo, branch, id, outputType = 'apk', platfo
       return;
     } catch (err) {
       lastErr = err;
-      const retryable = err.status === 422 && /workflow_dispatch/i.test(String(err.message || ''));
+      const retryable = err.status === 422 && /workflow_dispatch|Unexpected inputs/i.test(String(err.message || ''));
       if (!retryable || attempt === 5) throw err;
       await new Promise((r) => setTimeout(r, 5000 * (attempt + 1)));
     }
@@ -265,11 +265,28 @@ async function getRunLogs(owner, repo, runId) {
   const res = await fetch(`${API}/repos/${owner}/${repo}/actions/runs/${runId}/logs`, {
     headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' }
   });
-  if (!res.ok) {
-    const jobs = await api(`/repos/${owner}/${repo}/actions/runs/${runId}/jobs`);
-    return jobs.jobs.map(j=>`${j.name}: ${j.conclusion}\n${(j.steps||[]).map(s=>`  ${s.name} - ${s.conclusion}`).join('\n')}`).join('\n\n');
+  if (res.ok) {
+    try {
+      const JSZip = require('jszip');
+      const zip = await JSZip.loadAsync(Buffer.from(await res.arrayBuffer()));
+      const names = Object.keys(zip.files)
+        .filter(n => !zip.files[n].dir)
+        .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+      const parts = [];
+      for (const name of names) {
+        const text = await zip.files[name].async('string');
+        const title = name.replace(/\.txt$/i, '').split('/').join(' > ');
+        parts.push('===== ' + title + ' =====\n' + text.replace(/\s+$/, ''));
+      }
+      if (parts.length) return parts.join('\n\n');
+    } catch (_) {}
   }
-  return 'Logs binarios (ZIP)';
+  try {
+    const jobs = await api(`/repos/${owner}/${repo}/actions/runs/${runId}/jobs`);
+    return jobs.jobs.map(j => `${j.name}: ${j.conclusion}\n${(j.steps || []).map(s => `  ${s.name} - ${s.conclusion}`).join('\n')}`).join('\n\n');
+  } catch (_) {
+    return 'Logs no disponibles todavia';
+  }
 }
 
 async function downloadArtifact(owner, repo, artifactId) {

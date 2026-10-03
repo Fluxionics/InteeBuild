@@ -1,0 +1,33 @@
+﻿name: Bug report
+description: Reporta un error para ayudarnos a mejorar
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "Gracias por reportar el bug. Por favor, sé lo más claro posible."
+  - type: textarea
+    id: descripcion
+    attributes:
+      label: "Descripción del error"
+      description: "¿Qué ocurre y qué esperabas que ocurriera?"
+      placeholder: "Describe el comportamiento actual vs esperado"
+    validations:
+      required: true
+  - type: input
+    id: pasos
+    attributes:
+      label: "Pasos para reproducir"
+      placeholder: "1. Ir a..., 2. Hacer clic..., 3. Ver error"
+    validations:
+      required: true
+  - type: input
+    id: entorno
+    attributes:
+      label: "Entorno"
+      placeholder: "Sistema operativo, navegador, versión"
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Logs / Capturas"
+      description: "Pega logs relevantes o capturas si aplica"

@@ -293,7 +293,8 @@ const Build = (() => {
             const lr = await fetch('/api/build/' + id + '/logs');
             const lj = await lr.json();
             if (lj.logs) {
-              buildConsole.textContent = lj.logs.substring(0, 15000);
+              buildConsole.textContent = lj.logs;
+              buildConsole.scrollTop = buildConsole.scrollHeight;
               show(buildConsole);
             }
           } catch (_) {}

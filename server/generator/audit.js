@@ -14,8 +14,9 @@ function getPermissionAudit(cfg){
   const batch = runtimeBatchConsts(cfg);
   const batchShort = batch.map(c=>c.split('.').pop());
   const specialOn = needsSpecialFile(cfg);
-  const REAL_ANDROID = ['capacitor', 'native'];
-  const EXPERIMENTAL_ANDROID = ['gecko', 'twa', 'cordova'];
+  const READY_ANDROID = ['capacitor', 'native', 'twa', 'gecko'];
+  const RUNTIME_OF = { capacitor: 'capacitor', twa: 'capacitor', native: 'native', gecko: 'native' };
+  const CI_ANDROID = ['flutter', 'tauri', 'react-native', 'ionic', 'cordova'];
   const res = selected.map(key=>{
     const spec = PERMISSION_SPEC[key];
     if(!spec) return {key, title:key, manifest:'MISSING', runtime:'MISSING', native:'MISSING', bridge:'MISSING', version:'UNKNOWN', special:null, status:'fail', verified:false, mechanism:'missing'};
@@ -54,9 +55,11 @@ function getPermissionAudit(cfg){
     }
     const bridge = impl.bridge || 'n/a';
     const capability = impl.native || '';
+    const rt = RUNTIME_OF[provider] || provider;
     let providerOk;
-    if (REAL_ANDROID.includes(provider) && (!impl.providerOk || impl.providerOk.includes(provider))) providerOk = 'OK ('+provider+')';
-    else if (EXPERIMENTAL_ANDROID.includes(provider)) providerOk = 'WARN ('+provider+' experimental: verifica en build real)';
+    if (READY_ANDROID.includes(provider) && (!impl.providerOk || impl.providerOk.includes(rt))) providerOk = 'OK ('+provider+')';
+    else if (READY_ANDROID.includes(provider)) providerOk = 'WARN ('+provider+' sin handler declarado para este permiso)';
+    else if (CI_ANDROID.includes(provider)) providerOk = 'WARN ('+provider+' compila APK en CI, permisos por runtime de la app)';
     else providerOk = 'WARN ('+provider+' solo genera proyecto, sin APK)';
     const version = (spec.minSdk && targetSdk < spec.minSdk) ? 'WARN' : ((spec.maxSdk && targetSdk > spec.maxSdk) ? 'WARN (solo hasta API '+spec.maxSdk+')' : 'OK');
     const verified = manifestGenerated && !native.startsWith('SPEC ONLY') && !native.startsWith('NO GENERADO') && !native.startsWith('MISSING');

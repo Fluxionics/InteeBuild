@@ -1,8 +1,93 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>./index.html</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>./about.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>./privacy.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
-  <url><loc>./terms.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
-  <url><loc>./license.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://inteebuild.onrender.com/index.html</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://inteebuild.onrender.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://inteebuild.onrender.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://inteebuild.onrender.com/ru/"/>
+    <xhtml:link rel="alternate" hreflang="ch" href="https://inteebuild.onrender.com/ch/"/>
+    <xhtml:link rel="alternate" hreflang="br" href="https://inteebuild.onrender.com/br/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://inteebuild.onrender.com/index.html"/>
+    <changefreq>weekly</changefreq><priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://inteebuild.onrender.com/about.html</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://inteebuild.onrender.com/es/about.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://inteebuild.onrender.com/en/about.html"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://inteebuild.onrender.com/ru/about.html"/>
+    <xhtml:link rel="alternate" hreflang="ch" href="https://inteebuild.onrender.com/ch/about.html"/>
+    <xhtml:link rel="alternate" hreflang="br" href="https://inteebuild.onrender.com/br/about.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://inteebuild.onrender.com/about.html"/>
+    <changefreq>weekly</changefreq><priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://inteebuild.onrender.com/privacy.html</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://inteebuild.onrender.com/es/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://inteebuild.onrender.com/en/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://inteebuild.onrender.com/ru/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="ch" href="https://inteebuild.onrender.com/ch/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="br" href="https://inteebuild.onrender.com/br/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://inteebuild.onrender.com/privacy.html"/>
+    <changefreq>weekly</changefreq><priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://inteebuild.onrender.com/terms.html</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://inteebuild.onrender.com/es/terms.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://inteebuild.onrender.com/en/terms.html"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://inteebuild.onrender.com/ru/terms.html"/>
+    <xhtml:link rel="alternate" hreflang="ch" href="https://inteebuild.onrender.com/ch/terms.html"/>
+    <xhtml:link rel="alternate" hreflang="br" href="https://inteebuild.onrender.com/br/terms.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://inteebuild.onrender.com/terms.html"/>
+    <changefreq>weekly</changefreq><priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://inteebuild.onrender.com/license.html</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://inteebuild.onrender.com/es/license.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://inteebuild.onrender.com/en/license.html"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://inteebuild.onrender.com/ru/license.html"/>
+    <xhtml:link rel="alternate" hreflang="ch" href="https://inteebuild.onrender.com/ch/license.html"/>
+    <xhtml:link rel="alternate" hreflang="br" href="https://inteebuild.onrender.com/br/license.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://inteebuild.onrender.com/license.html"/>
+    <changefreq>weekly</changefreq><priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://inteebuild.onrender.com/developer.html</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://inteebuild.onrender.com/es/developer.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://inteebuild.onrender.com/en/developer.html"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://inteebuild.onrender.com/ru/developer.html"/>
+    <xhtml:link rel="alternate" hreflang="ch" href="https://inteebuild.onrender.com/ch/developer.html"/>
+    <xhtml:link rel="alternate" hreflang="br" href="https://inteebuild.onrender.com/br/developer.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://inteebuild.onrender.com/developer.html"/>
+    <changefreq>weekly</changefreq><priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://inteebuild.onrender.com/docs.html</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://inteebuild.onrender.com/es/docs.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://inteebuild.onrender.com/en/docs.html"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://inteebuild.onrender.com/ru/docs.html"/>
+    <xhtml:link rel="alternate" hreflang="ch" href="https://inteebuild.onrender.com/ch/docs.html"/>
+    <xhtml:link rel="alternate" hreflang="br" href="https://inteebuild.onrender.com/br/docs.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://inteebuild.onrender.com/docs.html"/>
+    <changefreq>weekly</changefreq><priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://inteebuild.onrender.com/docs/radio-face.html</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://inteebuild.onrender.com/es/docs/radio-face.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://inteebuild.onrender.com/en/docs/radio-face.html"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://inteebuild.onrender.com/ru/docs/radio-face.html"/>
+    <xhtml:link rel="alternate" hreflang="ch" href="https://inteebuild.onrender.com/ch/docs/radio-face.html"/>
+    <xhtml:link rel="alternate" hreflang="br" href="https://inteebuild.onrender.com/br/docs/radio-face.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://inteebuild.onrender.com/docs/radio-face.html"/>
+    <changefreq>weekly</changefreq><priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://inteebuild.onrender.com/historial.html</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://inteebuild.onrender.com/es/historial.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://inteebuild.onrender.com/en/historial.html"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://inteebuild.onrender.com/ru/historial.html"/>
+    <xhtml:link rel="alternate" hreflang="ch" href="https://inteebuild.onrender.com/ch/historial.html"/>
+    <xhtml:link rel="alternate" hreflang="br" href="https://inteebuild.onrender.com/br/historial.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://inteebuild.onrender.com/historial.html"/>
+    <changefreq>weekly</changefreq><priority>0.8</priority>
+  </url>
 </urlset>

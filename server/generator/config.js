@@ -421,7 +421,7 @@ function normalizeConfig(raw) {
     nativeAudio: build.nativeAudio,
     nativeAutoplay: build.nativeAutoplay,
     ...catalog,
-    desktopEnabled: catalog.desktopEnabled || wantsDesktopOutput,
+    desktopEnabled: build.provider === 'tauri' ? false : (catalog.desktopEnabled || wantsDesktopOutput),
     ...androidSigning,
     ...iosSigning,
     iconBase64

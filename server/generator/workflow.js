@@ -23,6 +23,11 @@ on:
         required: false
         type: string
         default: 'apk'
+      provider:
+        description: 'Provider (capacitor/native/gecko/twa/cordova/flutter/tauri)'
+        required: false
+        type: string
+        default: 'capacitor'
 
 permissions:
   contents: read
@@ -32,7 +37,7 @@ jobs:
   # Android and iOS jobs are independent: they run in parallel and each one only
   # touches its own project folder (android/ or ios/).
   compile:
-    if: \${{ github.event.inputs.platform != 'ios' }}
+    if: \${{ github.event.inputs.platform != 'ios' && github.event.inputs.provider != 'flutter' && github.event.inputs.provider != 'cordova' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -157,6 +162,13 @@ jobs:
           if [ "$PROVIDER" = "gecko" ] && [ -f "gecko-MainActivity.java" ]; then cp gecko-MainActivity.java "$DST/MainActivity.java"; echo "geckoview applied"; fi
           if [ "$PROVIDER" = "cordova" ] && [ -f "config.xml" ]; then cp config.xml ./config.xml; echo "cordova config applied"; fi
           cat provider.json || true
+
+      - name: Apply GeckoView dependencies
+        if: \${{ hashFiles('patch-gecko-gradle.js') != '' }}
+        run: |
+          node patch-gecko-gradle.js
+          grep -c geckoview android/app/build.gradle || true
+          grep -c maven.mozilla.org android/build.gradle || true
 
       - name: Install background audio service
         if: \${{ hashFiles('RadioService.java') != '' }}
@@ -381,7 +393,7 @@ jobs:
 
   # Runs in parallel with compile; only touches ios/.
   ios-build:
-    if: \${{ github.event.inputs.platform == 'ios' || github.event.inputs.platform == 'both' }}
+    if: \${{ (github.event.inputs.platform == 'ios' || github.event.inputs.platform == 'both') && github.event.inputs.provider != 'flutter' && github.event.inputs.provider != 'tauri' }}
     runs-on: macos-latest
     steps:
       - name: Checkout
@@ -405,7 +417,8 @@ jobs:
         if: \${{ hashFiles('ios-cert.p12') == '' }}
         run: |
           cd ios/App
-          xcodebuild -project App.xcodeproj -scheme App -sdk iphonesimulator -configuration Debug build CODE_SIGNING_ALLOWED=NO
+          pod install --silent || pod install
+          xcodebuild -workspace App.xcworkspace -scheme App -sdk iphonesimulator -configuration Debug build CODE_SIGNING_ALLOWED=NO
 
       - name: Note App Store signing
         if: \${{ hashFiles('ios-cert.p12') == '' }}
@@ -570,6 +583,225 @@ jobs:
         with:
           name: inteebuild-\${{ github.event.inputs.id }}-appimage
           path: desktop/dist/*.AppImage
+          if-no-files-found: error
+
+  # --- Cordova real (provider == cordova) ---
+  cordova-build:
+    if: \${{ github.event.inputs.provider == 'cordova' && github.event.inputs.platform != 'ios' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve requested outputs
+        id: fmt
+        run: |
+          echo "apk=\${{ contains(github.event.inputs.outputs, 'apk') || github.event.inputs.outputs == '' }}" >> "$GITHUB_OUTPUT"
+          echo "aab=\${{ contains(github.event.inputs.outputs, 'aab') }}" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Read build config
+        run: |
+          echo '--- build-config.json ---'
+          cat build-config.json
+
+      - name: Setup Android SDK
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager --install "platform-tools" "platforms;android-35" "build-tools;35.0.0" 2>&1 | tail -20 || true
+
+      - name: Install Cordova CLI
+        run: npm install -g cordova
+
+      - name: Add Cordova Android platform
+        run: |
+          test -f config.xml || { echo "::error::config.xml no encontrado"; exit 1; }
+          test -d www || { echo "::error::www/ no encontrado"; exit 1; }
+          cordova telemetry off || true
+          cordova platform add android
+          cordova platform ls
+
+      - name: Apply manifest permissions
+        run: |
+          MF=platforms/android/app/src/main/AndroidManifest.xml
+          test -f "$MF" || { echo "::error::manifest de cordova no encontrado"; exit 1; }
+          for TAG in uses-permission uses-feature; do
+            grep -o "<$TAG[^>]*>" main-manifest.xml | while read -r LINE; do
+              NAME=$(echo "$LINE" | sed -n 's/.*android:name="\\([^"]*\\)".*/\\1/p')
+              if [ -n "$NAME" ] && grep -qF "$NAME" "$MF"; then continue; fi
+              sed -i "s#</manifest>#$LINE</manifest>#" "$MF"
+            done
+          done
+          if grep -o 'android:usesCleartextTraffic="true"' main-manifest.xml >/dev/null; then
+            sed -i 's#<application #<application android:usesCleartextTraffic="true" #' "$MF"
+          fi
+          grep -q 'android.permission.INTERNET' "$MF" || sed -i 's#</manifest>#<uses-permission android:name="android.permission.INTERNET" /></manifest>#' "$MF"
+          echo "--- cordova manifest permissions ---"
+          grep -o 'android.permission.[A-Za-z_]*' "$MF" | sort -u
+          python3 -c "import xml.dom.minidom;xml.dom.minidom.parse('$MF');print('manifest XML OK')"
+
+      - name: Apply app icon
+        if: \${{ hashFiles('app-icon.png') != '' }}
+        run: |
+          for d in mipmap-mdpi mipmap-hdpi mipmap-xhdpi mipmap-xxhdpi mipmap-xxxhdpi; do
+            if [ -d "platforms/android/app/src/main/res/$d" ]; then
+              cp app-icon.png "platforms/android/app/src/main/res/$d/ic_launcher.png"
+              cp app-icon.png "platforms/android/app/src/main/res/$d/ic_launcher_round.png"
+            fi
+          done
+
+      - name: Compile Cordova APK
+        if: \${{ steps.fmt.outputs.apk == 'true' }}
+        run: cordova build android
+
+      - name: Compile Cordova AAB
+        if: \${{ steps.fmt.outputs.aab == 'true' }}
+        continue-on-error: true
+        run: cordova build android -- --packageType=bundle
+
+      - name: Compile Cordova Release APK
+        if: \${{ hashFiles('user-keystore.jks') != '' }}
+        run: |
+          node -e "const fs=require('fs');const p={};fs.readFileSync('signing.properties','utf8').split(String.fromCharCode(10)).forEach(function(l){l=l.trim().replace(String.fromCharCode(13),'');const i=l.indexOf('=');if(i>0)p[l.slice(0,i)]=l.slice(i+1);});fs.writeFileSync('build.json',JSON.stringify({android:{release:{keystore:'user-keystore.jks',storePassword:p.storePassword||'',keyAlias:p.keyAlias||'',keyPassword:p.keyPassword||'',keystoreType:''}}},null,2));console.log('build.json listo');"
+          cordova build android --release
+
+      - name: Upload APK
+        if: \${{ steps.fmt.outputs.apk == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-apk
+          path: platforms/android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      - name: Upload Release APK
+        if: \${{ hashFiles('user-keystore.jks') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-release-apk
+          path: platforms/android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+
+      - name: Upload AAB
+        if: \${{ steps.fmt.outputs.aab == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-aab
+          path: platforms/android/app/build/outputs/bundle/debug/*.aab
+          if-no-files-found: warn
+
+  # --- Flutter (provider == flutter) ---
+  flutter-build:
+    if: \${{ github.event.inputs.provider == 'flutter' && github.event.inputs.platform != 'ios' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Create Android host
+        working-directory: flutter
+        run: |
+          cp android/app/src/main/AndroidManifest.xml /tmp/ib-manifest.xml
+          flutter create --platforms=android --org com.inteebuild --project-name inteeapp /tmp/ib-flutter-host
+          cp -r /tmp/ib-flutter-host/android/. android/
+          cp /tmp/ib-manifest.xml android/app/src/main/AndroidManifest.xml
+          PKG=$(node -p 'require("../build-config.json").packageName')
+          for GF in android/app/build.gradle android/app/build.gradle.kts; do
+            if [ -f "$GF" ]; then
+              sed -E -i "s/^([[:space:]]*(applicationId|namespace))([[:space:]]*=?[[:space:]]+).*/\\1\\3\\\"$PKG\\\"/" "$GF"
+            fi
+          done
+          MF=$(find android/app/src/main -name MainActivity.kt | head -n1)
+          if [ -n "$MF" ]; then
+            SRCROOT=$(dirname "$(dirname "$(dirname "$MF")")")
+            DIR=$(echo "$PKG" | tr . /)
+            mkdir -p "$SRCROOT/$DIR"
+            mv "$MF" "$SRCROOT/$DIR/MainActivity.kt"
+            sed -i "s/^package .*/package $PKG/" "$SRCROOT/$DIR/MainActivity.kt"
+          fi
+          ls assets/www/index.html
+          echo "--- flutter host listo (applicationId $PKG) ---"
+
+      - name: Flutter pub get
+        working-directory: flutter
+        run: |
+          flutter pub get
+          yes | flutter doctor --android-licenses || true
+
+      - name: Build APK
+        working-directory: flutter
+        run: flutter build apk --release
+
+      - name: Build App Bundle
+        if: \${{ contains(github.event.inputs.outputs, 'aab') }}
+        working-directory: flutter
+        run: flutter build appbundle --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-apk
+          path: flutter/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+
+      - name: Upload AAB
+        if: \${{ contains(github.event.inputs.outputs, 'aab') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-aab
+          path: flutter/build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+
+  # --- Tauri (provider == tauri) ---
+  tauri-build:
+    if: \${{ github.event.inputs.provider == 'tauri' && github.event.inputs.platform != 'ios' }}
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build release binary
+        shell: bash
+        run: cargo build --release --manifest-path tauri/src-tauri/Cargo.toml
+
+      - name: Locate binary
+        id: bin
+        shell: bash
+        run: |
+          EXE=$(find tauri/src-tauri/target/release -maxdepth 1 -name '*.exe' ! -name '*.pdb' | head -n 1)
+          if [ -z "$EXE" ]; then echo "::error::No se genero el .exe de Tauri"; exit 1; fi
+          echo "path=$EXE" >> "$GITHUB_OUTPUT"
+          ls -lh "$EXE"
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-exe
+          path: \${{ steps.bin.outputs.path }}
           if-no-files-found: error
 `;
 

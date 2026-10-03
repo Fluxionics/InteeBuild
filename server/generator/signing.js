@@ -38,7 +38,7 @@ function iosSignScriptSrc() {
     + "  + '<key>provisioningProfiles</key><dict><key>' + escXml(bundleId) + '</key><string>' + escXml(profName) + '</string></dict>' + '\\n'\n"
     + "  + '</dict></plist>';\n"
     + "fs.writeFileSync('/tmp/ib-export.plist', plist);\n"
-    + "run('xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release -archivePath /tmp/ib-app.xcarchive archive CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=' + JSON.stringify(identity) + ' PROVISIONING_PROFILE=' + uuid);\n"
+    + "run('xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Release -archivePath /tmp/ib-app.xcarchive archive CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=' + JSON.stringify(identity) + ' PROVISIONING_PROFILE=' + uuid);\n"
     + "run('xcodebuild -exportArchive -archivePath /tmp/ib-app.xcarchive -exportPath /tmp/ib-export -exportOptionsPlist /tmp/ib-export.plist');\n"
     + "console.log('Exportado: ' + fs.readdirSync('/tmp/ib-export').join(', '));\n";
 }

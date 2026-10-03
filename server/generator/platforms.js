@@ -1,12 +1,13 @@
 'use strict';
 
-const { nativeMainActivitySrc, geckoMainActivitySrc, cordovaConfigXml } = require('./providers');
+const { nativeMainActivitySrc, geckoMainActivitySrc, cordovaConfigXml, geckoGradlePatchSrc } = require('./providers');
 const { starterHtml, finalizeWebAssets } = require('./web-assets');
 
 const WEBVIEW_LABELS = {
   gecko: 'GeckoView',
   native: 'Native WebView',
-  twa: 'TWA Chrome'
+  twa: 'TWA Chrome',
+  cordova: 'Cordova WebView'
 };
 
 function providerFiles(cfg) {
@@ -19,7 +20,10 @@ function providerFiles(cfg) {
   };
 
   if (cfg.provider === 'native') files['native-MainActivity.java'] = nativeMainActivitySrc(cfg.packageName, cfg);
-  if (cfg.provider === 'gecko') files['gecko-MainActivity.java'] = geckoMainActivitySrc(cfg.packageName, cfg);
+  if (cfg.provider === 'gecko') {
+    files['gecko-MainActivity.java'] = geckoMainActivitySrc(cfg.packageName, cfg);
+    files['patch-gecko-gradle.js'] = geckoGradlePatchSrc();
+  }
   if (cfg.provider === 'cordova') files['config.xml'] = cordovaConfigXml(cfg);
   return files;
 }
@@ -120,12 +124,15 @@ function twaFiles(cfg) {
   return files;
 }
 
+function projectSlug(appName) {
+  return appName.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^[^a-z]+/, '') || 'app';
+}
+
 function flutterFiles(cfg) {
   if (cfg.provider !== 'flutter') return {};
-  const slug = cfg.appName.toLowerCase().replace(/[^a-z0-9]+/g, '_');
 
   return {
-    'flutter/pubspec.yaml': `name: ${slug}
+    'flutter/pubspec.yaml': `name: ${projectSlug(cfg.appName)}
 description: ${cfg.appName}
 version: ${cfg.versionName}+${cfg.versionCode}
 environment:
@@ -135,7 +142,6 @@ dependencies:
     sdk: flutter
   webview_flutter: ^4.0.0
   permission_handler: ^11.0.0
-  flutter_admob: ^2.0.0
   cupertino_icons: ^1.0.2
 
 flutter:
@@ -151,11 +157,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: '${cfg.appName}',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
         useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xff${cfg.accentColor.replace('#', '')})),
       ),
-      home: WebViewScreen(url: '${cfg.inputType === 'url' ? cfg.url : 'about:blank'}'),
+      home: WebViewScreen(url: '${cfg.inputType === 'url' ? cfg.url : ''}'),
     );
   }
 }
@@ -169,12 +176,29 @@ class WebViewScreen extends StatefulWidget {
 }
 
 class _WebViewScreenState extends State<WebViewScreen> {
-  late WebViewController _controller;
+  late final WebViewController _controller;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    final controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(const Color(0xff0b0f1a))
+      ..setNavigationDelegate(NavigationDelegate(
+        onPageStarted: (_) {
+          if (mounted) setState(() => _isLoading = true);
+        },
+        onPageFinished: (_) {
+          if (mounted) setState(() => _isLoading = false);
+        },
+      ));
+    if (widget.url.startsWith('http')) {
+      controller.loadRequest(Uri.parse(widget.url));
+    } else {
+      controller.loadFlutterAsset('assets/www/index.html');
+    }
+    _controller = controller;
     _requestPermissions();
   }
 
@@ -183,23 +207,18 @@ class _WebViewScreenState extends State<WebViewScreen> {
     ${cfg.permissions.microphone ? 'await Permission.microphone.request();' : ''}
     ${cfg.permissions.gps ? 'await Permission.location.request();' : ''}
     ${cfg.permissions.storage ? 'await Permission.storage.request();' : ''}
+    ${cfg.permissions.notifications ? 'await Permission.notification.request();' : ''}
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('${cfg.appName}'),
-        backgroundColor: Color(0xff${cfg.accentColor.replace('#', '')}),
-      ),
       body: Stack(
         children: [
-          WebViewWidget(
-            controller: _controller,
-          ),
+          WebViewWidget(controller: _controller),
           if (_isLoading)
-            const Center(
-              child: CircularProgressIndicator(),
+            const Positioned.fill(
+              child: Center(child: CircularProgressIndicator()),
             ),
         ],
       ),
@@ -207,13 +226,14 @@ class _WebViewScreenState extends State<WebViewScreen> {
   }
 }`,
     'flutter/android/app/src/main/AndroidManifest.xml': `<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="${cfg.packageName}">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
     ${cfg.permissions.cameraMic ? '<uses-permission android:name="android.permission.CAMERA" />' : ''}
     ${cfg.permissions.microphone ? '<uses-permission android:name="android.permission.RECORD_AUDIO" />' : ''}
     ${cfg.permissions.gps ? '<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />' : ''}
+    ${cfg.permissions.gps ? '<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />' : ''}
     ${cfg.permissions.storage ? '<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />' : ''}
+    ${cfg.permissions.notifications ? '<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />' : ''}
     ${cfg.permissions.foreground ? '<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />' : ''}
     ${cfg.permissions.wakeLock ? '<uses-permission android:name="android.permission.WAKE_LOCK" />' : ''}
     <application
@@ -236,76 +256,148 @@ class _WebViewScreenState extends State<WebViewScreen> {
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
     </application>
 </manifest>`,
     'flutter/README.md': `# Flutter Project
 
-## Building
+## Compilar
 \`\`\`bash
 cd flutter
 flutter pub get
-flutter build apk
-flutter build appbundle
+flutter build apk --release
+flutter build appbundle --release
 \`\`\`
 
+## Assets
+La web de la app vive en \`assets/www/\` (index.html + catalog.js) y esta
+lista en \`pubspec.yaml\` bajo \`flutter.assets\`.
+
 ## Features
-- WebView with ${cfg.inputType === 'url' ? 'URL: ' + cfg.url : 'embedded HTML'}
-- Native permissions: ${Object.keys(cfg.permissions).filter(k => cfg.permissions[k]).join(', ')}
-- Material Design 3
-- AdMob integration`
+- WebView (webview_flutter 4) con ${cfg.inputType === 'url' ? 'URL: ' + cfg.url : 'HTML embebido'}
+- Permisos nativos: ${Object.keys(cfg.permissions).filter(k => cfg.permissions[k]).join(', ') || 'ninguno'}
+- Material 3 con color ${cfg.accentColor}`
+  };
+}
+
+function finalizeFlutterProject(files) {
+  const pubspec = files['flutter/pubspec.yaml'];
+  if (!pubspec) return;
+  const dirs = new Set(['www']);
+  Object.keys(files).forEach((key) => {
+    if (!key.startsWith('www/')) return;
+    files['flutter/assets/' + key] = files[key];
+    const dirParts = key.split('/').slice(0, -1);
+    for (let i = 1; i <= dirParts.length; i++) dirs.add(dirParts.slice(0, i).join('/'));
+  });
+  const list = [...dirs].sort().map((d) => `    - assets/${d}/`).join('\n');
+  files['flutter/pubspec.yaml'] = pubspec.replace(/\s+$/, '') + '\n  assets:\n' + list + '\n';
+}
+
+function tauriPngIcon(cfg) {
+  const m = /^data:image\/png;base64,([A-Za-z0-9+/=]+)$/.exec(String(cfg.iconBase64 || ''));
+  if (!m) return null;
+  let png;
+  try { png = Buffer.from(m[1], 'base64'); } catch (_) { return null; }
+  if (!png || png.length < 67 || png.length > 5 * 1024 * 1024) return null;
+  if (png.slice(0, 4).toString('hex') !== '89504e47') return null;
+  return png;
+}
+
+function tauriIconFiles(cfg) {
+  const png = tauriPngIcon(cfg);
+  if (!png) return {};
+
+  const w = png.readUInt32BE(16) || 512;
+  const ico = Buffer.alloc(22);
+  ico.writeUInt16LE(0, 0);
+  ico.writeUInt16LE(1, 2);
+  ico.writeUInt16LE(1, 4);
+  ico.writeUInt8(w >= 256 ? 0 : Math.min(w, 255), 6);
+  ico.writeUInt8(w >= 256 ? 0 : Math.min(w, 255), 7);
+  ico.writeUInt8(0, 8);
+  ico.writeUInt8(0, 9);
+  ico.writeUInt16LE(1, 10);
+  ico.writeUInt16LE(32, 12);
+  ico.writeUInt32LE(png.length, 14);
+  ico.writeUInt32LE(22, 18);
+
+  const icnsInner = Buffer.alloc(8);
+  icnsInner.write('ic09', 0, 'ascii');
+  icnsInner.writeUInt32BE(8 + png.length, 4);
+  const icnsHead = Buffer.alloc(8);
+  icnsHead.write('icns', 0, 'ascii');
+  icnsHead.writeUInt32BE(16 + png.length, 4);
+
+  return {
+    'tauri/src-tauri/icons/32x32.png': png,
+    'tauri/src-tauri/icons/128x128.png': png,
+    'tauri/src-tauri/icons/128x128@2x.png': png,
+    'tauri/src-tauri/icons/icon.ico': Buffer.concat([ico, png]),
+    'tauri/src-tauri/icons/icon.icns': Buffer.concat([icnsHead, icnsInner, png])
   };
 }
 
 function tauriFiles(cfg) {
   if (cfg.provider !== 'tauri') return {};
-  const slug = cfg.appName.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+  const slug = projectSlug(cfg.appName).replace(/_/g, '-');
+  const iconFilesMap = tauriIconFiles(cfg);
 
-  return {
-    'tauri/Cargo.toml': `[package]
+  const bundle = { identifier: cfg.packageName };
+  if (Object.keys(iconFilesMap).length) {
+    bundle.icon = ['icons/32x32.png', 'icons/128x128.png', 'icons/128x128@2x.png', 'icons/icon.icns', 'icons/icon.ico'];
+  }
+
+  const conf = {
+    build: { distDir: '../../www', devPath: '../../www' },
+    tauri: {
+      bundle,
+      updater: { active: false },
+      allowlist: {
+        all: true,
+        shell: { all: true, open: true },
+        dialog: { all: true, ask: true, confirm: true },
+        fs: { all: true, readFile: true, writeFile: true, readDir: true, removeFile: true, copyFile: true },
+        http: { all: true, request: true, scope: ['https://*', 'http://*'] },
+        notification: { all: true }
+      },
+      security: {
+        csp: "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: filesystem: ws: wss: https: http:; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https: http: ws: wss:"
+      },
+      windows: [{
+        title: cfg.appName,
+        width: 1280,
+        height: 720,
+        resizable: true,
+        fullscreen: cfg.fullscreen,
+        decorations: true
+      }]
+    }
+  };
+
+  return Object.assign({
+    'tauri/src-tauri/Cargo.toml': `[package]
 name = "${slug}"
 version = "${cfg.versionName}"
 edition = "2021"
 
 [dependencies]
-tauri = { version = "1.0", features = ["api-all"] }
+tauri = { version = "1", features = ["api-all"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-webview2-com = "0.19"
 
 [build-dependencies]
-tauri-build = { version = "1.0", features = [] }`,
-    'tauri/src-tauri/tauri.conf.json': JSON.stringify({
-      build: {
-        distDir: "../www",
-        devPath: "../www"
-      },
-      tauri: {
-        bundle: {
-          identifier: cfg.packageName,
-          icon: ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"]
-        },
-        updater: { active: false },
-        allowlist: {
-          all: true,
-          shell: { all: true, open: true },
-          dialog: { all: true, ask: true, confirm: true },
-          fs: { all: true, readFile: true, writeFile: true, readDir: true, removeFile: true, copyFile: true },
-          http: { all: true, request: true, scope: ["https://*"] },
-          notification: { all: true }
-        },
-        security: {
-          csp: "default-src 'self'; script-src 'self'"
-        },
-        windows: [{
-          title: cfg.appName,
-          width: 1280,
-          height: 720,
-          resizable: true,
-          fullscreen: cfg.fullscreen,
-          decorations: true
-        }]
-      }
-    }, null, 2),
+tauri-build = { version = "1", features = [] }
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]`,
+    'tauri/src-tauri/build.rs': `fn main() {
+    tauri_build::build()
+}`,
+    'tauri/src-tauri/tauri.conf.json': JSON.stringify(conf, null, 2),
     'tauri/src-tauri/src/main.rs': `#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use tauri::Manager;
@@ -331,19 +423,20 @@ fn main() {
 }`,
     'tauri/README.md': `# Tauri Project
 
-## Building
+## Compilar
 \`\`\`bash
-cd tauri
-npm install
-npm run tauri build
+cd tauri/src-tauri
+cargo build --release
 \`\`\`
 
+El binario queda en \`src-tauri/target/release/${slug}.exe\`.
+La web se sirve de \`www/\` de la raiz del proyecto (distDir \`../../www\`).
+
 ## Features
-- Lightweight desktop app (WebView2 on Windows, WebKit on macOS/Linux)
-- Rust backend for performance
-- ${Object.keys(cfg.permissions).filter(k => cfg.permissions[k]).join(', ')} permissions
-- Native system integration`
-  };
+- Desktop ligero (WebView2 en Windows, WebKit en macOS/Linux)
+- Backend Rust
+- ${Object.keys(cfg.permissions).filter(k => cfg.permissions[k]).join(', ') || 'ninguno'} permisos`
+  }, iconFilesMap);
 }
 
 
@@ -454,4 +547,4 @@ function platformProjects(cfg) {
   );
 }
 
-module.exports = { providerFiles, integrationFiles, platformProjects };
+module.exports = { providerFiles, integrationFiles, platformProjects, finalizeFlutterProject };

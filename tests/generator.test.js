@@ -55,6 +55,39 @@ test('providers capacitor/native generan MainActivity válido', () => {
   assert.ok(fnat['native-MainActivity.java'].includes('NativePermissions.requestAll'));
 });
 
+test('native y gecko hornean DownloadManager y file chooser', () => {
+  const fnat = g.generateFiles(g.normalizeConfig({ appName: 'Dl Test', url: 'https://example.com', provider: 'native', permissions: {}, downloadManager: true }));
+  const j = fnat['native-MainActivity.java'];
+  assert.ok(j.includes('setDownloadListener'));
+  assert.ok(j.includes('DownloadManager.Request'));
+  assert.ok(j.includes('onShowFileChooser'));
+  assert.ok(j.includes('ValueCallback<Uri[]>'));
+  assert.ok(j.includes('onActivityResult'));
+  const fgek = g.generateFiles(g.normalizeConfig({ appName: 'Dl Test', url: 'https://example.com', provider: 'gecko', permissions: {}, downloadManager: true }));
+  const k = fgek['gecko-MainActivity.java'];
+  assert.ok(k.includes('onFilePrompt'));
+  assert.ok(k.includes('setPromptDelegate'));
+  assert.ok(k.includes('onExternalResponse'));
+  assert.ok(k.includes('DownloadManager.Request'));
+  assert.ok(k.includes('FilePrompt'));
+  const foff = g.generateFiles(g.normalizeConfig({ appName: 'Dl Off', url: 'https://example.com', provider: 'native', permissions: {}, downloadManager: false }));
+  assert.ok(!foff['native-MainActivity.java'].includes('setDownloadListener'));
+});
+
+test('cordova: config.xml real con prefs de SDK y job cordova-build', () => {
+  const cfg = g.normalizeConfig({ appName: 'Cordova Test', url: 'https://example.com', provider: 'cordova', permissions: {} });
+  const f = g.generateFiles(cfg);
+  const xml = f['config.xml'];
+  assert.ok(xml.includes('android-minSdkVersion" value="' + cfg.minSdk));
+  assert.ok(xml.includes('android-targetSdkVersion'));
+  assert.ok(xml.includes('android-compileSdkVersion'));
+  assert.ok(xml.includes('<content src="'));
+  assert.ok(xml.includes('example.com'));
+  assert.ok(f['provider.json'].includes('cordova'));
+  assert.ok(g.WORKFLOW_YML.includes('cordova-build:'));
+  assert.ok(g.WORKFLOW_YML.includes("provider != 'cordova'"));
+});
+
 test('PWA gratis siempre incluida (salvo opt-out)', () => {
   const cfg = g.normalizeConfig({ appName: 'Pwa Test', url: 'https://example.com', permissions: {} });
   const files = g.generateFiles(cfg);

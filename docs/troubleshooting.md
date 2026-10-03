@@ -28,7 +28,7 @@ Abre el enlace del run desde el resultado del build o desde `/api/build/:id`. Er
 
 - **`422 No workflow found with any ref`** — el workflow todavía no está registrado en la rama base. El servidor reintenta solo, hasta seis veces con espera creciente; si sigue fallando, espera unos segundos y vuelve a lanzar.
 - **Fallo de Gradle** — casi siempre SDK o dependencia. Prueba `compileSdk` y `targetSdk` 35, que son los valores con los que está probado el generador. Los pasos del run se llaman `Compile APK`, `Compile Release APK`, `Compile AAB` y `Compile Release AAB`.
-- **`package org.mozilla.geckoview does not exist`** — estás compilando con el provider `gecko` y el proyecto no añade esa dependencia. Cambia a `capacitor` o `native`.
+- **`package org.mozilla.geckoview does not exist`** — el paso `Apply GeckoView dependencies` no corrió o su patch falló: en el log debe salir `geckoview` tras `grep -c geckoview android/app/build.gradle`. Si el ZIP es de una versión anterior del generador, regenera el proyecto; si sigue sin estar, cambia a `capacitor` o `native`.
 - **El workflow termina sin artefacto** — la salida pedida (`apk`, `aab` o `both`) no coincide con lo que se compiló, o Gradle no llegó a empaquetar. Mira los pasos `Compile APK` y `Compile AAB` del run.
 
 ## El APK no se descarga
@@ -43,7 +43,7 @@ Abre el enlace del run desde el resultado del build o desde `/api/build/:id`. Er
 - Si desactivaste la opción de tráfico HTTP (cleartext), el manifiesto sale con `android:usesCleartextTraffic="false"` y una URL `http://` no carga: verás blanco. Actívala de nuevo o usa HTTPS. Por defecto el manifiesto sí permite cleartext.
 - Comprueba que tu sitio permita ser embebido: cabeceras `X-Frame-Options` o `Content-Security-Policy: frame-ancestors` en tu servidor bloquean el WebView y ves una pantalla vacía.
 - Revisa la consola de tu sitio con la app abierta: los errores de JavaScript son los mismos que en el navegador.
-- Si usas `gecko`, `flutter` o `tauri`, recuerda que no producen un APK distinto del normal.
+- Con provider `flutter` el APK viene del job `flutter-build` (mira sus pasos `Build APK`/`Build App Bundle`), no de `Compile APK`. Con provider `cordova` viene del job `cordova-build` (pasos `Compile Cordova APK`). Con provider `tauri` el APK sigue siendo el de Capacitor y además hay un `.exe` del job `tauri-build`. El provider `gecko` sí compila un APK distinto: la `MainActivity` es GeckoView.
 
 ## Permiso denegado en Android
 

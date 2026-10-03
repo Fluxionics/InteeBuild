@@ -36,7 +36,7 @@ module.exports = function registerBuildRoutes(app, ctx) {
     const g = gh.config();
     try {
       const logs = await gh.getRunLogs(g.owner, g.repo, state.runId);
-      res.json({ logs: logs.substring(0, 80000) });
+      res.json({ logs: logs.substring(0, 500000) });
     } catch (e) { res.status(500).json({ error: e.message }); }
   });
 

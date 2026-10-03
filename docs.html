@@ -32,6 +32,17 @@
 .docs-content a{color:var(--accent);}
 .docs-loading{color:var(--muted);font-size:13px;}
 </style>
+
+  <link rel="alternate" hreflang="es" href="https://inteebuild.onrender.com/docs.html" />
+  <link rel="alternate" hreflang="en" href="https://inteebuild.onrender.com/en/docs.html" />
+  <link rel="alternate" hreflang="ru" href="https://inteebuild.onrender.com/ru/docs.html" />
+  <link rel="alternate" hreflang="ch" href="https://inteebuild.onrender.com/ch/docs.html" />
+  <link rel="alternate" hreflang="br" href="https://inteebuild.onrender.com/br/docs.html" />
+  <link rel="alternate" hreflang="x-default" href="https://inteebuild.onrender.com/docs.html" />
+  <link rel="canonical" href="https://inteebuild.onrender.com/docs.html" />
+  <meta property="og:locale" content="es_ES" />
+  <meta property="og:url" content="https://inteebuild.onrender.com/docs.html" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","url":"https://inteebuild.onrender.com/","name":"InteeBuild"}</script>
 </head>
 <body>
 <header class="topbar">
@@ -43,7 +54,7 @@
 <article class="docs-content" id="docsContent"><p class="docs-loading">Cargando documentación…</p></article>
 </main>
 <footer style="max-width:1120px;margin:0 auto;padding:0 24px 30px;display:flex;gap:8px;color:var(--faint);font-size:12px;justify-content:center">
-<span>InteeBuild Docs</span><span class="sep">·</span><a href="./index.html">Studio</a><span class="sep">·</span><a href="./developer.html">Developer API</a>
+<span>InteeBuild Docs</span><span class="sep">·</span><a href="./index.html">Studio</a><span class="sep">·</span><a href="./developer.html">Developer API</a><span class="sep">·</span><a href="./historial.html">Historial</a>
 </footer>
 <script src="./js/icons.js"></script>
 <script>
@@ -62,7 +73,8 @@ const DOCS=[
   {id:'api', file:'docs/api.md', icon:'terminal', label:'API'},
   {id:'decompiler', file:'docs/decompiler.md', icon:'box', label:'Decompiler'},
   {id:'production', file:'docs/production.md', icon:'server', label:'Producción'},
-  {id:'troubleshooting', file:'docs/troubleshooting.md', icon:'life-buoy', label:'Problemas'}
+  {id:'troubleshooting', file:'docs/troubleshooting.md', icon:'life-buoy', label:'Problemas'},
+  {id:'faq', file:'docs/faq.md', icon:'help-circle', label:'FAQ'}
 ];
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function md(src){
@@ -108,13 +120,16 @@ function md(src){
   if(inCode) html+='<pre><code>'+esc(codeBuf.join('\n'))+'</code></pre>';
   return html;
 }
+const DOCS_LANG=(location.pathname.match(/^\/(es|en|ru|ch|br)(?=\/)/)||[])[1]||'es';
+function mdUrl(file){return DOCS_LANG==='es'?file:'docs/'+DOCS_LANG+'/'+file.split('/').pop();}
 async function loadDoc(id){
   const d=DOCS.find(x=>x.id===id)||DOCS[0];
   document.querySelectorAll('#docsNav a').forEach(a=>a.classList.toggle('active',a.dataset.doc===d.id));
   const box=document.getElementById('docsContent');
-  box.innerHTML='<p class="docs-loading">Cargando '+d.label+'…</p>';
+  box.innerHTML='<p class="docs-loading"><b>'+esc(d.label)+'</b> <span>Cargando documentación…</span></p>';
   try{
-    const r=await fetch(d.file);
+    let r=await fetch(mdUrl(d.file));
+    if(!r.ok&&DOCS_LANG!=='es') r=await fetch(d.file);
     if(!r.ok) throw new Error('No se pudo cargar '+d.file);
     const t=await r.text();
     box.innerHTML=md(t);

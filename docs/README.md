@@ -20,6 +20,7 @@ Si es tu primera vez, empieza por el [inicio rápido](./quickstart.md).
 - [security.md](./security.md) — límites del servidor, SSRF, API Keys y lo que la app generada expone.
 - [production.md](./production.md) — despliegue en Render, entorno y diagnóstico.
 - [troubleshooting.md](./troubleshooting.md) — errores frecuentes y su causa.
+- [faq.md](./faq.md) — preguntas frecuentes: providers, límites, logs, iOS, audio.
 
 ## Convención de evidencia
 

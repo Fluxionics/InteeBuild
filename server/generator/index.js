@@ -13,7 +13,7 @@ const { normalizeConfig } = require('./config');
 const { packageFiles } = require('./package-files');
 const { assetFiles } = require('./assets');
 const { starterHtml, catalogFiles, finalizeWebAssets } = require('./web-assets');
-const { providerFiles, integrationFiles, platformProjects } = require('./platforms');
+const { providerFiles, integrationFiles, platformProjects, finalizeFlutterProject } = require('./platforms');
 const { buildPlayListing } = require('./listing');
 
 
@@ -73,6 +73,7 @@ function generateFiles(cfg) {
 
 
   finalizeWebAssets(files, cfg);
+  finalizeFlutterProject(files);
   return files;
 }
 

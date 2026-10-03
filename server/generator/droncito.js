@@ -122,7 +122,7 @@ function droncitoPatchSrc() {
     "const mp='android/app/src/main/java/'+pkg.split('.').join('/')+'/MainActivity.java';",
     "let src=fs.readFileSync(mp,'utf8');",
     "let changed=false;",
-    "if(src.indexOf('DroncitoBridge')===-1){",
+    "if(src.indexOf('DroncitoBridge')===-1 && /extends\\s+BridgeActivity/.test(src)){",
 
     "  src=src.replace(/super\\.onCreate\\([^)]*\\);/,m=>m+NL+'    try{ getBridge().getWebView().addJavascriptInterface(new '+pkg+'.DroncitoBridge(this), \\'Droncito\\'); }catch(Exception ignored){}'+NL+'    try{ android.webkit.WebView wv2=getBridge().getWebView(); wv2.getSettings().setMediaPlaybackRequiresUserGesture(false); }catch(Exception ignored){}');",
     "  changed=true;",

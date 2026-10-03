@@ -1,0 +1,7003 @@
+{
+  ", firma y": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  ", iconos), permisos detectados,": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  ", implementación nativa y si el provider lo soporta, más": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  ", la": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  ", o cuerpo": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  ", uso y última llamada; la key en claro sólo se devuelve al crearla.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  ", versión, tamaño,": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "; consulta el estado y baja el ZIP. La rama se borra a los 20 minutos.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "; todo lo demás (permisos, splash, menú, PWA) lo pone el nativo. O pega tu URL arriba.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "¿Activar automáticamente?": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "¿Eliminar esta compilación del historial?": {
+    "count": 1,
+    "files": [
+      "historial.html"
+    ]
+  },
+  "¿Es gratis?": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "¿Funciona sin programar?": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "¿Puedo publicar en Google Play?": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "¿Qué pasa con mis datos?": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  ". Abre el ZIP que subió Actions y devuelve el binario suelto. Sin": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  ". Acepta": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  ". Con": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  ". Declaro tener derechos sobre el contenido a convertir.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  ". Exige key si existe al menos una → 202": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  ". Frena releases con permisos de más o de menos.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  ". Las keys se guardan en": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  ". Se activa solo con las plantillas Radio y Streaming.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  ". Si ya no está en memoria, mira el historial con": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "./assets/social-preview.svg": {
+    "count": 2,
+    "files": [
+      "index.html"
+    ]
+  },
+  "\" trae una cara HTML de ejemplo. ¿Usarla como cara? (Tu HTML actual se reemplaza. Todo lo demás ya quedó nativo.)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "(android/ios/both),": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "(apk, aab, xapk, apks, ipa, exe, msi, dmg, appimage),": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "(hasta 20 por": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "(ignorado en git): en disco sólo queda su hash sha256 y el prefijo.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "(lo que existe de verdad).": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "(lo que pediste) y": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "(nativo verificado + cara HTML lista). Revisa Audit en el paso 2.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "(ok/warn/fail),": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "(reimportable en el Studio),": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "(revisa políticas de Play Store)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "(también sin sufijo),": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "(Windows, macOS y Ubuntu) y añaden ~2-4 min al build; en macOS salen sin firma de Apple, así que Gatekeeper avisará al abrirlos. El destino Win/Mac lo fija el selector “Destinos escritorio” de este mismo paso.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  ") para tu propio updater, más": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  ") que se borra automáticamente al terminar la compilación (el código no queda en el repo). Los artefactos y runs se auto-limpian después (ramas >5 min, runs y artefactos >30 min).": {
+    "count": 1,
+    "files": [
+      "privacy.html"
+    ]
+  },
+  ") y esa key deja de servir.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "). Puedes usarlo personal y comercialmente manteniendo el aviso de copyright.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "[{\"label\":\"Inicio\",\"url\":\"https://miweb.com/\",\"icon\":\"home\"},{\"label\":\"Ofertas\",\"url\":\"https://miweb.com/ofertas\",\"icon\":\"tag\"}]": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "[{\"label\":\"Inicio\",\"url\":\"https://miweb.com/\"},{\"label\":\"Tienda\",\"url\":\"https://miweb.com/tienda\"}]": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "[data-del-key]": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "] Subiendo APK al repo efímero y despachando workflow decompile-app.yml ...": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "] Timeout (5 min). Revisa la rama": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "{\"project_id\":\"mi-proyecto\"}": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "@capacitor-community/admob": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "@capacitor-community/bluetooth-le": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "@capacitor/app": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "@capacitor/biometrics": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "@capacitor/browser": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "@capacitor/camera": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "@capacitor/clipboard": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "@capacitor/device": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "@capacitor/dialog": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "@capacitor/filesystem": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "@capacitor/geolocation": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "@capacitor/haptics": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "@capacitor/local-notifications": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "@capacitor/network": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "@capacitor/preferences": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "@capacitor/push-notifications": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "@capacitor/screen-reader": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "@capacitor/share": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "@capacitor/status-bar": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "@capacitor/toast": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "/* Estilos personalizados aplicados a la WebView */ body { -webkit-user-select: none; }": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "// Código JS inyectado tras la carga de la WebView console.log('WebView lista');": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "/api/analyze?url=": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/analyze/html": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/apk-info/:id": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/build": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/build/:id": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/build/:id/logs": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/check-update": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/decompile": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/decompile/cloud": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/diag": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/docs": {
+    "count": 2,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/download/:id/:fmt": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/git/connect": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/git/webhook": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/health": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/history": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/inspect": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/keys": {
+    "count": 2,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/keys/:id": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/listing": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/manifest-diff": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/permissions/audit": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/permissions/spec": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/project": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/qr/:id": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/security-audit": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/stats": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/templates": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/v1/build": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/v1/build/:id": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/api/versions/publish": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "/producto/*, /articulo/*": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "#4f46e5": {
+    "count": 3,
+    "files": [
+      "index.html"
+    ]
+  },
+  "#ffffff": {
+    "count": 3,
+    "files": [
+      "index.html"
+    ]
+  },
+  "← Studio": {
+    "count": 1,
+    "files": [
+      "docs.html"
+    ]
+  },
+  "→ 404 \"Build aun en progreso\".": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "→ resumen JSON de toda la API.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "<!DOCTYPE html> <html>...": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "<button class=\"btn ghost sm\" data-del-key=\"": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "<button type=\"button\" class=\"btn ghost sm\" data-del=\"": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "> Syncing Android tasks completed in 1.2s. Ready for build.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "≤30 MB": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "$ npx cap sync android": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "1. Elige tu fuente": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "1. Propiedad Intelectual:": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "10 builds/h y 10 descompilados en la nube/h por IP": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "100% open source": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "2. Responsabilidad de Contenido:": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "2. Selecciona plantilla": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "29 plantillas": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "29 Plantillas": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "29 plantillas verificadas (Radio, Banking, Social, etc.) configuran permisos automáticamente.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "3. Personaliza": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "3. Uso del Servicio:": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "4. Compila y descarga": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "4. Uso Aceptable:": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "5. Privacidad:": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "6. Licencia:": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "7 providers": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "7 Providers": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "86 permisos granulares": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "9 formatos": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "aab": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "AAB": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "AAB:": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Abre la aplicación al hacer clic en URLs con tu dominio web": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Abre un issue en": {
+    "count": 1,
+    "files": [
+      "privacy.html"
+    ]
+  },
+  "Acceso especial": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "ACCESS_BACKGROUND_LOCATION (solo si gps preciso ya concedido)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "ACCESS_FINE_LOCATION": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Acción del botón Atrás (Back Button)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "acel/giro/barómetro": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Acepto los Términos de Uso": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Activa todas las capacidades del catálogo. Todo genera código nativo real (Java/JS) y se incluye en el APK/AAB.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Activar vibración": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "ACTIVITY_RECOGNITION": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Ad Hoc (dispositivos)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "ad-hoc": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "AdMob Ads Integration": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "AdMob App ID": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "ai": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "AI Web Application": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Ajusta nombre, icono, colores, splash y ajustes avanzados según necesites.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Ajustes": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Ajustes de WebView Nativa": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Al abrir la app": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Al cerrar / minimizar": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "al instalar": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Alarmas (legacy → SCHEDULE)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Alarmas exactas · SCHEDULE (recomendado)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Alarmas exactas · USE (solo reloj/calendario)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "alert error": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Alias de la clave": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Almacenamiento": {
+    "count": 1,
+    "files": [
+      "privacy.html"
+    ]
+  },
+  "Alta (Alerta visual)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Alternar Fullscreen": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Ambos:": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Análisis de Datos Avanzado": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Análisis de Redes Sociales": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Análisis Vulnerabilidades": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Analizamos compatibilidad y detectamos PWA.": {
+    "count": 1,
+    "files": [
+      "about.html"
+    ]
+  },
+  "Analizando página…": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Analizar salud web": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "android": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Android": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Android + iOS": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "AndroidManifest.xml": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "any": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "API completa para compilar APK/AAB/IPA, descompilar, analizar y automatizar. Panel para desarrolladores con ejemplos y playground.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "API Docs": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "API key": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "API Key (si hay)": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "API key opcional": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "API Keys": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "API Keys & Integración": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "API REST v1": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "apk": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "APK": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "APK + AAB": {
+    "count": 2,
+    "files": [
+      "index.html"
+    ]
+  },
+  "APK + AAB en CI (webview_flutter)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "APK con config.xml Cordova incluida": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "APK hoy + assetlinks para dominio": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "APK local ≤100 MB / nube ≤60 MB": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "APK más pesado": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "APK pesado": {
+    "count": 2,
+    "files": [
+      "index.html"
+    ]
+  },
+  "APK pesado +80MB": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "APK ultra ligero ~1.5MB": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "APK, AAB o ZIP con diagnostico y logs.": {
+    "count": 1,
+    "files": [
+      "about.html"
+    ]
+  },
+  "APK:": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "APK: inspección y descompilación": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "apks": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "APKS": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "APKs compilados": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Aplicación": {
+    "count": 3,
+    "files": [
+      "historial.html",
+      "index.html"
+    ]
+  },
+  "Aplicación nativa de alta eficiencia": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Aplicar Auto-Fix y previsualizar HTML optimizado": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Aplicar recomendados automáticamente": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "App Nativa Android": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "App State Listener": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "App Store": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "app-store": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "appimage": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "AppImage": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "AR + VR": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "AR + VR combinados": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "AR Engine": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Archivo keystore y contrasenas solo si eliges firma personalizada. Se envian en base64 a una rama temporal y se borran con la rama.": {
+    "count": 1,
+    "files": [
+      "privacy.html"
+    ]
+  },
+  "Archivos": {
+    "count": 2,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Archivos & Galería": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "ARCore + SceneView (pesado)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Audio": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Audio 100% nativo": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Audio nativo": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "audit + readiness": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Audit con observaciones: al compilar se te dirá qué corregir": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Audit falló": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Auditoría de la web:": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "auditoría seguridad": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Autenticación": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Autenticación Biométrica": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "auto": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Auto-play al abrir la app": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Automática": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Automático": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Automatización": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Autor / Organización": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Aviso cuando la app pasa a segundo plano": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "await Intee.location()": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "await Intee.notifications.schedule()": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "back": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Baja": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "banking": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Banking & FinTech": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "bar": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Barra superior": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "BASE=https://TU_DOMINIO BUILD=$(curl -s -X POST $BASE/api/v1/build \\ -H \"Content-Type: application/json\" -H \"X-API-Key: ib_xxx\" \\ -d '{\"url\":\"https://example.com\",\"name\":\"MiApp\",\"output\":\"apk\"}') ID=$(echo $BUILD | grep -o '\"buildId\":\"[^\"]*' | cut -d'\"' -f4) while true; do S=$(curl -s $BASE/api/v1/build/$ID) echo $S echo $S | grep -q '\"status\":\"success\"' && break echo $S | grep -q '\"status\":\"failed\"' && break sleep 3 done curl -L -o app.apk $BASE/api/download/$ID": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "batería + Doze": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "biometría + cifrado + anti-root": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Biometric Auth": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "BLE + MQTT": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Blockchain": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Blockchain / dApps": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "blog": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Bloquea screenshots": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Bloqueo selección": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Bluetooth": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Bluetooth · Anunciar": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Bluetooth · Conectar": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Bluetooth · Escanear": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Bluetooth LE": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "BLUETOOTH_ADVERTISE (Android 12+)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "BLUETOOTH_CONNECT": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "BLUETOOTH_CONNECT (Android 12+)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "BLUETOOTH_SCAN (Android 12+)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "BODY_SENSORS": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "BODY_SENSORS + acelerómetro/giroscopio/barómetro + actividad": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "borra.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "both": {
+    "count": 2,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Bottom Navigation (tabs inferior)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "building": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Buscar endpoint: build, download, decompile, keys...": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Buscar por nombre o ID…": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "button[data-dup], button[data-exp], button[data-del]": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Cabeceras HTTP Personalizadas (clave: valor)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Cada build entrega además los archivos PWA (": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Calendario de Eventos": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "CALL_PHONE, READ_PHONE_STATE": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Cámara": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Cámara + Foto": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "CAMERA": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "CAMERA + ARCore + SceneView + model-viewer fallback": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Camera API": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Canales de Notificación": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Capa de primer plano (Foreground PNG)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "capacitor": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Capacitor 7": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Capacitor, Native, GeckoView, TWA, Cordova, Flutter y Tauri. Todos compilan hoy en CI.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "capacitor.config.json": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "cara": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Cardboard + WebXR": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Cardboard/Daydream + WebXR": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Carga tu certificado privado para firmar en Release (Play Store) y aplicar ofuscación ProGuard. Sin archivo se compilará en modo Debug.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Cargando datos del servidor…": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Cargando documentación…": {
+    "count": 1,
+    "files": [
+      "docs.html"
+    ]
+  },
+  "Cargando historial…": {
+    "count": 1,
+    "files": [
+      "historial.html"
+    ]
+  },
+  "Cargar URL Real": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Catálogo Consolidado — Funciones Nativas Completas": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Cerrar la aplicación": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Cerrar ventana": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Certificado .p12": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "ci, backend, zapier": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Clipboard API": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Codigo abierto MIT. Tu keystore solo vive 60 minutos en una rama temporal y se borra automaticamente. Los anuncios son solo dos iframes externos y no acceden a tu token.": {
+    "count": 1,
+    "files": [
+      "about.html"
+    ]
+  },
+  "Código Fuente (.zip)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Código HTML Directo": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Código HTML Fuente": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Código HTML presente": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Código Interno (Version Code)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Código QR de descarga": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Color barra de estado (Status Bar)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Color barra de navegación": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Color de fondo del icono": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Color de fondo Splash": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Color de Tema (Theme Color)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Color principal de acento": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Color, duración e icono adaptativo con mipmap-anydpi-v26.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "com.miempresa.miapp": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Como funciona": {
+    "count": 1,
+    "files": [
+      "about.html"
+    ]
+  },
+  "Cómo funciona": {
+    "count": 2,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Compara lo que pediste con lo que se genera:": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Compat, usa SCHEDULE_EXACT_ALARM": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Compila de verdad en CI: Windows, macOS y Ubuntu (~2-4 min extra)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Compila y descarga": {
+    "count": 1,
+    "files": [
+      "about.html"
+    ]
+  },
+  "Compila, descompila, analiza y automatiza todo por HTTP. API-first, respuestas JSON,": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Compilacion": {
+    "count": 1,
+    "files": [
+      "terms.html"
+    ]
+  },
+  "Compilación completada": {
+    "count": 1,
+    "files": [
+      "historial.html"
+    ]
+  },
+  "Compilación de APK finalizada": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "COMPILACIÓN EXITOSA": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Compilación fallida": {
+    "count": 1,
+    "files": [
+      "historial.html"
+    ]
+  },
+  "Compilación transparente en GitHub Actions. Código verificable.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Compilar": {
+    "count": 2,
+    "files": [
+      "developer.html",
+      "index.html"
+    ]
+  },
+  "Compilar Aplicación": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "compileSdk": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Comportamiento de Pantalla": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Comprueba el diseño de tu interfaz en diferentes pantallas y resoluciones.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Comunicación": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "comunidad": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Comunidad & Social": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "con el HTML corregido.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "con o sin prefijo": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "con token (guardado con hash): cada": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "con ultimos 30 builds (ID, nombre, estado y tiempo). En hosting efimero como Render este archivo puede reiniciarse tras cada despliegue. No se comparte con terceros.": {
+    "count": 1,
+    "files": [
+      "privacy.html"
+    ]
+  },
+  "Conecta": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Conecta un repo GitHub: cada push a la rama dispara una compilación automática.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Conectar Repo": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Conexión HTTPS Segura": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Conexión segura HTTPS": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Config completa:": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Config importada. Revisa el paso 1 y compila.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Configuración de SDK Android": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Configuración sugerida aplicada exitosamente": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "confirm": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "const base = location.origin; const key = 'ib_xxx'; const r = await fetch(base + '/api/v1/build', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-API-Key': key }, body: JSON.stringify({ url: 'https://example.com', name: 'MiApp', output: 'apk' }) }); const { buildId } = await r.json(); let s; do { await new Promise(r => setTimeout(r, 3000)); s = await (await fetch(base + '/api/v1/build/' + buildId)).json(); console.log(s.status, s.step); } while (s.status === 'queued' || s.status === 'building'); if (s.status === 'success') location.href = base + s.apkUrl;": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Consulta y descarga": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Contacto": {
+    "count": 1,
+    "files": [
+      "privacy.html"
+    ]
+  },
+  "Contraseña de la clave privada": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Contraseña del .p12": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Contraseña del Keystore": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Controlada por sensores": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Convierte cualquier web en app Android nativa. Permission Engine, providers y API. Gratis y open source.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Convierte tu web en una": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Convierte tu web en una app nativa en minutos": {
+    "count": 1,
+    "files": [
+      "about.html"
+    ]
+  },
+  "Cookies y analitica": {
+    "count": 1,
+    "files": [
+      "privacy.html"
+    ]
+  },
+  "Copiar": {
+    "count": 17,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Copyright (c) 2026 Fluxionics": {
+    "count": 1,
+    "files": [
+      "license.html"
+    ]
+  },
+  "cordova": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Cordova": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Corporativa": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "corres jadx + apktool en GitHub Actions y bajas las fuentes Java reales (máx 60MB).": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "corres jadx + apktool en la nube (≤60 MB).": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "CORS abierto": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "CORS abierto (o": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Crea hasta 10. Si existe al menos una,": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Crea tu API key": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Creadores que usan HTML directo sin hosting.": {
+    "count": 1,
+    "files": [
+      "about.html"
+    ]
+  },
+  "Crear APK gratis": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Crear mi app": {
+    "count": 1,
+    "files": [
+      "about.html"
+    ]
+  },
+  "Crear mi app ahora": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "cURL": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "curl -L -o app.apk /api/download/abc123 curl -L -o app.dmg /api/download/abc123/dmg curl -L -o app.exe /api/download/abc123/exe": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "curl -X POST /api/build -H \"Content-Type: application/json\" \\ -d '{\"appName\":\"Mi Tienda\",\"url\":\"https://mi-tienda.com\",\"packageName\":\"com.miempresa.miapp\",\"outputs\":[\"apk\",\"aab\"],\"permissions\":{\"gps\":true,\"cameraMic\":true}}'": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "curl -X POST /api/decompile -H \"Content-Type: application/json\" \\ -d '{\"apkBase64\":\"data:application/vnd.android.package-archive;base64,UEs...\"}'": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "curl -X POST /api/decompile/cloud -H \"Content-Type: application/json\" -d '{\"apkBase64\":\"UEs...\"}' curl \"/api/decompile/cloud/{id}/status\" curl -L -o decompiled.zip \"/api/decompile/cloud/{id}/download\"": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "curl -X POST /api/git/webhook -H \"Content-Type: application/json\" \\ -d '{\"repository\":{\"full_name\":\"usuario/mi-web\"},\"ref\":\"refs/heads/main\"}'": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "curl -X POST /api/inspect -H \"Content-Type: application/json\" -d '{\"apkBase64\":\"UEs...\"}'": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "curl -X POST /api/keys -H \"Content-Type: application/json\" -d '{\"name\":\"ci\"}' curl -H \"X-API-Key: ib_xxx\" https://TU_DOMINIO/api/v1/build -d '{\"url\":\"https://example.com\",\"name\":\"MiApp\"}'": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "curl -X POST /api/manifest-diff -H \"Content-Type: application/json\" \\ -d '{\"appName\":\"MiApp\",\"url\":\"https://example.com\",\"permissions\":{\"cameraMic\":true}}'": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "curl -X POST /api/permissions/audit -H \"Content-Type: application/json\" \\ -d '{\"appName\":\"Mi Tienda\",\"url\":\"https://mi-tienda.com\",\"permissions\":{\"foreground\":true,\"cameraMic\":true}}'": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "curl -X POST /api/project -H \"Content-Type: application/json\" \\ -d '{\"appName\":\"Test\",\"url\":\"https://example.com\",\"template\":\"radio\"}' --output proyecto.zip": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "curl -X POST /api/v1/build -H \"X-API-Key: ib_xxx\" -H \"Content-Type: application/json\" \\ -d '{\"url\":\"https://example.com\",\"name\":\"MiApp\",\"package\":\"com.example.app\",\"output\":\"apk\"}'": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "curl \"/api/analyze?url=https://example.com\" curl -X POST /api/analyze/fix -H \"Content-Type: application/json\" -d '{\"html\":\"": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "curl /api/build/abc123 # → {\"id\":\"abc123\",\"status\":\"success\",\"step\":\"Build completado\",\"apkUrl\":\"/api/download/abc123\"}": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "dark": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Dark": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "dashboard": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "dashboards + predictivo": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Data Analytics": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "data-del-key": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Datos que procesamos": {
+    "count": 1,
+    "files": [
+      "privacy.html"
+    ]
+  },
+  "Debe quedar al menos un formato activo: se mantuvo": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Decompilar APK": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Decompilar en la nube": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Decompilar en la nube (jadx + apktool)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "default": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "DELETE": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "delivery": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Delivery & Rastreo": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Desarrolladores que quieren control real sin usar Median o WebViewGold.": {
+    "count": 1,
+    "files": [
+      "about.html"
+    ]
+  },
+  "Descargar": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Descargar APK Directo": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Descargar Código (.zip)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Descargar ejemplo HTML": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Descargas": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Descargas nativas": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Descompilación local: devuelve": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Descompilador APK": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Descompilar": {
+    "count": 2,
+    "files": [
+      "developer.html",
+      "index.html"
+    ]
+  },
+  "Descripción corta": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Deshabilitar caché": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Desktop (EXE / DMG / AppImage / MSI)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Deslizar para recargar": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Desplazamiento (Slide)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Después de (minutos, 0 = no)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Destinos escritorio": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Detalles del APK": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Detección de errores": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Developer API": {
+    "count": 5,
+    "files": [
+      "developer.html",
+      "docs.html",
+      "index.html"
+    ]
+  },
+  "Developer Mode & Archivos Nativo": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Developer Panel": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "development": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Development (pruebas)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Device Info": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "devuelve sólo el HTML arreglado.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "devuelve todo;": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "devuelve una base de política.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "devuelve una fila por permiso con": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Diagnóstico": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Diagnóstico web": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "diálogo runtime": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Direccion IP anonimizada para limite de 10 builds por hora.": {
+    "count": 1,
+    "files": [
+      "privacy.html"
+    ]
+  },
+  "Dirección URL": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Diseño Edge-to-Edge": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Diseño Responsive (Viewport)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Disolución (Fade)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "dispara una build.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Dispositivo": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Dispositivos WiFi Cercanos": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "dmg": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "DMG": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Docs": {
+    "count": 3,
+    "files": [
+      "developer.html",
+      "index.html"
+    ]
+  },
+  "Documentación": {
+    "count": 1,
+    "files": [
+      "docs.html"
+    ]
+  },
+  "Dominio web asociado": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "DownloadManager": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Droncito Pack": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "ecommerce": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "edu": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Educación & Cursos": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Ej: Inicio, Tienda, Blog": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Ejecución en GitHub Actions": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Ejecutar Audit": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Ejemplos": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "El APK generado es responsabilidad del usuario. Verifica permisos, firma y cumplimiento de politicas de Play Console antes de publicar.": {
+    "count": 1,
+    "files": [
+      "terms.html"
+    ]
+  },
+  "El archivo supera 500 KB.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "El audio lo reproduce Java nativo (MediaPlayer en foreground service), no el WebView. Tu HTML es solo la cara con botones que llaman": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "El aviso de copyright anterior y este aviso de permiso se incluiran en todas las copias o partes sustanciales del Software.": {
+    "count": 1,
+    "files": [
+      "license.html"
+    ]
+  },
+  "El Buen Samaritano 106.5 FM": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "El código es abierto bajo licencia MIT (": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "El Permission Engine con 86 entradas:": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "El servicio se proporciona \"tal cual\" (AS IS) sin garantías explícitas sobre la publicación final en tiendas de aplicaciones.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "EL SOFTWARE SE PROPORCIONA TAL CUAL, SIN GARANTIA DE NINGUN TIPO, EXPRESA O IMPLICITA, INCLUYENDO PERO NO LIMITADO A LAS GARANTIAS DE COMERCIABILIDAD, IDONEIDAD PARA UN PROPOSITO PARTICULAR Y NO INFRACCION. EN NINGUN CASO LOS AUTORES O TITULARES DEL COPYRIGHT SERAN RESPONSABLES DE NINGUNA RECLAMACION, DANOS U OTRA RESPONSABILIDAD, YA SEA EN UNA ACCION DE CONTRATO, AGRAVIO O DE OTRO MODO, DERIVADA DE, FUERA DE O EN CONEXION CON EL SOFTWARE O EL USO U OTRO TRATO EN EL SOFTWARE.": {
+    "count": 1,
+    "files": [
+      "license.html"
+    ]
+  },
+  "Elegir .mobileprovision": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Elegir .p12": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Elige APK": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Elige el motor. Todos compilan hoy en CI: los cinco primeros APK Android, Flutter APK+AAB, Tauri el .exe de escritorio.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Elige primero una plantilla arriba (ej. Radio).": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Elige primero una plantilla arriba.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Elige UNA alarma: SCHEDULE (recomendado) o USE (solo reloj). Se usará SCHEDULE.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Eliminar esta compilación del historial?": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "emergency": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Emergency & SOS": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Emo AI": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "emociones + empatía": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "emociones + respuesta empática": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Empieza a sonar solo con la URL de arriba": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "empresa": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "En cola": {
+    "count": 1,
+    "files": [
+      "historial.html"
+    ]
+  },
+  "en env)": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "En progreso": {
+    "count": 4,
+    "files": [
+      "historial.html",
+      "index.html"
+    ]
+  },
+  "En Vivo": {
+    "count": 1,
+    "files": [
+      "docs/radio-face.html"
+    ]
+  },
+  "Encrypted Storage": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Endpoints": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Enlaces Profundos (Deep Links)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Entendido y Aceptar": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Entrando a la fase QA…": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Envío de SMS": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "error": {
+    "count": 5,
+    "files": [
+      "docs/radio-face.html",
+      "index.html"
+    ]
+  },
+  "Error": {
+    "count": 2,
+    "files": [
+      "historial.html",
+      "index.html"
+    ]
+  },
+  "Error al reproducir el stream": {
+    "count": 1,
+    "files": [
+      "docs/radio-face.html"
+    ]
+  },
+  "Error:": {
+    "count": 2,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Errores": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Escanea el código QR desde la cámara de tu teléfono para descargar el archivo APK.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Esta compilación no tiene configuración guardada.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Estado cada 3 s:": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Estilo y Apariencia": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "estudio": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "eventos": {
+    "count": 2,
+    "files": [
+      "developer.html",
+      "index.html"
+    ]
+  },
+  "Eventos & Tickets": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "eventos + dashboards + predictivo (cloud)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Evita que la pantalla se bloquee mientras la app esté visible": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "exe": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "EXE": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "EXE / DMG / AppImage / MSI se compilan de verdad en GitHub Actions": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "EXE de escritorio en CI (Rust + WebView2)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "exige": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "exige key.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "exit": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "exitosos": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Exitosos": {
+    "count": 3,
+    "files": [
+      "historial.html",
+      "index.html"
+    ]
+  },
+  "fade": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "failed": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Fallidos": {
+    "count": 3,
+    "files": [
+      "historial.html",
+      "index.html"
+    ]
+  },
+  "Falta en el paso 1": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Fase Final: Control de Calidad y Seguridad": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Ficha de Play Store (título, descripción, keywords, categoría con los límites de Play Console) y auditoría con": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Ficha del artefacto (nombre, tamaño en MB, enlace por formato) cuando la build ya terminó, y el log del run truncado a 80.000 caracteres.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Ficha técnica (": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Filesystem": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "filtra con el buscador": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "finanzas": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Finanzas & Pagos": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Firebase Analytics": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Firebase config JSON (opcional)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Firma Digital Keystore (.JKS)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Firma iOS (iPhone / App Store)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Firma y ofuscación": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "fitness": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Fitness & Deportes": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "FLAG_SECURE": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "flutter": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Flutter": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "food": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Food Delivery": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "force-cache": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "FOREGROUND_SERVICE": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Formato:": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "formatos de salida": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Formatos de salida": {
+    "count": 2,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Formatos:": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Forzar uso de caché offline": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Fuerza claro": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Fuerza oscuro": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Full": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "galaxy": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "game": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "gecko": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "GeckoView": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Genera el proyecto nativo en ZIP sin compilar en GitHub. Sirve para CI local o revisar los ficheros que saldrían.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "genera los ficheros nativos sin compilar.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Genera recursos ic_launcher.xml para Android 8.0+": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Genera una API Key para compilar desde tu backend, CI o automatizaciones.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Generación de Bundle AAB": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "General": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Generando código QR…": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Generando ZIP…": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Generar icono adaptativo": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Generar Key": {
+    "count": 2,
+    "files": [
+      "developer.html",
+      "index.html"
+    ]
+  },
+  "Geo Avanzada": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Geolocalización Avanzada": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Geolocation": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Gestión de Energía": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Gestión Energía": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "GET": {
+    "count": 16,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "GitHub": {
+    "count": 2,
+    "files": [
+      "about.html",
+      "privacy.html"
+    ]
+  },
+  "GitHub Listo": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Google Pixel 9 (360×800)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Guías": {
+    "count": 1,
+    "files": [
+      "docs.html"
+    ]
+  },
+  "Guías completas de InteeBuild: permisos, foreground, providers, API, decompiler y producción.": {
+    "count": 1,
+    "files": [
+      "docs.html"
+    ]
+  },
+  "Habilitar Android App Links": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Habilitar Splash Screen": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "hábitos + schedule": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "hace borrado lógico (": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Haptic Feedback": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Hay": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "He leído los": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Health": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "high": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Historial": {
+    "count": 8,
+    "files": [
+      "about.html",
+      "developer.html",
+      "docs.html",
+      "historial.html",
+      "index.html",
+      "license.html",
+      "privacy.html",
+      "terms.html"
+    ]
+  },
+  "Historial — InteeBuild": {
+    "count": 1,
+    "files": [
+      "historial.html"
+    ]
+  },
+  "Historial de compilaciones": {
+    "count": 1,
+    "files": [
+      "historial.html"
+    ]
+  },
+  "Historial de Compilaciones": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Historial de compilaciones de InteeBuild: consulta el estado, descarga tus APK/AAB y revisa los logs de cada compilación.": {
+    "count": 1,
+    "files": [
+      "historial.html"
+    ]
+  },
+  "Historial local (30 entradas en el listado, 50 máximo en disco), totales por estado y duración media, y el catálogo de 29 plantillas con su audit resumido.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Historial local en": {
+    "count": 1,
+    "files": [
+      "privacy.html"
+    ]
+  },
+  "hogar/salud/agro": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Horizontal fija (Landscape)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "HTML ≤500 KB, icono ≤7 MB": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "HTML maximo 500 KB e icono maximo 5 MB.": {
+    "count": 1,
+    "files": [
+      "terms.html"
+    ]
+  },
+  "HTML optimizado aplicado en el editor. Revisa el paso 1.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "HTTP permitido solo si activaste tráfico cleartext": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "https://...": {
+    "count": 2,
+    "files": [
+      "index.html"
+    ]
+  },
+  "https://example.com": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "https://mi-web.com": {
+    "count": 2,
+    "files": [
+      "index.html"
+    ]
+  },
+  "https://tu-servidor.com:8000/stream": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "https://tu-sitio-web.com": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "IA Suite": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "IAP Billing": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "IAP Product IDs (comma)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "IB": {
+    "count": 7,
+    "files": [
+      "about.html",
+      "docs.html",
+      "historial.html",
+      "index.html",
+      "license.html",
+      "privacy.html",
+      "terms.html"
+    ]
+  },
+  "ib_... opcional": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Icono listo": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "ID:": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Identificador único. Solo minúsculas, números y puntos, con al menos un punto. Ejemplo: com.miempresa.miapp. Se genera solo si lo dejas vacío.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "import requests, time base = \"https://TU_DOMINIO\" key = \"ib_xxx\" r = requests.post(f\"{base}/api/v1/build\", headers={\"X-API-Key\": key}, json={\"url\": \"https://example.com\", \"name\": \"MiApp\", \"output\": \"apk\"}) bid = r.json()[\"buildId\"] while True: s = requests.get(f\"{base}/api/v1/build/{bid}\", headers={\"X-API-Key\": key}).json() print(s[\"status\"], s.get(\"step\")) if s[\"status\"] not in (\"queued\", \"building\"): break time.sleep(3) if s[\"status\"] == \"success\": open(\"app.apk\", \"wb\").write(requests.get(base + s[\"apkUrl\"]).content)": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Importar archivo .html": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "In-App Browser": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Índice": {
+    "count": 1,
+    "files": [
+      "docs.html"
+    ]
+  },
+  "Información legal": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Información Legal y Políticas": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Ingresa tu URL o HTML": {
+    "count": 1,
+    "files": [
+      "about.html"
+    ]
+  },
+  "Ingresa una URL web": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Iniciando proceso de compilación... Generando manifiesto y archivos nativos...": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Iniciar Compilación en la Nube": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Inicio rápido": {
+    "count": 1,
+    "files": [
+      "docs.html"
+    ]
+  },
+  "Inspecciona la estructura de código generada antes de la compilación.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Instalable directo o bundle para Google Play con firma personalizada.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Instalación Directa en Android": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Instalador de Paquetes": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Intee.biometric()": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Intee.camera()": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Intee.clipboard.write(text)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Intee.share({title, url})": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Intee.vibrate()": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "InteeAudio.play(streamUrl)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "InteeBridge JavaScript Bridge": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "InteeBridge SDK Inyección": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "InteeBuild": {
+    "count": 13,
+    "files": [
+      "about.html",
+      "developer.html",
+      "docs.html",
+      "historial.html",
+      "index.html",
+      "license.html",
+      "privacy.html",
+      "terms.html"
+    ]
+  },
+  "InteeBuild — Convierte tu web en APK Android": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "InteeBuild — Convierte tu web en APK Android gratis": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "InteeBuild — Developer API Panel": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "InteeBuild — Documentación": {
+    "count": 1,
+    "files": [
+      "docs.html"
+    ]
+  },
+  "InteeBuild — Presentacion": {
+    "count": 1,
+    "files": [
+      "about.html"
+    ]
+  },
+  "InteeBuild — Web a APK gratis": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "InteeBuild — Web a App Nativa Android": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "InteeBuild convierte cualquier web o HTML en una app Android nativa (APK/AAB) en minutos. Permisos granulares, audio nativo, compilación en la nube. Gratis y open source.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "InteeBuild Docs": {
+    "count": 1,
+    "files": [
+      "docs.html"
+    ]
+  },
+  "InteeBuild es una herramienta de conversión técnica. El usuario declara y garantiza ser el propietario o contar con las licencias correspondientes sobre la URL o el contenido HTML introducido.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "InteeBuild no requiere registro. No almacenamos tu codigo HTML de forma permanente ni tu keystore. Cada build sube el proyecto a una rama temporal (": {
+    "count": 1,
+    "files": [
+      "privacy.html"
+    ]
+  },
+  "InteeBuild no se hace responsable por las marcas, derechos de autor o aplicaciones generadas por los usuarios que infrinjan derechos de terceros o las políticas de Google Play Store.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "InteeBuild Plugin Hub": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "InteeBuild Studio": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "inteebuild-plantilla-": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "InteeBuild/1.0 WebView": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Integración Git (Auto-build on push)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Inteligencia Artificial (ML Kit)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Inteligencia Emocional": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Interfaz UI": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Intersticial": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Invoca APIs nativas directamente desde el código JavaScript de tu sitio web:": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Inyección de código JavaScript": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Inyección de estilos CSS": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "ios": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "iOS (iPhone)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "iOS sin firma: solo validación en simulador": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "iOS: sin firma solo se valida en simulador. Para el chip IPA (y un .ipa instalable) sube tu .p12 + .mobileprovision en Firma.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "IoT (BLE + MQTT)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "IoT Hub": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "ipa": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "IPA": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Ir a compilar": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Ir al Builder": {
+    "count": 1,
+    "files": [
+      "about.html"
+    ]
+  },
+  "Items Bottom Nav (JSON)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Items Drawer (JSON: [{label,url,icon}])": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "jadx + apktool": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "jadx 1.5.1 + apktool 2.9.3 en GitHub Actions (mismo runner que compila), límite 60 MB. Devuelve": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "JSON /api/docs": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Juego HTML5": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "KB) listo para descompilar.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "La compilación ha fallado": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "La compilacion se ejecuta en GitHub Actions en el repositorio que configures. El servicio no garantiza tiempo de compilacion ni disponibilidad continua de GitHub.": {
+    "count": 1,
+    "files": [
+      "terms.html"
+    ]
+  },
+  "La plantilla \"": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "La rama con tu código se borra al terminar el build (no queda código en el repo). Artefactos y runs se auto-limpian después. Ver Política de Privacidad.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "La ubicación en segundo plano": {
+    "count": 2,
+    "files": [
+      "index.html"
+    ]
+  },
+  "lab": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "landscape": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Lanza la build": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Libreta de Contactos": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Licencia": {
+    "count": 8,
+    "files": [
+      "about.html",
+      "historial.html",
+      "index.html",
+      "license.html",
+      "privacy.html",
+      "terms.html"
+    ]
+  },
+  "Licencia — InteeBuild": {
+    "count": 1,
+    "files": [
+      "license.html"
+    ]
+  },
+  "Licencia MIT": {
+    "count": 2,
+    "files": [
+      "index.html",
+      "license.html"
+    ]
+  },
+  "light": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Limitaciones": {
+    "count": 1,
+    "files": [
+      "terms.html"
+    ]
+  },
+  "Limite de 10 builds por hora por IP.": {
+    "count": 1,
+    "files": [
+      "terms.html"
+    ]
+  },
+  "Límite de 10 compilaciones por hora e IP. Prohibido convertir contenido ilegal, malicioso o sin autorización, así como usar el servicio como proxy o para eludir bloqueos de red. Las URLs privadas (localhost, redes locales, metadatos de nube) están bloqueadas.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Límites": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Limpiar todo": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "lista y": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Listar": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Listar Keys": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Listo para compilar": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Llamadas telefónicas": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Loading indicator": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "local ≤100 MB": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Local Notifications": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Logotipo e Icono": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Los artefactos caducan a los 30 minutos": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "low": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "mac": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "macros + bots + overlay": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "macros + tareas": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "main": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Manifest + Runtime + Handler + Android version. Solo se genera lo necesario, nada de más.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Manifiesto Técnico": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Mantener pantalla encendida": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "manual": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Manual": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Mapas & Geolocalización": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "maps": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "marketplace": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Marketplace": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Máx 5 tabs": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Máximo 10 keys activas. El listado trae": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Media": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "MediaPlayer + MediaSession + notificación con Play/Pausa. Sin esto el audio depende del WebView y se puede cortar": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Mensaje offline": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "MFA + cifrado": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Mi Aplicación": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Mi Aplicación Nativa": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Mi App": {
+    "count": 2,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Mi Radio App": {
+    "count": 1,
+    "files": [
+      "docs/radio-face.html"
+    ]
+  },
+  "Mi Radio Online": {
+    "count": 1,
+    "files": [
+      "docs/radio-face.html"
+    ]
+  },
+  "MiApp": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Micrófono": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "midominio.com": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Minificar HTML (gratis)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "minSdk": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Mismo estado en forma versionada con": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "MIT Open Source": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "miweb.com": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "ML Kit on-device + cloud": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Modo avanzado": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Modo de almacenamiento en caché": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Modo estándar": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Modo Oscuro": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Modo pantalla completa": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Módulos nativos integrados. Selecciona los plugins que se incluirán en la compilación.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Motor Mozilla + permisos en runtime": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "MR Mixta": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "msi": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "MSI": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Muestra imagen o fondo personalizado al abrir": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Muestra un aviso cada vez que se abre": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "native": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Native Bridge": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Native Dialogs": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Native Share": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Native WebView": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Navigation Drawer (menú lateral)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "NEARBY_WIFI_DEVICES": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Necesitas GITHUB_TOKEN + INTEE_BUILDS_REPO en el .env y el repo de builds en GitHub.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Negocios locales que necesitan su web como app para Play Store.": {
+    "count": 1,
+    "files": [
+      "about.html"
+    ]
+  },
+  "Network Status": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "news": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "News & Medios": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "NFC": {
+    "count": 2,
+    "files": [
+      "index.html"
+    ]
+  },
+  "NFC Reader": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Ninguno": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "No hay fix disponible. Analiza una URL primero.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "No pedimos registro. Tu keystore solo vive en la rama temporal del build y se elimina automáticamente junto con ramas, ejecuciones y artefactos de más de 60 minutos. Detalles en la": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "No se detectaron APIs que requieran permisos": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "No se pudo aplicar la plantilla:": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "No se pudo cargar": {
+    "count": 2,
+    "files": [
+      "docs.html",
+      "index.html"
+    ]
+  },
+  "no se pudo despachar": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "No se pudo duplicar:": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "No se pudo eliminar": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "No se pudo generar el proyecto nativo": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "No se pudo generar el ZIP": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "No se pudo iniciar el proceso de compilación": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "No se pudo obtener información del paquete APK:": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "No se puede compilar aún: •": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "No se registran compilaciones previas.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "No subir contenido ilegal, malicioso o que infrinja derechos de terceros.": {
+    "count": 1,
+    "files": [
+      "terms.html"
+    ]
+  },
+  "No usamos cookies propias. Los anuncios de highrevenueformat.com pueden usar cookies de terceros segun su politica.": {
+    "count": 1,
+    "files": [
+      "privacy.html"
+    ]
+  },
+  "No usar URLs privadas, localhost o endpoints de metadata.": {
+    "count": 1,
+    "files": [
+      "terms.html"
+    ]
+  },
+  "no-cache": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Node.js": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Nombre": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Nombre App": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Nombre de desarrollador": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Nombre de la Aplicación": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Nombre de la app": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Nombre del canal por defecto": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Nombre ej: mi-backend": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Nombre visible de la app. Solo letras, números, espacios, guiones y puntos (2-40 caracteres). Ejemplo: Mi Tienda": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Nombre, icono, colores, splash y permisos.": {
+    "count": 1,
+    "files": [
+      "about.html"
+    ]
+  },
+  "Nombre, paquete, icono y configuracion elegida.": {
+    "count": 1,
+    "files": [
+      "privacy.html"
+    ]
+  },
+  "none": {
+    "count": 3,
+    "files": [
+      "index.html"
+    ]
+  },
+  "normal": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Normal (Estándar Web)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Notificaciones": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Notificaciones Adaptativas": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Notificaciones programadas (solo modo HTML)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Notifs Adaptativas": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Números": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "nunca se suben a git": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Oculta barra de estado superior": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Ocultar registros": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Offline Screen": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "on-device label/barcode/face/text + fallback cloud": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Opcional: se usará el icono por defecto": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Optimización": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Orientación fijada": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Origen de la Aplicación": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "otros": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Package ID (Nombre de paquete)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Package ID válido": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "package.json": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Panel & Analytics": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Panel de Desarrolladores": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Pantalla de Carga": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Pantalla de Carga (Splash Screen)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Pantalla Encendida": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Pantalla sin conexión": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "para agrandarlo.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "para consultas de privacidad.": {
+    "count": 1,
+    "files": [
+      "privacy.html"
+    ]
+  },
+  "Para quien es": {
+    "count": 1,
+    "files": [
+      "about.html"
+    ]
+  },
+  "Paso anterior": {
+    "count": 7,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Pega tu código HTML o importa un archivo primero": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Pega tu HTML en el paso 1": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Pega tu sitio o escribe el código directo. Plantillas listas para usar.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Perfil .mobileprovision": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Permisos": {
+    "count": 2,
+    "files": [
+      "docs.html",
+      "index.html"
+    ]
+  },
+  "Permisos del Sistema Android": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "permisos en el spec": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "permisos granulares": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Permisos mínimos necesarios": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Permisos y análisis": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Permisos y manifiesto aplicados": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Permission Engine": {
+    "count": 2,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Permission Test Lab": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Permite conexiones a URLs no encrypted http://": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Permitir tráfico inseguro (Cleartext HTTP)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Personaliza": {
+    "count": 1,
+    "files": [
+      "about.html"
+    ]
+  },
+  "Personalización Dinámica": {
+    "count": 2,
+    "files": [
+      "index.html"
+    ]
+  },
+  "phonegap-nfc": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "pixel": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Plantilla aplicada:": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Plantilla no encontrada": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Plantilla predefinida…": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "plantillas": {
+    "count": 2,
+    "files": [
+      "developer.html",
+      "index.html"
+    ]
+  },
+  "Plantillas": {
+    "count": 1,
+    "files": [
+      "docs.html"
+    ]
+  },
+  "Plantillas 100% nativas y verificadas: al elegir una arriba se configura todo (permisos + provider + UI).": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Plataforma": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Platform Studio": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Plugins": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Plugins + InteeBridge + Ads": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "PNG del enlace de descarga para pegarlo en tarjetas o packs.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "podcast": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Podcast & Audio On-Demand": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Politica de Privacidad": {
+    "count": 1,
+    "files": [
+      "privacy.html"
+    ]
+  },
+  "Política de Privacidad": {
+    "count": 3,
+    "files": [
+      "index.html"
+    ]
+  },
+  "polling": {
+    "count": 2,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Polling cada 3 s y baja el APK/AAB/exe con /api/download/:id.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Pon URL o HTML para sugerir": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Por favor ingresa una URL válida primero": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "por paso.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "portafolio": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Portafolio / CV": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Portal Noticias / Blog": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "portrait": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "POST": {
+    "count": 16,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "POST /api/keys — mientras no exista ninguna, la API es pública.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "POST /api/v1/build": {
+    "count": 2,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "POST /api/v1/build con tu URL, nombre y paquete. Responde 202 con buildId.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "POST_NOTIFICATIONS": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "POST_NOTIFICATIONS + alarmas exactas + hábitos": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Preferences Storage": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Preguntas frecuentes": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "premium,coins_100": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Presentación": {
+    "count": 3,
+    "files": [
+      "index.html"
+    ]
+  },
+  "preview": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Preview": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Prioridad de entrega": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Privacidad": {
+    "count": 8,
+    "files": [
+      "about.html",
+      "historial.html",
+      "index.html",
+      "license.html",
+      "privacy.html",
+      "terms.html"
+    ]
+  },
+  "Privacidad — InteeBuild": {
+    "count": 1,
+    "files": [
+      "privacy.html"
+    ]
+  },
+  "PRO": {
+    "count": 3,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Probar Splash": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Problemas": {
+    "count": 1,
+    "files": [
+      "docs.html"
+    ]
+  },
+  "Producción": {
+    "count": 1,
+    "files": [
+      "docs.html"
+    ]
+  },
+  "Proveedor de Compilación": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "providers READY": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Proyecto generado": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Puedes solicitar eliminacion de un build contactando al administrador del despliegue o borrando la rama correspondiente en el repositorio de builds.": {
+    "count": 1,
+    "files": [
+      "privacy.html"
+    ]
+  },
+  "Puedes usar InteeBuild para convertir sitios propios o con autorizacion en aplicaciones Android. Eres responsable de respetar derechos de autor, marcas y politicas de Google Play.": {
+    "count": 1,
+    "files": [
+      "terms.html"
+    ]
+  },
+  "Puedes usar InteeBuild para proyectos personales y comerciales, modificarlo y desplegarlo con tu marca manteniendo el aviso de licencia.": {
+    "count": 1,
+    "files": [
+      "license.html"
+    ]
+  },
+  "Puente nativo Intee.location(), .camera()…": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Pull-to-Refresh": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "punto(s) en rojo. Corrige antes de compilar.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Puntuación 0-100 antes de compilar con auto-fix de problemas comunes.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Push Notifications": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "pwa": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "PWA Detectada — metadatos e iconos se importarán automáticamente.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "PWA Nativa": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Python": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "QA + Seguridad": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Qué datos procesamos, borrado en 60 min y tus derechos.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "que devuelve el workflow listo para tu repo.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Qué es InteeBuild y cómo funciona el servicio.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Quita comentarios y espacios extra del código generado": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "radio": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Radio & Audio Stream": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Radio, Podcast, Banking, Social, Delivery, Emergency y más. Todo verificado.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Rama": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Rate 10/h por IP": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "READ_CALENDAR, WRITE_CALENDAR": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "READ_CONTACTS, WRITE_CONTACTS": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "READ_MEDIA_*": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "READY": {
+    "count": 7,
+    "files": [
+      "index.html"
+    ]
+  },
+  "READY = compila hoy en CI. capacitor, native, gecko y twa compilan el APK Android y comparten manifiesto y runtime de permisos; cordova compila con cordova-android (proyecto propio); Flutter compila su propio proyecto (APK + AAB); Tauri compila el .exe (el APK Android de Tauri sigue siendo Capacitor). native y gecko hornean DownloadManager y file chooser en su MainActivity.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Real Estate": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "realestate": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Realidad Aumentada (ARCore)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Realidad Mixta": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Realidad Virtual": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "recibe POST con JSON:": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Recomendaciones AutoPilot": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Recomendado": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "recommended": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Reconocimiento de Actividad": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Reconocimiento de Voz": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "RECORD_AUDIO": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "RECORD_AUDIO + SpeechRecognizer": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Registro de versiones con": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Registros Recientes": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "release check": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Renderiza contenido debajo de las barras del sistema": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Repo (usuario/repo)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Repositorio actualizado": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Reproducción en segundo plano con Foreground Service y Wake Lock real.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Reproducir audio en Java nativo": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Reproducir sonido": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "REQUEST_INSTALL_PACKAGES": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Requiere justificación Play": {
+    "count": 2,
+    "files": [
+      "index.html"
+    ]
+  },
+  "requiere ubicación en primer plano: se activó GPS automáticamente.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "res/": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Responsabilidad": {
+    "count": 1,
+    "files": [
+      "terms.html"
+    ]
+  },
+  "REST JSON": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Restricción Play Store": {
+    "count": 3,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Resumen": {
+    "count": 1,
+    "files": [
+      "privacy.html"
+    ]
+  },
+  "revisa el Audit en el paso 2 (Permisos → Ejecutar Audit).": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Revisa el paso 1": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "revisa token, repo, rama y workflow en GitHub y devuelve un": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Revisión automática de tu configuración antes de compilar. Corrige los puntos en rojo y confirma los términos para continuar.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Rewarded": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "root/debug/SSL/backup/CSP": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Root/Jailbreak detect": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Rotar": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Rotar orientación": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "RPA Automatización": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "RPA Bots": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Runtime, Settings y manifest verificados con audit real y readiness.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Rutas permitidas (separadas por comas)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Salidas gratis": {
+    "count": 1,
+    "files": [
+      "docs.html"
+    ]
+  },
+  "salud": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Salud & Fitness": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Samsung Galaxy S25 (384×854)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "SCHEDULE_EXACT_ALARM, revocable por usuario": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Screen Reader Access": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Se concede permiso, libre de cargos, a cualquier persona que obtenga una copia de este software y de los archivos de documentacion asociados (el Software), para utilizar el Software sin restriccion, incluyendo sin limitacion los derechos a usar, copiar, modificar, fusionar, publicar, distribuir, sublicenciar y/o vender copias del Software, y a permitir a las personas a las que se les proporcione el Software a hacer lo mismo, sujeto a las siguientes condiciones:": {
+    "count": 1,
+    "files": [
+      "license.html"
+    ]
+  },
+  "Se generará automáticamente": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Se generará la estructura Capacitor y se enviará la orden de build a los servidores de GitHub Actions.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Se usa solo en este build y se auto-borra con la rama temporal (al terminar el build).": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Seguridad": {
+    "count": 2,
+    "files": [
+      "docs.html",
+      "index.html"
+    ]
+  },
+  "Seguridad Avanzada": {
+    "count": 2,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Selecciona un APK primero": {
+    "count": 2,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Selecciona únicamente los permisos que tu aplicación requerirá para su funcionamiento.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Seleccionar APK": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Seleccionar archivo Keystore (.jks)": {
+    "count": 2,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Seleccionar capa foreground": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Seleccionar imagen PNG / JPG / WebP (512×512 píxeles)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "SEND_SMS, READ_SMS": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "sensor": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Sensores Ambientales": {
+    "count": 2,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Sensores Biológicos": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Señal en Vivo": {
+    "count": 1,
+    "files": [
+      "docs/radio-face.html"
+    ]
+  },
+  "Servicio Foreground": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "share + cuentas + insights cloud": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "share + insights": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Si no hay keys, la API está abierta. En cuanto creas la primera,": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Sí. La compilación usa GitHub Actions y el proyecto es open source.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Sí. Marca el chip AAB en el paso 3, firma con tu keystore y sube el bundle a Play Console.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Sí. Plantillas y presets configuran todo por ti; el modo avanzado es opcional.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Sigue el progreso en vivo en GitHub Actions y descarga tu APK o AAB.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Siguiente paso": {
+    "count": 5,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Simulador e Inspección Visual": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Sin acción": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Sin cara disponible": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Sin conexión. Revisa tu internet.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Sin copiar texto": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Sin registro, sin SDK local, compilacion en la nube con GitHub Actions. 86 permisos granulares, 7 providers (Capacitor, Native, GeckoView, TWA, Cordova, Flutter y Tauri), firma personalizada y PWA.": {
+    "count": 1,
+    "files": [
+      "about.html"
+    ]
+  },
+  "Sin resultados para este filtro.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Sin secretos en el código": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Sin transición": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Sintaxis HTML Válida": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Sintoniza en vivo las 24 horas": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Sitio Web Oficial": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "slide": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "social": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Social Analytics": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Social Network": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Solicitar confirmación antes de salir": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Solo macOS": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Solo Windows": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "speech-recognition": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "spinner": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Spinner nativo": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Splash": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Splash a medida": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Splash Screen": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Status Bar Controller": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Storage cifrado": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "streaming": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Studio": {
+    "count": 3,
+    "files": [
+      "developer.html",
+      "docs.html"
+    ]
+  },
+  "Sube APK ≤100 MB, extrae package/permisos y genera": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Sube tu certificado .p12 y tu perfil .mobileprovision de Apple Developer. Sin esto, iOS solo se valida en simulador. Con cuenta gratuita funciona para tus dispositivos (7 días); con cuenta de pago ($99/año) para App Store.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Sube un APK (máx 100MB) y extrae su config para re-importarla en InteeBuild. Con": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "success": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Sugerido por sistema": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Sugerir por Web API": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "summary_large_image": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Superposición de Pantalla": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "system": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "SYSTEM_ALERT_WINDOW → Settings overlay": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "tablet": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Tablet Genérica (600×960)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Tamaño dentro del límite (500 KB)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "targetSdk": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "tauri": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Tauri": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Tema del sistema": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "temas + flags": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "temas/flags + Preferences": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Terminos": {
+    "count": 6,
+    "files": [
+      "about.html",
+      "historial.html",
+      "license.html",
+      "privacy.html",
+      "terms.html"
+    ]
+  },
+  "Términos": {
+    "count": 2,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Terminos — InteeBuild": {
+    "count": 1,
+    "files": [
+      "terms.html"
+    ]
+  },
+  "Términos & Legal": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Términos completos": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Terminos de Servicio": {
+    "count": 1,
+    "files": [
+      "terms.html"
+    ]
+  },
+  "Términos de Uso": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Términos de Uso y Políticas": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Texto del aviso": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Tiempo de espera (Milisegundos)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "tiempo promedio": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Tiempo Promedio": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Tiempo:": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Tienda Ecommerce": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Tipo de Compilación": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Tipo de exportación": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Título del aviso": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Toast Messages": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Todo listo. Acepta los términos para ir a compilar.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Todo lo que necesitas, gratis": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Todos los estados": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Toque play para iniciar": {
+    "count": 1,
+    "files": [
+      "docs/radio-face.html"
+    ]
+  },
+  "Total Compilados": {
+    "count": 2,
+    "files": [
+      "historial.html",
+      "index.html"
+    ]
+  },
+  "tracking + geofence": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "tracking + geofencing + background": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Transición inicial": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Transmisión en pausa": {
+    "count": 1,
+    "files": [
+      "docs/radio-face.html"
+    ]
+  },
+  "Transmitiendo en directo...": {
+    "count": 1,
+    "files": [
+      "docs/radio-face.html"
+    ]
+  },
+  "Transparencia": {
+    "count": 1,
+    "files": [
+      "about.html"
+    ]
+  },
+  "Transparencia total: consulta cómo tratamos tus datos, las reglas de uso y la licencia del proyecto.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "travel": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Travel & Turismo": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Try API (compilar)": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Tu": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Tu HTML es la": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "tu-usuario/tu-repo": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Tus compilaciones recientes se guardan aquí, aunque cierres la página. Descarga tus APK/AAB y revisa los logs cuando quieras.": {
+    "count": 1,
+    "files": [
+      "historial.html"
+    ]
+  },
+  "Tus derechos": {
+    "count": 1,
+    "files": [
+      "privacy.html"
+    ]
+  },
+  "twa": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "TWA Chrome": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "TWA Domain (para Trusted Web Activity)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "TWA Mode": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Ubicación": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Ubicación en segundo plano": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Ubicación GPS": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Ultima actualizacion: 11 de septiembre de 2026": {
+    "count": 2,
+    "files": [
+      "privacy.html",
+      "terms.html"
+    ]
+  },
+  "URL": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "URL de tu sitio o HTML directo. Prueba la URL con el analizador web 0-100.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "URL del sitio web": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "URL del stream (tu servidor)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "URL o codigo HTML que proporcionas para generar la app.": {
+    "count": 1,
+    "files": [
+      "privacy.html"
+    ]
+  },
+  "URL o HTML": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "URL o HTML → APK/AAB con permisos granulares reales, audit, readiness, 7 providers (Capacitor, Native, GeckoView, TWA, Cordova, Flutter y Tauri), 29 plantillas verificadas, API para developers y decompiler. Compilación en GitHub Actions.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "URL o HTML → APK/AAB nativo en minutos. Permission Engine, 7 providers, API y decompiler. Gratis y open source.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "URL válida (http/https)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Usar cara de la plantilla": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "USE_BIOMETRIC": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "USE_EXACT_ALARM": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "User-Agent personalizado": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Uso comercial": {
+    "count": 1,
+    "files": [
+      "license.html"
+    ]
+  },
+  "Uso comercial permitido manteniendo el aviso de copyright.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Uso permitido": {
+    "count": 1,
+    "files": [
+      "terms.html"
+    ]
+  },
+  "Uso permitido, límites, compilación y responsabilidad.": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Utilidades": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Ver codigo": {
+    "count": 1,
+    "files": [
+      "about.html"
+    ]
+  },
+  "Ver código (ZIP) de la plantilla": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Ver conexiones": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Ver docs": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "ver licencia": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Ver registros en vivo": {
+    "count": 2,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Verificando…": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Versión (Version Name)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Versión versionada y más estrecha:": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Versión visible. Solo números separados por puntos. Ejemplo: 1.0.0": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Versiones y CI/CD": {
+    "count": 1,
+    "files": [
+      "docs.html"
+    ]
+  },
+  "Vertical fija (Portrait)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Vibración Háptica": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "VIBRATE": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Video & Streaming": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Vista previa interactiva": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Vista Simplificada": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Volver": {
+    "count": 4,
+    "files": [
+      "historial.html",
+      "license.html",
+      "privacy.html",
+      "terms.html"
+    ]
+  },
+  "Volver al historial anterior": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Voz": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "VR Engine": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Vuln Scan": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "WAKE_LOCK": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "WAKE_LOCK + ignorar optimización batería": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "wallet + dApps": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "wallet + firma + RPC (web3j)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "web": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "web a APK/AAB": {
+    "count": 5,
+    "files": [
+      "about.html",
+      "historial.html",
+      "license.html",
+      "privacy.html",
+      "terms.html"
+    ]
+  },
+  "Web estándar": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Web to Native Converter": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Webhook + Polling": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "Webhook de Notificación (opcional)": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Webhook URL para GitHub:": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "webhookUrl": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "website": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "width=device-width, initial-scale=1.0": {
+    "count": 9,
+    "files": [
+      "about.html",
+      "developer.html",
+      "docs/radio-face.html",
+      "docs.html",
+      "historial.html",
+      "index.html",
+      "license.html",
+      "privacy.html",
+      "terms.html"
+    ]
+  },
+  "win": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Win + Mac": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Workflow de CI/CD sincronizado": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "Workflow terminó con": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "X-App-Platform: Android-Nativo X-InteeBuild-Client: 1.0": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "xapk": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "XAPK": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "y comprobaciones GDPR.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "y filas": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "y la": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "y los runs de Actions:": {
+    "count": 1,
+    "files": [
+      "index.html"
+    ]
+  },
+  "y webhooks para encadenar builds en tu propio CI.": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  },
+  "ZIP": {
+    "count": 1,
+    "files": [
+      "developer.html"
+    ]
+  }
+}

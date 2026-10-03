@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Historial — InteeBuild</title>
+<meta name="description" content="Historial de compilaciones de InteeBuild: consulta el estado, descarga tus APK/AAB y revisa los logs de cada compilación.">
+<link rel="stylesheet" href="./css/style.css">
+<link rel="alternate" hreflang="es" href="https://inteebuild.onrender.com/historial.html" />
+<link rel="alternate" hreflang="en" href="https://inteebuild.onrender.com/en/historial.html" />
+<link rel="alternate" hreflang="ru" href="https://inteebuild.onrender.com/ru/historial.html" />
+<link rel="alternate" hreflang="ch" href="https://inteebuild.onrender.com/ch/historial.html" />
+<link rel="alternate" hreflang="br" href="https://inteebuild.onrender.com/br/historial.html" />
+<link rel="alternate" hreflang="x-default" href="https://inteebuild.onrender.com/historial.html" />
+<link rel="canonical" href="https://inteebuild.onrender.com/historial.html" />
+<meta property="og:locale" content="es_ES" />
+<meta property="og:url" content="https://inteebuild.onrender.com/historial.html" />
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","url":"https://inteebuild.onrender.com/","name":"InteeBuild"}</script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="logo"><img src="./assets/icon.svg" width="20" height="20" alt="IB"></span><div class="brand-txt"><strong>InteeBuild</strong><small>web a APK/AAB</small></div></div>
+  <a href="./index.html" class="btn ghost">Volver</a>
+</header>
+<main style="max-width:800px">
+  <h1>Historial de compilaciones</h1>
+  <p class="hint">Tus compilaciones recientes se guardan aquí, aunque cierres la página. Descarga tus APK/AAB y revisa los logs cuando quieras.</p>
+  <div class="stats-grid" style="margin-top:18px">
+    <div class="stat"><b id="stTotal">0</b><small>Total Compilados</small></div>
+    <div class="stat ok"><b id="stOk">0</b><small>Exitosos</small></div>
+    <div class="stat fail"><b id="stFail">0</b><small>Fallidos</small></div>
+    <div class="stat"><b id="stProg">0</b><small>En progreso</small></div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <div class="history-list" id="hList"><p class="hint">Cargando historial…</p></div>
+  </div>
+</main>
+<footer><span>InteeBuild</span><span class="sep">·</span><a href="./privacy.html">Privacidad</a><span class="sep">·</span><a href="./terms.html">Terminos</a><span class="sep">·</span><a href="./license.html">Licencia</a><span class="sep">·</span><a href="./historial.html">Historial</a></footer>
+<script>
+(function () {
+  var list = document.getElementById('hList');
+  var STATUS = {
+    success: ['Compilación completada', 'ok'],
+    failed: ['Compilación fallida', 'fail'],
+    error: ['Error', 'fail'],
+    queued: ['En cola', 'pending'],
+    building: ['En progreso', 'pending']
+  };
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function fmtDate(ts) {
+    var d = new Date(ts);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleDateString() + ' ' + d.toTimeString().slice(0, 5);
+  }
+  function render(items) {
+    document.getElementById('stTotal').textContent = items.length;
+    document.getElementById('stOk').textContent = items.filter(function (x) { return x.status === 'success'; }).length;
+    document.getElementById('stFail').textContent = items.filter(function (x) { var e = STATUS[x.status]; return e && e[1] === 'fail'; }).length;
+    document.getElementById('stProg').textContent = items.filter(function (x) { var e = STATUS[x.status]; return e && e[1] === 'pending'; }).length;
+    if (!items.length) {
+      list.innerHTML = '<div class="hempty">Todavía no hay compilaciones. Crea tu primera app desde la página de inicio.</div>';
+      return;
+    }
+    list.innerHTML = items.map(function (h) {
+      var entry = STATUS[h.status] || [h.status || '—', 'pending'];
+      var text = entry[0];
+      var st = entry[1];
+      var buttons = [];
+      if (h.status === 'success') {
+        buttons.push('<a class="btn primary sm" href="/api/download/' + esc(h.id) + '">APK</a>');
+        if ((h.outputs || []).indexOf('aab') !== -1) buttons.push('<a class="btn ghost sm" href="/api/download/' + esc(h.id) + '/aab">AAB</a>');
+        if ((h.outputs || []).indexOf('xapk') !== -1) buttons.push('<a class="btn ghost sm" href="/api/download/' + esc(h.id) + '/xapk">XAPK</a>');
+      }
+      if (h.runUrl) buttons.push('<a class="btn ghost sm" href="' + esc(h.runUrl) + '" target="_blank" rel="noopener">Logs</a>');
+      buttons.push('<button type="button" class="btn ghost sm" data-x="' + esc(h.id) + '">Eliminar</button>');
+      return '<div class="hitem">' +
+        '<div class="hitem-left">' +
+        '<div class="hitem-name">' + esc(h.appName || 'Aplicación') + '</div>' +
+        '<div class="hitem-meta">' +
+        '<span class="hitem-status ' + st + '">' + esc(text) + '</span>' +
+        '<span>' + fmtDate(h.createdAt) + '</span>' +
+        '<span>ID: ' + esc(h.id) + '</span>' +
+        '</div></div>' +
+        '<div class="hitem-right">' + buttons.join('') + '</div>' +
+        '</div>';
+    }).join('');
+    list.querySelectorAll('[data-x]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (!confirm('¿Eliminar esta compilación del historial?')) return;
+        fetch('/api/history/' + btn.getAttribute('data-x'), { method: 'DELETE' })
+          .then(function (r) { if (r.ok) location.reload(); });
+      });
+    });
+  }
+  fetch('/api/history')
+    .then(function (r) { return r.json(); })
+    .then(render)
+    .catch(function () {
+      list.innerHTML = '<div class="hempty">Error al obtener el historial.</div>';
+    });
+})();
+</script>
+</body>
+</html>
