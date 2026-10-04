@@ -1114,6 +1114,11 @@ jobs:
           ls -la gecko-project/
           ls -la gecko-project/app/src/main/java/$(echo $PKG | tr . /)/
 
+      - name: Generate Gradle wrapper
+        run: |
+          cd gecko-project
+          gradle wrapper --gradle-version 8.5 --distribution-type all
+
       - name: Setup Android SDK
         run: |
           echo "ANDROID_HOME=\$ANDROID_HOME"
@@ -1185,6 +1190,394 @@ jobs:
         with:
           name: inteebuild-\${{ github.event.inputs.id }}-release-aab
           path: gecko-project/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error
+
+  # --- Android TV (platform == tv) ---
+  tv-build:
+    if: \${{ github.event.inputs.platform == 'tv' && github.event.inputs.provider != 'flutter' && github.event.inputs.provider != 'cordova' && github.event.inputs.provider != 'twa' && github.event.inputs.provider != 'gecko' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve requested outputs
+        id: fmt
+        run: |
+          echo "apk=\${{ contains(github.event.inputs.outputs, 'apk') || github.event.inputs.outputs == '' }}" >> "\$GITHUB_OUTPUT"
+          echo "aab=\${{ contains(github.event.inputs.outputs, 'aab') }}" >> "\$GITHUB_OUTPUT"
+          echo "release_apk=\${{ contains(github.event.inputs.outputs, 'release-apk') }}" >> "\$GITHUB_OUTPUT"
+          echo "release_aab=\${{ contains(github.event.inputs.outputs, 'release-aab') }}" >> "\$GITHUB_OUTPUT"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Read build config
+        run: |
+          echo '--- build-config.json ---'
+          cat build-config.json
+          echo "COMPILE_SDK=\$(node -p 'require("./build-config.json").compileSdk')" >> "\$GITHUB_ENV"
+          echo "TARGET_SDK=\$(node -p 'require("./build-config.json").targetSdk')" >> "\$GITHUB_ENV"
+          echo "MIN_SDK=\$(node -p 'require("./build-config.json").minSdk')" >> "\$GITHUB_ENV"
+          cat "\$GITHUB_ENV"
+
+      - name: Setup Android SDK
+        run: |
+          echo "ANDROID_HOME=\$ANDROID_HOME"
+          yes | sdkmanager --licenses || true
+          sdkmanager --install "platform-tools" "platforms;android-\${COMPILE_SDK:-35}" "build-tools;35.0.0" 2>&1 | tail -20 || true
+          echo "SDK ready"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Add Capacitor Android platform
+        run: npx cap add android
+
+      - name: Sync Capacitor Android
+        run: npx cap sync android
+
+      - name: Apply TV manifest
+        run: |
+          cp tv-manifest.xml android/app/src/main/AndroidManifest.xml
+          echo "--- TV manifest applied ---"
+
+      - name: Apply TV banner
+        if: \${{ hashFiles('tv-banner.png') != '' }}
+        run: |
+          cp tv-banner.png android/app/src/main/res/drawable-xxhdpi/tv_banner.png
+          echo "--- TV banner applied ---"
+
+      - name: Apply provider WebView
+        run: |
+          PROVIDER=\$(node -p 'require("./build-config.json").provider')
+          PKG=\$(node -p 'require("./build-config.json").packageName')
+          DST="android/app/src/main/java/\$(echo \$PKG | tr . /)"
+          echo "Provider: \$PROVIDER"
+          if [ "\$PROVIDER" = "native" ] && [ -f "native-MainActivity.java" ]; then cp native-MainActivity.java "\$DST/MainActivity.java"; echo "native webview applied"; fi
+          cat provider.json || true
+
+      - name: Generate Gradle wrapper
+        run: |
+          gradle wrapper --gradle-version 8.5 --distribution-type all
+
+      - name: Build Debug APK
+        if: \${{ steps.fmt.outputs.apk == 'true' }}
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Build Release APK
+        if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_apk == 'true' }}
+        working-directory: android
+        run: |
+          cp ../user-keystore.jks app/release.jks
+          cp ../signing.properties .
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Build Debug AAB
+        if: \${{ steps.fmt.outputs.aab == 'true' }}
+        working-directory: android
+        run: ./gradlew bundleDebug --no-daemon
+
+      - name: Build Release AAB
+        if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_aab == 'true' }}
+        working-directory: android
+        run: |
+          cp ../user-keystore.jks app/release.jks
+          cp ../signing.properties .
+          ./gradlew bundleRelease --no-daemon
+
+      - name: Upload APK
+        if: \${{ steps.fmt.outputs.apk == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-apk
+          path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      - name: Upload Release APK
+        if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_apk == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-release-apk
+          path: android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+
+      - name: Upload AAB
+        if: \${{ steps.fmt.outputs.aab == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-aab
+          path: android/app/build/outputs/bundle/debug/*.aab
+          if-no-files-found: error
+
+      - name: Upload Release AAB
+        if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_aab == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-release-aab
+          path: android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error
+
+  # --- Wear OS (platform == wear) ---
+  wear-build:
+    if: \${{ github.event.inputs.platform == 'wear' && github.event.inputs.provider != 'flutter' && github.event.inputs.provider != 'cordova' && github.event.inputs.provider != 'twa' && github.event.inputs.provider != 'gecko' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve requested outputs
+        id: fmt
+        run: |
+          echo "apk=\${{ contains(github.event.inputs.outputs, 'apk') || github.event.inputs.outputs == '' }}" >> "\$GITHUB_OUTPUT"
+          echo "aab=\${{ contains(github.event.inputs.outputs, 'aab') }}" >> "\$GITHUB_OUTPUT"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Read build config
+        run: |
+          echo '--- build-config.json ---'
+          cat build-config.json
+          echo "COMPILE_SDK=\$(node -p 'require("./build-config.json").compileSdk')" >> "\$GITHUB_ENV"
+          echo "TARGET_SDK=\$(node -p 'require("./build-config.json").targetSdk')" >> "\$GITHUB_ENV"
+          echo "MIN_SDK=\$(node -p 'require("./build-config.json").minSdk')" >> "\$GITHUB_ENV"
+          cat "\$GITHUB_ENV"
+
+      - name: Setup Android SDK
+        run: |
+          echo "ANDROID_HOME=\$ANDROID_HOME"
+          yes | sdkmanager --licenses || true
+          sdkmanager --install "platform-tools" "platforms;android-\${COMPILE_SDK:-35}" "build-tools;35.0.0" 2>&1 | tail -20 || true
+          echo "SDK ready"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Add Capacitor Android platform
+        run: npx cap add android
+
+      - name: Sync Capacitor Android
+        run: npx cap sync android
+
+      - name: Apply Wear manifest
+        run: |
+          cp wear-manifest.xml android/app/src/main/AndroidManifest.xml
+          echo "--- Wear manifest applied ---"
+
+      - name: Apply provider WebView
+        run: |
+          PROVIDER=\$(node -p 'require("./build-config.json").provider')
+          PKG=\$(node -p 'require("./build-config.json").packageName')
+          DST="android/app/src/main/java/\$(echo \$PKG | tr . /)"
+          echo "Provider: \$PROVIDER"
+          if [ "\$PROVIDER" = "native" ] && [ -f "native-MainActivity.java" ]; then cp native-MainActivity.java "\$DST/MainActivity.java"; echo "native webview applied"; fi
+          cat provider.json || true
+
+      - name: Generate Gradle wrapper
+        run: |
+          gradle wrapper --gradle-version 8.5 --distribution-type all
+
+      - name: Build Debug APK
+        if: \${{ steps.fmt.outputs.apk == 'true' }}
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Build Release APK
+        if: \${{ hashFiles('user-keystore.jks') != '' }}
+        working-directory: android
+        run: |
+          cp ../user-keystore.jks app/release.jks
+          cp ../signing.properties .
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Build Debug AAB
+        if: \${{ steps.fmt.outputs.aab == 'true' }}
+        working-directory: android
+        run: ./gradlew bundleDebug --no-daemon
+
+      - name: Build Release AAB
+        if: \${{ hashFiles('user-keystore.jks') != '' }}
+        working-directory: android
+        run: |
+          cp ../user-keystore.jks app/release.jks
+          cp ../signing.properties .
+          ./gradlew bundleRelease --no-daemon
+
+      - name: Upload APK
+        if: \${{ steps.fmt.outputs.apk == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-apk
+          path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      - name: Upload Release APK
+        if: \${{ hashFiles('user-keystore.jks') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-release-apk
+          path: android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+
+      - name: Upload AAB
+        if: \${{ steps.fmt.outputs.aab == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-aab
+          path: android/app/build/outputs/bundle/debug/*.aab
+          if-no-files-found: error
+
+      - name: Upload Release AAB
+        if: \${{ hashFiles('user-keystore.jks') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-release-aab
+          path: android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error
+
+  # --- ChromeOS (platform == chromeos) ---
+  chromeos-build:
+    if: \${{ github.event.inputs.platform == 'chromeos' && github.event.inputs.provider != 'flutter' && github.event.inputs.provider != 'cordova' && github.event.inputs.provider != 'twa' && github.event.inputs.provider != 'gecko' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve requested outputs
+        id: fmt
+        run: |
+          echo "apk=\${{ contains(github.event.inputs.outputs, 'apk') || github.event.inputs.outputs == '' }}" >> "\$GITHUB_OUTPUT"
+          echo "aab=\${{ contains(github.event.inputs.outputs, 'aab') }}" >> "\$GITHUB_OUTPUT"
+          echo "release_apk=\${{ contains(github.event.inputs.outputs, 'release-apk') }}" >> "\$GITHUB_OUTPUT"
+          echo "release_aab=\${{ contains(github.event.inputs.outputs, 'release-aab') }}" >> "\$GITHUB_OUTPUT"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Read build config
+        run: |
+          echo '--- build-config.json ---'
+          cat build-config.json
+          echo "COMPILE_SDK=\$(node -p 'require("./build-config.json").compileSdk')" >> "\$GITHUB_ENV"
+          echo "TARGET_SDK=\$(node -p 'require("./build-config.json").targetSdk')" >> "\$GITHUB_ENV"
+          echo "MIN_SDK=\$(node -p 'require("./build-config.json").minSdk')" >> "\$GITHUB_ENV"
+          cat "\$GITHUB_ENV"
+
+      - name: Setup Android SDK
+        run: |
+          echo "ANDROID_HOME=\$ANDROID_HOME"
+          yes | sdkmanager --licenses || true
+          sdkmanager --install "platform-tools" "platforms;android-\${COMPILE_SDK:-35}" "build-tools;35.0.0" 2>&1 | tail -20 || true
+          echo "SDK ready"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Add Capacitor Android platform
+        run: npx cap add android
+
+      - name: Sync Capacitor Android
+        run: npx cap sync android
+
+      - name: Apply ChromeOS manifest
+        run: |
+          cp chromeos-manifest.xml android/app/src/main/AndroidManifest.xml
+          echo "--- ChromeOS manifest applied ---"
+
+      - name: Apply provider WebView
+        run: |
+          PROVIDER=\$(node -p 'require("./build-config.json").provider')
+          PKG=\$(node -p 'require("./build-config.json").packageName')
+          DST="android/app/src/main/java/\$(echo \$PKG | tr . /)"
+          echo "Provider: \$PROVIDER"
+          if [ "\$PROVIDER" = "native" ] && [ -f "native-MainActivity.java" ]; then cp native-MainActivity.java "\$DST/MainActivity.java"; echo "native webview applied"; fi
+          cat provider.json || true
+
+      - name: Generate Gradle wrapper
+        run: |
+          gradle wrapper --gradle-version 8.5 --distribution-type all
+
+      - name: Build Debug APK
+        if: \${{ steps.fmt.outputs.apk == 'true' }}
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Build Release APK
+        if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_apk == 'true' }}
+        working-directory: android
+        run: |
+          cp ../user-keystore.jks app/release.jks
+          cp ../signing.properties .
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Build Debug AAB
+        if: \${{ steps.fmt.outputs.aab == 'true' }}
+        working-directory: android
+        run: ./gradlew bundleDebug --no-daemon
+
+      - name: Build Release AAB
+        if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_aab == 'true' }}
+        working-directory: android
+        run: |
+          cp ../user-keystore.jks app/release.jks
+          cp ../signing.properties .
+          ./gradlew bundleRelease --no-daemon
+
+      - name: Upload APK
+        if: \${{ steps.fmt.outputs.apk == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-apk
+          path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      - name: Upload Release APK
+        if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_apk == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-release-apk
+          path: android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+
+      - name: Upload AAB
+        if: \${{ steps.fmt.outputs.aab == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-aab
+          path: android/app/build/outputs/bundle/debug/*.aab
+          if-no-files-found: error
+
+      - name: Upload Release AAB
+        if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_aab == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-release-aab
+          path: android/app/build/outputs/bundle/release/*.aab
           if-no-files-found: error
 
   # --- Tauri (provider == tauri) ---
