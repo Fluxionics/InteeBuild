@@ -175,6 +175,39 @@ test('gecko: geckoview usa version publicada en maven.mozilla.org', () => {
   assert.ok(!providers.geckoGradlePatchSrc().includes('156.0'), 'sin la 156 que exige minSdk 26');
 });
 
+test('gecko: emite make-icons.js y el workflow lo corre (mipmap ic_launcher)', () => {
+  const fs = require('fs');
+  const os = require('os');
+  const path = require('path');
+  const { execFileSync } = require('child_process');
+  const cfg = g.normalizeConfig({ appName: 'Icon Test', url: 'https://example.com', provider: 'gecko' });
+  const files = g.generateFiles(cfg);
+  const src = files['make-icons.js'];
+  assert.ok(src, 'make-icons.js emitido para provider gecko');
+  assert.ok(src.includes('mipmap-mdpi') && src.includes('mipmap-xxxhdpi'), '5 densidades');
+  assert.ok(src.includes('ic_launcher.png'), 'escribe ic_launcher.png');
+  const wf = require('../server/generator/workflow').WORKFLOW_YML;
+  assert.ok(wf.includes('node make-icons.js gecko-project'), 'workflow ejecuta el script');
+
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'ib-icons-'));
+  const prev = process.cwd();
+  try {
+    process.chdir(tmp);
+    fs.writeFileSync('make-icons.js', src);
+    execFileSync(process.execPath, ['make-icons.js', 'gecko-project'], { stdio: 'pipe' });
+    const densities = ['mipmap-mdpi', 'mipmap-hdpi', 'mipmap-xhdpi', 'mipmap-xxhdpi', 'mipmap-xxxhdpi'];
+    for (const d of densities) {
+      const png = path.join(tmp, 'gecko-project', 'app', 'src', 'main', 'res', d, 'ic_launcher.png');
+      assert.ok(fs.existsSync(png), d + '/ic_launcher.png existe');
+      const head = fs.readFileSync(png).subarray(0, 4);
+      assert.deepEqual(head, Buffer.from([0x89, 0x50, 0x4e, 0x47]), d + ' es PNG valido');
+    }
+    assert.ok(fs.existsSync(path.join(tmp, 'gecko-project', 'app', 'src', 'main', 'res', 'values', 'ic_launcher_background.xml')), 'color de fondo del icono presente');
+  } finally {
+    process.chdir(prev);
+  }
+});
+
 test('build-config.json incluye provider para la eleccion de provider en CI', () => {
   const cfg = g.normalizeConfig({ appName: 'Provider Test', url: 'https://example.com', provider: 'native' });
   const bc = JSON.parse(g.generateFiles(cfg)['build-config.json']);

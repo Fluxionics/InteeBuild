@@ -1093,6 +1093,9 @@ jobs:
           ls -la gecko-project/
           ls -la gecko-project/app/src/main/java/$(echo $PKG | tr . /)/
 
+      - name: Launcher icons
+        run: node make-icons.js gecko-project
+
       - name: Generate Gradle wrapper
         run: |
           cd gecko-project

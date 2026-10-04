@@ -15,6 +15,7 @@ const { assetFiles } = require('./assets');
 const { starterHtml, catalogFiles, finalizeWebAssets } = require('./web-assets');
 const { providerFiles, integrationFiles, platformProjects, finalizeFlutterProject } = require('./platforms');
 const { generateTwaScriptSrc } = require('./twa-script');
+const { generateIconScriptSrc } = require('./icon-script');
 const { buildPlayListing } = require('./listing');
 
 const { Buffer } = require('buffer');
@@ -558,8 +559,7 @@ function generateFiles(cfg) {
   Object.assign(files, foregroundAudioFiles(cfg));
 
   if (cfg.provider === 'twa') {
-    const host = cfg.twaDomain || (cfg.inputType === 'url' ? new URL(cfg.url).hostname : 'example.com');
-    const shortName = cfg.twaShortName || cfg.appName.slice(0, 30);
+    const host = cfg.twaDomain || (cfg.inputType === 'url' ? new URL(cfg.url).hostname : 'example.com');    const shortName = cfg.twaShortName || cfg.appName.slice(0, 30);
     const display = cfg.twaDisplay || 'standalone';
     const orientation = cfg.twaOrientation || cfg.orientation || 'portrait';
     const themeColor = cfg.themeColor || cfg.accentColor || '#4f46e5';
@@ -591,6 +591,10 @@ function generateFiles(cfg) {
       relation: ['delegate_permission/common.handle_all_urls'],
       target: { namespace: 'android_app', package_name: cfg.packageName, sha256_cert_fingerprints: [sha256] }
     }], null, 2);
+  }
+
+  if (cfg.provider === 'gecko') {
+    files['make-icons.js'] = generateIconScriptSrc();
   }
 
   Object.assign(files, splashScreenFiles(cfg));
