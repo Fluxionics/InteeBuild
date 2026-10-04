@@ -1,0 +1,12 @@
+node_modules
+.git
+data
+*.log
+.DS_Store
+*.md
+!README.md
+tests
+scripts
+i18n/extract.js
+i18n/group.js
+i18n/validate.js

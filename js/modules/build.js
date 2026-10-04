@@ -16,6 +16,8 @@ const Build = (() => {
 
   let buildStartTime = null;
   let historyCache = [];
+  let eventSource = null;
+  let pollingTimer = null;
 
   const showError = (msg) => {
     hide(buildProgress);
@@ -30,6 +32,19 @@ const Build = (() => {
     el.classList.remove('active', 'done');
     if (status === 'active') el.classList.add('active');
     if (status === 'done') el.classList.add('done');
+  };
+
+  const tt = (k) => (window.IB_I18N && window.IB_I18N.t) ? window.IB_I18N.t(k) : k;
+
+  const closeEventSource = () => {
+    if (eventSource) {
+      eventSource.close();
+      eventSource = null;
+    }
+    if (pollingTimer) {
+      clearInterval(pollingTimer);
+      pollingTimer = null;
+    }
   };
 
   const runQAChecks = () => {
@@ -181,14 +196,21 @@ const Build = (() => {
     return ['apk'].concat(s.outputType === 'aab' || s.outputType === 'both' ? ['aab'] : []);
   };
 
-  const PROGRESS_MARKERS = [
-    ['Sincronizando', 1, 2, '30%'],
-    ['Subiendo', 2, 3, '45%'],
-    ['Lanzando', 3, 4, '60%'],
-    ['Compilando', 4, 5, '80%']
-  ];
+  const PHASE_STEP_MAP = {
+    queued: [0, 1],
+    sync: [0, 1],
+    upload: [1, 2],
+    dispatch: [2, 3],
+    'actions-queued': [3, 3],
+    actions: [3, 4]
+  };
 
   const buildBtn = on('#buildBtn', 'click', async () => {
+    const errs = Form.validate();
+    if (errs.length) {
+      showError(tt('Corrige esto para compilar:') + '\n• ' + errs.join('\n• '));
+      return;
+    }
 
     buildBtn.textContent = 'Verificando…';
     buildBtn.disabled = true;
@@ -235,78 +257,134 @@ const Build = (() => {
       if (!res.ok) throw new Error(data.error || 'No se pudo iniciar el proceso de compilación');
       id = data.id;
       state.activeBuildId = id;
-      setProgressStep(0, 'done');
-      setProgressStep(1, 'active');
-      progressBar.style.width = '15%';
+      if (data.phase && PHASE_STEP_MAP[data.phase]) {
+        const [doneIdx, activeIdx] = PHASE_STEP_MAP[data.phase];
+        setProgressStep(doneIdx, 'done');
+        setProgressStep(activeIdx, 'active');
+      } else {
+        setProgressStep(0, 'done');
+        setProgressStep(1, 'active');
+      }
+      progressBar.style.width = typeof data.percent === 'number' ? data.percent + '%' : '15%';
     } catch (err) {
       showError(err.message);
       return;
     }
 
-    const timer = setInterval(async () => {
-      try {
-        const res = await fetch('/api/build/' + id);
-        const s = await res.json();
+    const handleState = async (s) => {
+      if (s.phase && PHASE_STEP_MAP[s.phase]) {
+        const [doneIdx, activeIdx] = PHASE_STEP_MAP[s.phase];
+        setProgressStep(doneIdx, 'done');
+        setProgressStep(activeIdx, 'active');
+      }
+      if (typeof s.percent === 'number') progressBar.style.width = s.percent + '%';
 
-        const marker = PROGRESS_MARKERS.find(([label]) => s.step && s.step.includes(label));
-        if (marker) {
-          setProgressStep(marker[1], 'done');
-          setProgressStep(marker[2], 'active');
-          progressBar.style.width = marker[3];
+      if (s.phase === 'actions' && Array.isArray(s.actionsSteps) && s.actionsSteps.length) {
+        const completed = s.actionsSteps.filter(st => st.status === 'completed').map(st => st.name.toLowerCase());
+        if (completed.some(n => n.includes('manifest') || n.includes('permiso') || n.includes('xml'))) setProgressStep(4, 'done');
+        if (completed.some(n => n.includes('apk') && !n.includes('release'))) setProgressStep(5, 'done');
+        if (completed.some(n => n.includes('aab') && !n.includes('release'))) setProgressStep(6, 'done');
+      }
+
+      const phaseEl = $('#phaseLabel');
+      const pctEl = $('#phasePct');
+      if (phaseEl && s.phase) {
+        const labels = {
+          queued: s.queuePos != null ? `${tt('En cola local')} (pos ${s.queuePos + 1})` : tt('En cola local'),
+          sync: tt('Sincronizando workflow'),
+          upload: tt('Subiendo proyecto'),
+          dispatch: tt('Lanzando compilación'),
+          'actions-queued': tt('Esperando ejecución en Actions'),
+          actions: tt('Compilando en GitHub Actions'),
+          success: tt('Build completado'),
+          failed: tt('Build fallido'),
+          error: tt('Error')
+        };
+        phaseEl.textContent = labels[s.phase] || s.phase;
+      }
+      if (pctEl && typeof s.percent === 'number') pctEl.textContent = s.percent + '%';
+
+      if (s.status === 'success') {
+        closeEventSource();
+        setProgressStep(5, 'done');
+        setProgressStep(6, 'done');
+        progressBar.style.width = '100%';
+
+        setTimeout(() => {
+          hide(buildProgress);
+          show(buildResult);
+          resultAppName.textContent = s.appName || '';
+          resultId.textContent = id;
+          const elapsed = Math.round((Date.now() - buildStartTime) / 1000);
+          const min = Math.floor(elapsed / 60);
+          const sec = elapsed % 60;
+          resultTime.textContent = min > 0 ? min + 'm ' + sec + 's' : sec + 's';
+
+          resultActions.innerHTML = '';
+          const formats = resolveFormats(s);
+          if (resultOutput) resultOutput.textContent = formats.map((f) => f.toUpperCase()).join(' · ');
+          formats.forEach((fmt) => {
+            resultActions.appendChild(artifactLink({
+              href: '/api/download/' + id + (fmt === 'apk' ? '' : '/' + fmt),
+              className: fmt === 'apk' ? 'btn primary' : 'btn ghost',
+              label: 'Descargar ' + FORMAT_LABELS[fmt]
+            }));
+          });
+        }, 600);
+      } else if (s.status === 'failed' || s.status === 'error') {
+        closeEventSource();
+        showError(s.error || 'La compilación ha fallado');
+      }
+
+      if (buildConsole && s.runUrl) {
+        try {
+          const lr = await fetch('/api/build/' + id + '/logs');
+          const lj = await lr.json();
+          if (lj.logs) {
+            buildConsole.textContent = lj.logs;
+            buildConsole.scrollTop = buildConsole.scrollHeight;
+            show(buildConsole);
+          }
+        } catch (_) {}
+      }
+    };
+
+    const startPolling = () => {
+      pollingTimer = setInterval(async () => {
+        try {
+          const res = await fetch('/api/build/' + id);
+          const s = await res.json();
+          handleState(s);
+        } catch (_) {}
+      }, 3000);
+    };
+
+    if (typeof EventSource !== 'undefined') {
+      eventSource = new EventSource('/api/build/' + id + '/stream');
+      eventSource.addEventListener('state', (e) => {
+        const s = JSON.parse(e.data);
+        handleState(s);
+      });
+      eventSource.addEventListener('end', (e) => {
+        const data = JSON.parse(e.data);
+        if (data.status === 'success' || data.status === 'failed' || data.status === 'error') {
+          closeEventSource();
         }
-
-        if (s.status === 'success') {
-          clearInterval(timer);
-          setProgressStep(5, 'done');
-          setProgressStep(6, 'done');
-          progressBar.style.width = '100%';
-
-
-          setTimeout(() => {
-            hide(buildProgress);
-            show(buildResult);
-            resultAppName.textContent = s.appName || '';
-            resultId.textContent = id;
-            const elapsed = Math.round((Date.now() - buildStartTime) / 1000);
-            const min = Math.floor(elapsed / 60);
-            const sec = elapsed % 60;
-            resultTime.textContent = min > 0 ? min + 'm ' + sec + 's' : sec + 's';
-
-            resultActions.innerHTML = '';
-            const formats = resolveFormats(s);
-            if (resultOutput) resultOutput.textContent = formats.map((f) => f.toUpperCase()).join(' · ');
-            formats.forEach((fmt) => {
-              resultActions.appendChild(artifactLink({
-                href: '/api/download/' + id + (fmt === 'apk' ? '' : '/' + fmt),
-                className: fmt === 'apk' ? 'btn primary' : 'btn ghost',
-                label: 'Descargar ' + FORMAT_LABELS[fmt]
-              }));
-            });
-          }, 600);
-        } else if (s.status === 'failed' || s.status === 'error') {
-          clearInterval(timer);
-          showError(s.error || 'La compilación ha fallado');
-        }
-
-        if (buildConsole && s.runUrl) {
-          try {
-            const lr = await fetch('/api/build/' + id + '/logs');
-            const lj = await lr.json();
-            if (lj.logs) {
-              buildConsole.textContent = lj.logs;
-              buildConsole.scrollTop = buildConsole.scrollHeight;
-              show(buildConsole);
-            }
-          } catch (_) {}
-        }
-      } catch (_) {}
-    }, 3000);
+      });
+      eventSource.onerror = () => {
+        closeEventSource();
+        startPolling();
+      };
+    } else {
+      startPolling();
+    }
   });
 
 
 
 
   const bindBackButton = () => on('#backFromBuild', 'click', () => {
+    closeEventSource();
     goToStep(5);
     show(buildReady);
     hide(buildProgress);
@@ -395,35 +473,7 @@ const Build = (() => {
       const res = await fetch('/api/history/' + id);
       const h = await res.json();
       if (!res.ok) throw new Error(h.error || 'No se pudo cargar');
-      const c = h.config || {};
-
-      if (c.inputType === 'html') {
-        $('.toggle-btn[data-input="html"]')?.click();
-        setField('htmlCode', c.htmlCode || '');
-      } else {
-        $('.toggle-btn[data-input="url"]')?.click();
-        setField('url', c.url || '');
-      }
-      ['appName', 'packageName', 'versionName', 'versionCode', 'orientation', 'platform',
-        'compileSdk', 'targetSdk', 'minSdk', 'splashColor', 'splashDuration', 'accentColor',
-        'statusBarColor', 'navigationBarColor', 'notifChannel', 'notifImportance'].forEach((k) => {
-        if (c[k] !== undefined) setField(k, c[k]);
-      });
-      ['fullscreen', 'edgeToEdge', 'keepScreenOn', 'useCleartext', 'splashEnabled',
-        'notifSound', 'notifVibration', 'adaptiveIconEnabled', 'desktopEnabled'].forEach((k) => {
-        if (c[k] !== undefined) setField(k, !!c[k]);
-      });
-
-      if (Array.isArray(c.outputs) && c.outputs.length) Form.setOutputs(c.outputs);
-      else if (c.outputType === 'both') Form.setOutputs(['apk', 'aab']);
-      else if (c.outputType) Form.setOutputs([c.outputType]);
-      ['fullscreen', 'edgeToEdge', 'keepScreenOn', 'useCleartext', 'splashEnabled',
-        'notifSound', 'notifVibration', 'adaptiveIconEnabled'].forEach((k) => {
-        if (c[k] !== undefined) setField(k, !!c[k]);
-      });
-      Object.entries(c.permissions || {}).forEach(([k, v]) => setField(k, !!v));
-      Object.entries(c.plugins || {}).forEach(([k, v]) => setField('plugin_' + k, !!v));
-      Preview.refresh();
+      Form.applyConfig(h.config || {});
       goToStep(0);
     } catch (err) {
       alert('No se pudo duplicar: ' + err.message);
@@ -495,5 +545,5 @@ const Build = (() => {
   on('#histSearch', 'input', renderHistory);
   on('#histStatus', 'change', renderHistory);
 
-  return { runQAChecks, loadHistory, loadStats, bindBackButton };
+  return { runQAChecks, loadHistory, loadStats, bindBackButton, duplicateBuild };
 })();

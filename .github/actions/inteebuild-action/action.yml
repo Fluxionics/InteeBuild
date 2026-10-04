@@ -1,0 +1,63 @@
+name: 'InteeBuild Build'
+description: 'Build Android APK/AAB/iOS IPA/Desktop from web app'
+inputs:
+  url:
+    description: 'Website URL or HTML content'
+    required: true
+  appName:
+    description: 'App name'
+    required: true
+  packageName:
+    description: 'Package ID (auto if empty)'
+    required: false
+  outputType:
+    description: 'apk, aab, release-apk, release-aab, ipa, exe, msi, dmg, appimage, both'
+    required: false
+    default: 'apk'
+  platform:
+    description: 'android, ios, both, desktop'
+    required: false
+    default: 'android'
+  provider:
+    description: 'capacitor, native, gecko, cordova, flutter, tauri'
+    required: false
+    default: 'capacitor'
+  signingEnabled:
+    description: 'Sign for Play Store'
+    required: false
+    default: 'false'
+  keystoreBase64:
+    description: 'Base64 keystore'
+    required: false
+  keystorePassword:
+    description: 'Keystore password'
+    required: false
+  keyAlias:
+    description: 'Key alias'
+    required: false
+  keyPassword:
+    description: 'Key password'
+    required: false
+  permissions:
+    description: 'JSON string of permissions'
+    required: false
+  versionName:
+    description: 'Version name'
+    required: false
+    default: '1.0.0'
+  versionCode:
+    description: 'Version code'
+    required: false
+    default: '1'
+outputs:
+  buildId:
+    description: 'InteeBuild build ID'
+  apkUrl:
+    description: 'Download URL for APK'
+  aabUrl:
+    description: 'Download URL for AAB'
+  runUrl:
+    description: 'GitHub Actions run URL'
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

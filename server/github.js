@@ -260,6 +260,18 @@ async function cleanup(owner, repo, keepBranch) {
   return del;
 }
 
+async function getJobs(owner, repo, runId) {
+  const data = await api(`/repos/${owner}/${repo}/actions/runs/${runId}/jobs`);
+  return (data.jobs || []).flatMap(j =>
+    (j.steps || []).map(s => ({
+      name: s.name,
+      status: s.status,
+      conclusion: s.conclusion,
+      job: j.name
+    }))
+  );
+}
+
 async function getRunLogs(owner, repo, runId) {
   const { token } = config();
   const res = await fetch(`${API}/repos/${owner}/${repo}/actions/runs/${runId}/logs`, {
@@ -311,6 +323,7 @@ module.exports = {
   findRun,
   getRun,
   getRunLogs,
+  getJobs,
   getArtifacts,
   downloadArtifact,
   deleteBranch,

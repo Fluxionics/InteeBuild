@@ -163,7 +163,7 @@ function readPlugins(raw, permissions) {
 }
 
 function readBuildOptions(raw, sdk) {
-  const providers = ['capacitor', 'native', 'twa', 'gecko', 'cordova', 'flutter', 'tauri', 'react-native', 'ionic'];
+  const providers = ['capacitor', 'native', 'twa', 'gecko', 'cordova', 'flutter', 'tauri', 'ios', 'desktop', 'react-native', 'ionic'];
   const provider = providers.includes(String(raw.provider || '').toLowerCase()) ? String(raw.provider).toLowerCase() : 'capacitor';
 
   return {
@@ -184,8 +184,10 @@ function readChrome(raw) {
     hideNavBar: !!raw.hideNavBar,
     keepScreenOn: !!raw.keepScreenOn,
     splashEnabled: !!raw.splashEnabled,
-    splashColor: typeof raw.splashColor === 'string' ? raw.splashColor.slice(0, 10) : '#ffffff',
-    splashDuration: Math.max(500, Math.min(5000, Number(raw.splashDuration) || 2000)),
+    splashImageBase64: typeof raw.splashImageBase64 === 'string' && raw.splashImageBase64.startsWith('data:image/') ? raw.splashImageBase64 : null,
+    splashAnimation: ['fade', 'slide'].includes(raw.splashAnimation) ? raw.splashAnimation : 'fade',
+    splashDuration: Math.max(500, Math.min(10000, Number(raw.splashDuration) || 2000)),
+    splashBgColor: /^#[0-9a-fA-F]{6}$/.test(String(raw.splashBgColor || '')) ? String(raw.splashBgColor) : '#ffffff',
     useCleartext: raw.useCleartext === undefined ? true : !!raw.useCleartext,
     author: String(raw.author || '').slice(0, 60),
     description: String(raw.description || '').slice(0, 200),
@@ -198,7 +200,9 @@ function readChrome(raw) {
     adaptiveFgBase64: typeof raw.adaptiveFgBase64 === 'string' && raw.adaptiveFgBase64.startsWith('data:image/') ? raw.adaptiveFgBase64 : null,
     deepLinksEnabled: !!raw.deepLinksEnabled,
     deepLinkDomain: String(raw.deepLinkDomain || '').slice(0, 120).replace(/^https?:\/\//, ''),
-    deepLinkPaths: Array.isArray(raw.deepLinkPaths) ? raw.deepLinkPaths.slice(0, 10).map(s => String(s).slice(0, 80)) : []
+    deepLinkPaths: Array.isArray(raw.deepLinkPaths) ? raw.deepLinkPaths.slice(0, 10).map(s => String(s).slice(0, 80)) : [],
+    themeColor: /^#[0-9a-fA-F]{6}$/.test(String(raw.themeColor || '')) ? String(raw.themeColor) : '#4f46e5',
+    navBarTransparent: !!raw.navBarTransparent
   };
 }
 
@@ -231,7 +235,12 @@ function readWebView(raw) {
     cacheMode: ['normal', 'no-cache', 'force-cache'].includes(raw.cacheMode) ? raw.cacheMode : 'normal',
     backButtonBehavior: ['back', 'exit', 'confirm', 'none'].includes(raw.backButtonBehavior) ? raw.backButtonBehavior : 'back',
     customHeaders: typeof raw.customHeaders === 'string' ? raw.customHeaders.slice(0, 2000) : '',
-    webhookUrl: typeof raw.webhookUrl === 'string' && /^https?:\/\//.test(raw.webhookUrl.trim()) ? raw.webhookUrl.trim().slice(0, 500) : ''
+    webhookUrl: typeof raw.webhookUrl === 'string' && /^https?:\/\//.test(raw.webhookUrl.trim()) ? raw.webhookUrl.trim().slice(0, 500) : '',
+    pullToRefresh: !!raw.webviewPullToRefresh,
+    pinchZoom: !!raw.webviewPinchZoom,
+    hideScrollbars: !!raw.webviewHideScrollbars,
+    disableCopy: !!raw.webviewDisableCopy,
+    disableLongPress: !!raw.webviewDisableLongPress
   };
 }
 
@@ -260,8 +269,30 @@ function readCatalog(raw) {
     firebaseConfig: typeof raw.firebaseConfig === 'string' ? raw.firebaseConfig.slice(0, 5000) : '',
     twaEnabled: !!raw.twaEnabled,
     twaDomain: String(raw.twaDomain || '').slice(0, 120).replace(/^https?:\/\//, ''),
+    twaShortName: String(raw.twaShortName || '').slice(0, 30),
+    twaOrientation: ['portrait', 'landscape', 'any', 'natural'].includes(raw.twaOrientation) ? raw.twaOrientation : 'portrait',
+    twaDisplay: ['standalone', 'fullscreen', 'minimal-ui', 'browser'].includes(raw.twaDisplay) ? raw.twaDisplay : 'standalone',
+    twaIcons: Array.isArray(raw.twaIcons) ? raw.twaIcons.slice(0, 10).map(i => ({ src: String(i.src || '').slice(0, 500), sizes: String(i.sizes || '').slice(0, 30), type: String(i.type || '').slice(0, 50), purpose: String(i.purpose || '').slice(0, 30) })) : [],
     desktopEnabled: !!raw.desktopEnabled,
     desktopPlatform: ['win', 'mac', 'both'].includes(raw.desktopPlatform) ? raw.desktopPlatform : 'both'
+  };
+}
+
+function readPrivacy(raw) {
+  return {
+    privacyMode: !!raw.privacyMode,
+    privacyBlockAds: raw.privacyBlockAds !== undefined ? !!raw.privacyBlockAds : true,
+    privacyBlockTracking: raw.privacyBlockTracking !== undefined ? !!raw.privacyBlockTracking : true,
+    privacyBlockCookies: raw.privacyBlockCookies !== undefined ? !!raw.privacyBlockCookies : true,
+    privacyBlockGeolocation: raw.privacyBlockGeolocation !== undefined ? !!raw.privacyBlockGeolocation : true,
+    privacyBlockRedirects: raw.privacyBlockRedirects !== undefined ? !!raw.privacyBlockRedirects : true,
+    privacyCustomBlocklist: Array.isArray(raw.privacyCustomBlocklist) ? raw.privacyCustomBlocklist.slice(0, 100).map(s => String(s).slice(0, 256)) : []
+  };
+}
+
+function readAutoDetect(raw) {
+  return {
+    autoDetectPermissions: raw.autoDetectPermissions !== undefined ? !!raw.autoDetectPermissions : true
   };
 }
 
@@ -274,6 +305,7 @@ function readAndroidSigning(raw) {
   let keyAlias = '';
   let keyPassword = '';
   let useCustomSigning = false;
+  let signingEnabled = !!raw.signingEnabled;
 
   if (keystoreBase64) {
     keystorePassword = String(raw.keystorePassword || '').slice(0, 128);
@@ -283,7 +315,11 @@ function readAndroidSigning(raw) {
     if (!useCustomSigning) keystoreBase64 = null;
   }
 
-  return { useCustomSigning, keystoreBase64, keystorePassword, keyAlias, keyPassword };
+  const signingConfig = useCustomSigning
+    ? { keystoreBase64, keystorePassword, keyAlias, keyPassword }
+    : null;
+
+  return { useCustomSigning, signingEnabled, keystoreBase64, keystorePassword, keyAlias, keyPassword, signingConfig };
 }
 
 
@@ -330,7 +366,26 @@ function readIcon(raw) {
 
 
 
-const OUTPUT_FORMATS = ['apk', 'aab', 'ipa', 'xapk', 'apks', 'exe', 'dmg', 'appimage', 'msi'];
+const OUTPUT_FORMATS = ['apk', 'aab', 'ipa', 'xapk', 'apks', 'exe', 'dmg', 'appimage', 'msi', 'release-apk', 'release-aab'];
+
+const PROVIDER_OUTPUTS = {
+  capacitor: { android: ['apk', 'aab', 'xapk', 'apks', 'release-apk', 'release-aab'], ios: ['ipa'], both: ['apk', 'aab', 'xapk', 'apks', 'release-apk', 'release-aab', 'ipa'] },
+  native: { android: ['apk', 'aab', 'release-apk', 'release-aab'], ios: ['ipa'], both: ['apk', 'aab', 'release-apk', 'release-aab', 'ipa'] },
+  gecko: { android: ['apk', 'aab', 'release-apk', 'release-aab'], ios: ['ipa'], both: ['apk', 'aab', 'release-apk', 'release-aab', 'ipa'] },
+  twa: { android: ['apk', 'aab', 'release-apk', 'release-aab'], ios: ['ipa'], both: ['apk', 'aab', 'release-apk', 'release-aab', 'ipa'] },
+  cordova: { android: ['apk', 'aab', 'release-apk', 'release-aab'], ios: [], both: ['apk', 'aab', 'release-apk', 'release-aab'] },
+  flutter: { android: ['apk', 'aab', 'release-apk', 'release-aab'], ios: [], both: ['apk', 'aab', 'release-apk', 'release-aab'] },
+  tauri: { android: ['exe'], ios: [], both: ['exe', 'msi', 'dmg', 'appimage'] },
+  ios: { android: [], ios: ['ipa'], both: ['ipa'] },
+  desktop: { android: [], ios: [], both: ['exe', 'msi', 'dmg', 'appimage'] }
+};
+
+function getSupportedOutputs(provider, platform) {
+  const providerKey = String(provider || 'capacitor').toLowerCase();
+  const platformKey = String(platform || 'android').toLowerCase();
+  const prov = PROVIDER_OUTPUTS[providerKey] || PROVIDER_OUTPUTS.capacitor;
+  return prov[platformKey] || prov.android || [];
+}
 
 function deriveOutputs(raw) {
   const requested = Array.isArray(raw.outputs)
@@ -385,6 +440,8 @@ function normalizeConfig(raw) {
   const notifications = readNotifications(raw, appName);
   const webview = readWebView(raw);
   const catalog = readCatalog(raw);
+  const privacy = readPrivacy(raw);
+  const autoDetect = readAutoDetect(raw);
   const androidSigning = readAndroidSigning(raw);
   const iosSigning = readIosSigning(raw);
   const iconBase64 = readIcon(raw);
@@ -413,6 +470,8 @@ function normalizeConfig(raw) {
     ...chrome,
     ...notifications,
     ...webview,
+    ...privacy,
+    ...autoDetect,
     provider: build.provider,
     providerVersion: build.providerVersion,
     minify: build.minify,
@@ -428,4 +487,4 @@ function normalizeConfig(raw) {
   };
 }
 
-module.exports = { normalizeConfig, deriveOutputs, OUTPUT_FORMATS };
+module.exports = { normalizeConfig, deriveOutputs, OUTPUT_FORMATS, getSupportedOutputs };

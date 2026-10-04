@@ -145,12 +145,96 @@ function needsSpecialFile(cfg) {
 }
 
 
+const HTML_FEATURE_PERMISSIONS = {
+  camera: { permission: 'cameraMic', manifest: ['android.permission.CAMERA'], runtime: true, minSdk: 23 },
+  microphone: { permission: 'microphone', manifest: ['android.permission.RECORD_AUDIO', 'android.permission.MODIFY_AUDIO_SETTINGS'], runtime: true, minSdk: 23 },
+  notifications: { permission: 'notifications', manifest: ['android.permission.POST_NOTIFICATIONS'], runtime: true, minSdk: 33 }
+};
+
+function autoDetectPermissions(htmlCode) {
+  const detected = {
+    camera: false,
+    microphone: false,
+    notifications: false
+  };
+
+  if (!htmlCode) return detected;
+
+  const patterns = {
+    camera: [
+      /navigator\.mediaDevices\.getUserMedia\s*\(/,
+      /navigator\.getUserMedia\s*\(/,
+      /getUserMedia\s*\(/
+    ],
+    microphone: [
+      /navigator\.mediaDevices\.getUserMedia\s*\([^)]*audio\s*:\s*true/,
+      /getUserMedia\s*\([^)]*audio\s*:\s*true/
+    ],
+    notifications: [
+      /Notification\.requestPermission\s*\(/,
+      /Notification\.permission\s*(===|==)\s*['"]granted['"]/,
+      /Notification\.permission\s*(===|==)\s*['"]default['"]/
+    ]
+  };
+
+  for (const [feature, regexes] of Object.entries(patterns)) {
+    for (const regex of regexes) {
+      if (regex.test(htmlCode)) {
+        detected[feature] = true;
+        break;
+      }
+    }
+  }
+
+  return detected;
+}
+
+function mergeAutoDetectedPermissions(cfg) {
+  if (!cfg.autoDetectPermissions || cfg.inputType !== 'html' || !cfg.htmlCode) {
+    return cfg.permissions;
+  }
+
+  const detected = autoDetectPermissions(cfg.htmlCode);
+  const permissions = { ...cfg.permissions };
+
+  if (detected.camera) permissions.cameraMic = true;
+  if (detected.microphone) permissions.microphone = true;
+  if (detected.notifications) permissions.notifications = true;
+
+  return permissions;
+}
+
+function filterPermissionsForPrivacy(permissions, privacy) {
+  if (!privacy?.privacyMode) return permissions;
+
+  const filtered = { ...permissions };
+
+  if (privacy.privacyBlockGeolocation) {
+    delete filtered.gps;
+    delete filtered.gpsBackground;
+    delete filtered.accessFineLocation;
+    delete filtered.accessCoarseLocation;
+    delete filtered.accessBackgroundLocation;
+    delete filtered.advGeo;
+  }
+
+  if (privacy.privacyBlockCookies) {
+    filtered.__privacyBlockCookies = true;
+  }
+
+  return filtered;
+}
+
 module.exports = {
   PERMISSION_SPEC,
   BG_LOCATION,
   MANAGE_STORAGE,
+  HTML_FEATURE_PERMISSIONS,
   runtimeBatchConsts,
   wantsBackground,
   specialNeeds,
-  needsSpecialFile
+  needsSpecialFile,
+  autoDetectPermissions,
+  mergeAutoDetectedPermissions,
+  filterPermissionsForPrivacy
 };

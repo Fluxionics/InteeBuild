@@ -1,15 +1,16 @@
 services:
   - type: web
     name: inteebuild
-    env: node
+    env: docker
     plan: free
-    buildCommand: npm install
-    startCommand: node server/server.js
+    dockerfilePath: ./Dockerfile
     healthCheckPath: /api/health
     envVars:
       - key: GITHUB_TOKEN
         sync: false
       - key: INTEE_BUILDS_REPO
         sync: false
-      - key: NODE_ENV
-        value: production
+      - key: INTEE_DEFAULT_BRANCH
+        value: main
+      - key: PORT
+        value: "8787"

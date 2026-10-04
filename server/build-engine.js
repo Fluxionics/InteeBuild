@@ -18,6 +18,29 @@ async function fireWebhook(url, payload) {
   } catch (_) {}
 }
 
+function computePercent(state) {
+  if (state.status === 'success') return 100;
+  const p = state.phase;
+  if (p === 'queued') return 3;
+  if (p === 'sync') return 8;
+  if (p === 'upload') return 16;
+  if (p === 'dispatch') return 25;
+  if (p === 'actions-queued') return 30;
+  if (p === 'actions') {
+    const steps = state.actionsSteps || [];
+    const total = steps.length;
+    const done = steps.filter(s => s.status === 'completed').length;
+    const base = 35, span = 55;
+    return total ? Math.min(97, base + Math.round(done / total * span)) : 35;
+  }
+  if (p === 'failed' || p === 'error') return state.percent || 0;
+  return 3;
+}
+
+function recomputeQueue() {
+  pendingQueue.forEach((j, i) => { if (j.state) j.state.queuePos = i; });
+}
+
 function pollBuild(g, state) {
   let attempts = 0;
   const timer = setInterval(async () => {
@@ -29,7 +52,11 @@ function pollBuild(g, state) {
           state.runId = run.id;
           state.runUrl = run.html_url;
           state.step = 'Compilando APK';
+          state.phase = 'actions';
           updateHistory(state.id, { runUrl: run.html_url });
+        } else {
+          state.phase = 'actions-queued';
+          state.step = 'Esperando ejecucion en Actions';
         }
       } else {
         const run = await gh.getRun(g.owner, g.repo, state.runId);
@@ -38,10 +65,10 @@ function pollBuild(g, state) {
           clearInterval(timer);
           runCleanup(g);
 
-
           try { gh.deleteBranchSoon(g.owner, g.repo, state.branch, 60000); } catch (_) {}
           if (run.conclusion === 'success') {
             state.status = 'success';
+            state.phase = 'success';
             state.step = 'Build completado';
             try {
               const arts = await gh.getArtifacts(g.owner, g.repo, state.runId);
@@ -58,29 +85,44 @@ function pollBuild(g, state) {
             });
           } else {
             state.status = 'failed';
+            state.phase = 'failed';
             state.step = 'Build fallido';
             state.error = `GitHub Actions concluyo: ${run.conclusion}`;
             updateHistory(state.id, { status: 'failed', error: state.error });
             await fireWebhook(state.webhookUrl, { event: 'build.failed', buildId: state.id, status: 'failed', error: state.error, runUrl: state.runUrl });
             try { gh.deleteBranchSoon(g.owner, g.repo, state.branch, 60000); } catch (_) {}
           }
+        } else if (run.status === 'in_progress') {
+          state.phase = 'actions';
+          state.step = 'Compilando en GitHub Actions';
+          try {
+            const steps = await gh.getJobs(g.owner, g.repo, state.runId);
+            state.actionsSteps = steps;
+            const cur = steps.find(s => s.status === 'in_progress');
+            if (cur) state.step = cur.name;
+          } catch (_) {}
         } else {
-          state.step = run.status === 'queued' ? 'En cola en GitHub Actions' : 'Compilando APK';
+          state.phase = 'actions-queued';
+          state.step = 'En cola en GitHub Actions';
         }
       }
+      state.percent = computePercent(state);
     } catch (err) {
       state.step = `Reintentando (${err.message})`;
+      state.percent = computePercent(state);
     }
 
     if (attempts >= 200) {
       clearInterval(timer);
       if (state.status !== 'success') {
         state.status = 'failed';
+        state.phase = 'error';
         state.error = state.error || 'Tiempo de espera agotado consultando GitHub';
         updateHistory(state.id, { status: 'failed', error: state.error });
         fireWebhook(state.webhookUrl, { event: 'build.failed', buildId: state.id, status: 'failed', error: state.error });
         try { gh.deleteBranchSoon(g.owner, g.repo, state.branch, 60000); } catch (_) {}
       }
+      state.percent = computePercent(state);
     }
   }, 6000);
 }
@@ -92,6 +134,7 @@ const pendingQueue = [];
 function drainQueue() {
   while (activeBuilds < MAX_CONCURRENT_BUILDS && pendingQueue.length) {
     const job = pendingQueue.shift();
+    recomputeQueue();
     activeBuilds++;
     job.run()
       .then(job.resolve, job.reject)
@@ -99,9 +142,10 @@ function drainQueue() {
   }
 }
 
-function enqueueBuild(run) {
+function enqueueBuild(run, state) {
   return new Promise((resolve, reject) => {
-    pendingQueue.push({ run, resolve, reject });
+    pendingQueue.push({ run, resolve, reject, state });
+    recomputeQueue();
     drainQueue();
   });
 }
@@ -121,7 +165,8 @@ async function startBuild(cfg, ip) {
     id, branch, appName: cfg.appName, status: 'queued',
     step: 'En cola local', createdAt: Date.now(),
     runUrl: null, runId: null, apkUrl: null, outputType: cfg.outputType,
-    outputs, error: null, webhookUrl: cfg.webhookUrl || ''
+    outputs, error: null, webhookUrl: cfg.webhookUrl || '',
+    phase: 'queued', queuePos: null, percent: 3, actionsSteps: []
   };
   builds.set(id, state);
 
@@ -135,20 +180,37 @@ async function startBuild(cfg, ip) {
 
   try {
     await enqueueBuild(async () => {
+      state.queuePos = null;
+      state.phase = 'sync';
       state.step = 'Sincronizando workflow';
+      state.percent = computePercent(state);
+      notifySSEListeners(state.id, 'state', { phase: state.phase, percent: state.percent, step: state.step, queuePos: state.queuePos, actionsSteps: state.actionsSteps, status: state.status, error: state.error });
       await gh.syncWorkflow(g.owner, g.repo, g.defaultBranch, generator.WORKFLOW_YML);
+      state.phase = 'upload';
       state.step = 'Subiendo proyecto';
+      state.percent = computePercent(state);
+      notifySSEListeners(state.id, 'state', { phase: state.phase, percent: state.percent, step: state.step, queuePos: state.queuePos, actionsSteps: state.actionsSteps, status: state.status, error: state.error });
       await gh.pushProject(g.owner, g.repo, branch, files, g.defaultBranch);
       state.status = 'building';
+      state.phase = 'dispatch';
       state.step = 'Lanzando compilacion en GitHub Actions';
+      state.percent = computePercent(state);
+      notifySSEListeners(state.id, 'state', { phase: state.phase, percent: state.percent, step: state.step, queuePos: state.queuePos, actionsSteps: state.actionsSteps, status: state.status, error: state.error });
       await gh.dispatchBuild(g.owner, g.repo, branch, id, cfg.outputType, cfg.platform, outputs, cfg.provider);
       updateHistory(id, { status: 'building' });
+      state.phase = 'actions-queued';
+      state.step = 'Esperando ejecucion en Actions';
+      state.percent = computePercent(state);
+      notifySSEListeners(state.id, 'state', { phase: state.phase, percent: state.percent, step: state.step, queuePos: state.queuePos, actionsSteps: state.actionsSteps, status: state.status, error: state.error });
       pollBuild(g, state);
     });
   } catch (err) {
     state.status = 'error';
+    state.phase = 'error';
     state.step = 'Error';
     state.error = err.message;
+    state.percent = computePercent(state);
+    notifySSEListeners(state.id, 'state', { phase: state.phase, percent: state.percent, step: state.step, queuePos: state.queuePos, actionsSteps: state.actionsSteps, status: state.status, error: state.error });
     updateHistory(id, { status: 'error', error: err.message });
     await fireWebhook(state.webhookUrl, { event: 'build.error', buildId: id, status: 'error', error: err.message });
   }
@@ -166,4 +228,153 @@ function runCleanup(g) {
   }, 2000);
 }
 
-module.exports = { fireWebhook, startBuild, pollBuild, runCleanup };
+const sseListeners = new Map();
+
+function addSSEListener(buildId, callback) {
+  if (!sseListeners.has(buildId)) sseListeners.set(buildId, []);
+  sseListeners.get(buildId).push(callback);
+}
+
+function removeSSEListener(buildId, callback) {
+  const listeners = sseListeners.get(buildId);
+  if (!listeners) return;
+  const idx = listeners.indexOf(callback);
+  if (idx !== -1) listeners.splice(idx, 1);
+  if (!listeners.length) sseListeners.delete(buildId);
+}
+
+function notifySSEListeners(buildId, event, data) {
+  const listeners = sseListeners.get(buildId);
+  if (!listeners) return;
+  for (const cb of listeners) {
+    try { cb(event, data); } catch (_) {}
+  }
+}
+
+function pollBuild(g, state) {
+  let attempts = 0;
+  const timer = setInterval(async () => {
+    attempts++;
+    try {
+      if (!state.runId) {
+        const run = await gh.findRun(g.owner, g.repo, state.branch);
+        if (run) {
+          state.runId = run.id;
+          state.runUrl = run.html_url;
+          state.step = 'Compilando APK';
+          state.phase = 'actions';
+          updateHistory(state.id, { runUrl: run.html_url });
+        } else {
+          state.phase = 'actions-queued';
+          state.step = 'Esperando ejecucion en Actions';
+        }
+      } else {
+        const run = await gh.getRun(g.owner, g.repo, state.runId);
+        state.runUrl = run.html_url;
+        if (run.status === 'completed') {
+          clearInterval(timer);
+          runCleanup(g);
+
+          try { gh.deleteBranchSoon(g.owner, g.repo, state.branch, 60000); } catch (_) {}
+          if (run.conclusion === 'success') {
+            state.status = 'success';
+            state.phase = 'success';
+            state.step = 'Build completado';
+            try {
+              const arts = await gh.getArtifacts(g.owner, g.repo, state.runId);
+              state.artifacts = arts.map(a => ({ name: a.name, url: a.archive_download_url, size: a.size_in_bytes }));
+              if (arts[0]) { state.apkUrl = arts[0].archive_download_url; state.artifactName = arts[0].name; }
+            } catch (_) {}
+            const duration = Math.round((Date.now() - state.createdAt) / 1000);
+            updateHistory(state.id, { status: 'success', runUrl: run.html_url, apkUrl: state.apkUrl, artifacts: state.artifacts, duration });
+            await fireWebhook(state.webhookUrl, {
+              event: 'build.completed', buildId: state.id, status: 'success',
+              appName: state.appName, runUrl: state.runUrl, duration,
+              apkUrl: `/api/download/${state.id}`,
+              aabUrl: state.artifacts && state.artifacts.some(a => a.name.includes('aab')) ? `/api/download/${state.id}/aab` : null
+            });
+          } else {
+            state.status = 'failed';
+            state.phase = 'failed';
+            state.step = 'Build fallido';
+            state.error = `GitHub Actions concluyo: ${run.conclusion}`;
+            updateHistory(state.id, { status: 'failed', error: state.error });
+            await fireWebhook(state.webhookUrl, { event: 'build.failed', buildId: state.id, status: 'failed', error: state.error, runUrl: state.runUrl });
+            try { gh.deleteBranchSoon(g.owner, g.repo, state.branch, 60000); } catch (_) {}
+          }
+        } else if (run.status === 'in_progress') {
+          state.phase = 'actions';
+          state.step = 'Compilando en GitHub Actions';
+          try {
+            const steps = await gh.getJobs(g.owner, g.repo, state.runId);
+            state.actionsSteps = steps;
+            const cur = steps.find(s => s.status === 'in_progress');
+            if (cur) state.step = cur.name;
+          } catch (_) {}
+        } else {
+          state.phase = 'actions-queued';
+          state.step = 'En cola en GitHub Actions';
+        }
+      }
+      state.percent = computePercent(state);
+      notifySSEListeners(state.id, 'state', {
+        phase: state.phase,
+        percent: state.percent,
+        step: state.step,
+        queuePos: state.queuePos,
+        actionsSteps: state.actionsSteps,
+        status: state.status,
+        error: state.error,
+        runUrl: state.runUrl,
+        apkUrl: state.apkUrl,
+        artifacts: state.artifacts
+      });
+    } catch (err) {
+      state.step = `Reintentando (${err.message})`;
+      state.percent = computePercent(state);
+      notifySSEListeners(state.id, 'state', {
+        phase: state.phase,
+        percent: state.percent,
+        step: state.step,
+        queuePos: state.queuePos,
+        actionsSteps: state.actionsSteps,
+        status: state.status,
+        error: state.error
+      });
+    }
+
+    if (attempts >= 200) {
+      clearInterval(timer);
+      if (state.status !== 'success') {
+        state.status = 'failed';
+        state.phase = 'error';
+        state.error = state.error || 'Tiempo de espera agotado consultando GitHub';
+        updateHistory(state.id, { status: 'failed', error: state.error });
+        fireWebhook(state.webhookUrl, { event: 'build.failed', buildId: state.id, status: 'failed', error: state.error });
+        try { gh.deleteBranchSoon(g.owner, g.repo, state.branch, 60000); } catch (_) {}
+      }
+      state.percent = computePercent(state);
+      notifySSEListeners(state.id, 'state', {
+        phase: state.phase,
+        percent: state.percent,
+        step: state.step,
+        queuePos: state.queuePos,
+        actionsSteps: state.actionsSteps,
+        status: state.status,
+        error: state.error
+      });
+    }
+  }, 6000);
+}
+
+function runCleanup(g) {
+  if (!g.ready) return;
+  setTimeout(() => {
+    gh.cleanup(g.owner, g.repo).then(
+      r => console.log(`[cleanup] ramas:${r.branches} runs:${r.runs} artifacts:${r.artifacts}`),
+      () => {}
+    );
+  }, 2000);
+}
+
+module.exports = { fireWebhook, startBuild, pollBuild, runCleanup, addSSEListener, removeSSEListener, notifySSEListeners };

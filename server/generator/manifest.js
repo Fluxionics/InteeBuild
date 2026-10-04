@@ -62,6 +62,10 @@ function generateAndroidManifest(cfg) {
   const orientationAttr = cfg.orientation !== 'any' ? `\n            android:screenOrientation="${cfg.orientation}"` : '';
   const keepOnAttr = cfg.keepScreenOn ? '\n            android:keepScreenOn="true"' : '';
 
+  const hasSplash = cfg.splashEnabled && cfg.splashImageBase64;
+  const themeColor = cfg.themeColor || '#4f46e5';
+  const navBarTransparent = cfg.navBarTransparent || false;
+
   return `<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
@@ -76,7 +80,8 @@ ${hardwareFeatureBlocks(cfg)}
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:networkSecurityConfig="@xml/network_security_config">
 
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode"${orientationAttr}${keepOnAttr}
@@ -85,11 +90,10 @@ ${hardwareFeatureBlocks(cfg)}
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBarLaunch"
             android:exported="true">
-
-            <intent-filter>
+${hasSplash ? '' : `            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            </intent-filter>`}
 
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -111,6 +115,16 @@ ${cfg.permissions.nfc ? `            <intent-filter>
                 android:name="android.nfc.action.TECH_DISCOVERED"
                 android:resource="@xml/nfc_tech_filter" />` : ''}
         </activity>
+${hasSplash ? `        <activity
+            android:name=".SplashActivity"
+            android:theme="@style/AppTheme.NoActionBarLaunch"
+            android:exported="true"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>` : ''}
 
         <provider
             android:name="androidx.core.content.FileProvider"

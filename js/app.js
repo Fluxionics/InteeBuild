@@ -62,5 +62,9 @@ onAll('.prev-btn', 'click', () => goToStep(currentStep - 1));
 
 Build.bindBackButton();
 
+Form.initDraft();
+const dupId = new URLSearchParams(location.search).get('dup');
+if (dupId) Build.duplicateBuild(dupId);
+
 refreshHealthBadge();
 Build.loadStats();

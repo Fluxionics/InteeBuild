@@ -78,9 +78,18 @@ Límites reales del servidor (están en `server/server.js`, `server/store.js` y 
 - `POST /api/decompile` acepta APKs de hasta 100 MB; `POST /api/decompile/cloud`, 60 MB.
 - `POST /api/inspect` acepta APKs de hasta 30 MB.
 
-## API
+## Auto-build (compilación en cada push)
 
-La superficie completa, con ejemplos, está en [docs/api.md](./docs/api.md) y en el panel `developer.html`. El resumen:
+InteeBuild puede lanzar una compilación automática cuando haces `push` a una branch configurada de tu repo GitHub.
+
+1. Crea `.inteebuild/config.json` en la raíz del repo con la configuración de tu app (ver [docs/autobuild.md](./docs/autobuild.md)).
+2. En Studio: **Cuenta → Integraciones Git → Conectar repositorio** (o `POST /api/git/connect`).
+3. En GitHub: **Settings → Webhooks → Add webhook** → Payload URL: `https://tu-inteebuild.com/api/git/webhook`, events: **Just the push event**.
+4. Cada push a la branch configurada dispara una build completa (cola local → GitHub Actions → artefactos).
+
+Detalles, troubleshooting y referencia API en [docs/autobuild.md](./docs/autobuild.md).
+
+## API
 
 - `GET /api/health` — estado del servidor. `GET /api/diag` — diagnóstico de la configuración de GitHub.
 - `GET /api/analyze?url=` y `POST /api/analyze/html` — análisis web. `POST /api/analyze/fix` — auto-fix.

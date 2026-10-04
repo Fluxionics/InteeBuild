@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  inteebuild:
+    build: .
+    ports:
+      - "8787:8787"
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - INTEE_BUILDS_REPO=${INTEE_BUILDS_REPO}
+      - INTEE_DEFAULT_BRANCH=main
+      - PORT=8787
+    volumes:
+      - inteebuild_data:/app/data
+    restart: unless-stopped
+volumes:
+  inteebuild_data:

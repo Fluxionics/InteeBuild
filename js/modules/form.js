@@ -95,7 +95,7 @@ const Form = (() => {
             + '<span class="trk"><span class="knob"></span></span>'
             + '<span class="txt"><b>' + escHtml(s.title || k) + '</b><small>Requiere: ' + escHtml(mans) + ' · ' + escHtml(mech) + (s.specialAccess ? ' · ' + escHtml(String(s.specialAccess).slice(0, 60)) : '') + '</small></span></label>';
         }).join('');
-        return '<p class="hint" style="margin:10px 0 2px;text-transform:capitalize;font-weight:700;color:var(--text)">' + escHtml(api) + '</p>' + titles;
+        return '<details class="acc" style="margin:6px 0"><summary>' + escHtml(api) + '</summary>' + titles + '</details>';
       }).join('');
 
       const wrap = document.createElement('div');
@@ -141,7 +141,8 @@ const Form = (() => {
     ['dlCheck', 'dlBox'],
     ['drawerCheck', 'drawerBox'],
     ['bottomCheck', 'bottomBox'],
-    ['nativeAudioCheck', 'nativeAudioBox']
+    ['nativeAudioCheck', 'nativeAudioBox'],
+    ['privacyModeCheck', 'privacyOptions']
   ];
   CHECK_PANELS.forEach(([checkId, boxId]) => {
     const check = $('#' + checkId);
@@ -151,6 +152,28 @@ const Form = (() => {
     check.addEventListener('change', sync);
     sync();
   });
+
+  const signingEnabledCheck = $('#signingEnabledCheck');
+  const signingFields = $('#signingFields');
+  const signingHint = $('#signingHint');
+
+  const updateSigningVisibility = () => {
+    const fmtInputs = $$('[name="outputs"]');
+    const hasReleaseOutput = Array.from(fmtInputs).some(el => 
+      !el.disabled && el.checked && (el.value === 'aab' || el.value === 'release-apk' || el.value === 'release-aab')
+    );
+    const showHint = signingEnabledCheck && !hasReleaseOutput;
+    const showFields = signingEnabledCheck && signingEnabledCheck.checked && hasReleaseOutput;
+    
+    if (signingHint) signingHint.style.display = showHint ? 'block' : 'none';
+    if (signingFields) setVisible(signingFields, showFields);
+  };
+
+  if (signingEnabledCheck) {
+    signingEnabledCheck.addEventListener('change', updateSigningVisibility);
+  }
+  $$('[name="outputs"]').forEach(el => el.addEventListener('change', updateSigningVisibility));
+  updateSigningVisibility();
 
   const compileSdk = $('[name="compileSdk"]');
   const targetSdk = $('[name="targetSdk"]');
@@ -203,6 +226,64 @@ const Form = (() => {
     onLoaded: (dataUrl) => { adaptiveFgBase64 = dataUrl; },
     onCleared: () => { adaptiveFgBase64 = null; }
   });
+
+  let splashImageBase64 = null;
+  bindFileInput({
+    input: '#splashImageInput',
+    onLoaded: (dataUrl) => { splashImageBase64 = dataUrl; },
+    onCleared: () => { splashImageBase64 = null; }
+  });
+
+  const htmlDropZone = $('#htmlDropZone');
+  const htmlFileInput2 = $('#htmlFileInput2');
+  if (htmlDropZone && htmlFileInput2) {
+    htmlFileInput2.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      if (file.size > 500 * 1024) {
+        alert('El archivo supera 500 KB.');
+        e.target.value = '';
+        return;
+      }
+      if (file.name.endsWith('.zip')) {
+        alert('Los archivos ZIP se procesan en el servidor. Selecciona HTML/CSS/JS o usa la plantilla.');
+        e.target.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        $('.toggle-btn[data-input="html"]')?.click();
+        setField('htmlCode', String(reader.result || ''));
+        if (!$('[name="appName"]').value) {
+          setField('appName', file.name.replace(/\.(html?|css|js|txt)$/i, '').replace(/[_-]+/g, ' ').trim() || 'Mi App');
+        }
+        Preview.refresh();
+      };
+      reader.readAsText(file);
+    });
+    window.handleHtmlDrop = (event) => {
+      const file = event.dataTransfer.files && event.dataTransfer.files[0];
+      if (!file) return;
+      if (file.size > 500 * 1024) {
+        alert('El archivo supera 500 KB.');
+        return;
+      }
+      if (file.name.endsWith('.zip')) {
+        alert('Los archivos ZIP se procesan en el servidor. Selecciona HTML/CSS/JS o usa la plantilla.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        $('.toggle-btn[data-input="html"]')?.click();
+        setField('htmlCode', String(reader.result || ''));
+        if (!$('[name="appName"]').value) {
+          setField('appName', file.name.replace(/\.(html?|css|js|txt)$/i, '').replace(/[_-]+/g, ' ').trim() || 'Mi App');
+        }
+        Preview.refresh();
+      };
+      reader.readAsText(file);
+    };
+  }
 
   const fmtInputs = $$('[name="outputs"]');
   const fmtNote = $('#fmtNote');
@@ -305,16 +386,6 @@ const Form = (() => {
       const setVal = (name, val) => {
         const el = $(`[name="${name}"]`);
         if (el && val !== undefined) el.value = val;
-      };
-      const setProvider = (provider) => {
-        const rad = $(`input[name="provider"][value="${provider}"]`);
-        if (!rad) return;
-        $$('input[name="provider"]').forEach((r) => {
-          r.checked = false;
-          r.closest('.plugin-card')?.classList.remove('checked');
-        });
-        rad.checked = true;
-        rad.closest('.plugin-card')?.classList.add('checked');
       };
 
       try {
@@ -425,6 +496,216 @@ const Form = (() => {
     templateZipBtn.disabled = false;
   });
 
+  const tt = (k) => (window.IB_I18N && window.IB_I18N.t) ? window.IB_I18N.t(k) : k;
+
+  const setProvider = (provider) => {
+    const rad = $(`input[name="provider"][value="${provider}"]`);
+    if (!rad) return;
+    $$('input[name="provider"]').forEach((r) => {
+      r.checked = false;
+      r.closest('.plugin-card')?.classList.remove('checked');
+    });
+    rad.checked = true;
+    rad.closest('.plugin-card')?.classList.add('checked');
+    const det = rad.closest('details');
+    if (det) det.open = true;
+    syncOutputsForProvider();
+  };
+
+  const PROVIDER_OUTPUTS = {
+    capacitor: { android: ['apk', 'aab', 'xapk', 'apks', 'release-apk', 'release-aab'], ios: ['ipa'], both: ['apk', 'aab', 'xapk', 'apks', 'release-apk', 'release-aab', 'ipa'] },
+    native: { android: ['apk', 'aab', 'release-apk', 'release-aab'], ios: ['ipa'], both: ['apk', 'aab', 'release-apk', 'release-aab', 'ipa'] },
+    gecko: { android: ['apk', 'aab', 'release-apk', 'release-aab'], ios: ['ipa'], both: ['apk', 'aab', 'release-apk', 'release-aab', 'ipa'] },
+    twa: { android: ['apk', 'aab', 'release-apk', 'release-aab'], ios: ['ipa'], both: ['apk', 'aab', 'release-apk', 'release-aab', 'ipa'] },
+    cordova: { android: ['apk', 'aab', 'release-apk', 'release-aab'], ios: [], both: ['apk', 'aab', 'release-apk', 'release-aab'] },
+    flutter: { android: ['apk', 'aab', 'release-apk', 'release-aab'], ios: [], both: ['apk', 'aab', 'release-apk', 'release-aab'] },
+    tauri: { android: ['exe'], ios: [], both: ['exe', 'msi', 'dmg', 'appimage'] },
+    ios: { android: [], ios: ['ipa'], both: ['ipa'] },
+    desktop: { android: [], ios: [], both: ['exe', 'msi', 'dmg', 'appimage'] }
+  };
+
+  const syncOutputsForProvider = () => {
+    const providerEl = $('input[name="provider"]:checked');
+    const platformEl = $('#platformSelect');
+    const provider = providerEl ? providerEl.value : 'capacitor';
+    const platform = platformEl ? platformEl.value : 'android';
+    const prov = PROVIDER_OUTPUTS[provider] || PROVIDER_OUTPUTS.capacitor;
+    const allowed = prov[platform] || prov.android || [];
+    
+    const fmtInputs = $$('[name="outputs"]');
+    fmtInputs.forEach((el) => {
+      const isAllowed = allowed.includes(el.value);
+      el.disabled = !isAllowed;
+      el.closest('.fmt-chip')?.classList.toggle('disabled', !isAllowed);
+      if (!isAllowed && el.checked) el.checked = false;
+    });
+
+    const enabled = fmtInputs.filter((el) => !el.disabled);
+    if (!enabled.some((el) => el.checked)) {
+      const fallback = enabled.find((el) => el.value === 'apk') || enabled[0];
+      if (fallback) fallback.checked = true;
+    }
+
+    const fmtNote = $('#fmtNote');
+    if (fmtNote && allowed.length) {
+      fmtNote.textContent = `Formatos soportados por ${provider}: ${allowed.map(f => f.toUpperCase()).join(', ')}`;
+      setTimeout(() => { fmtNote.textContent = ''; }, 4000);
+    }
+  };
+
+  const applyConfig = (c) => {
+    if (!c || typeof c !== 'object') return;
+    if (c.inputType === 'html') {
+      $('.toggle-btn[data-input="html"]')?.click();
+      setField('htmlCode', c.htmlCode || '');
+    } else if (c.inputType === 'url') {
+      $('.toggle-btn[data-input="url"]')?.click();
+      setField('url', c.url || '');
+    }
+    const scalars = ['appName', 'packageName', 'versionName', 'versionCode', 'orientation', 'platform',
+      'desktopPlatform', 'loadingIndicator', 'offlineMessage', 'compileSdk', 'targetSdk', 'minSdk',
+      'splashColor', 'splashDuration', 'splashAnimation', 'accentColor', 'statusBarColor', 'navigationBarColor',
+      'themeColor', 'notifChannel', 'notifImportance', 'notifyDelayMinutes', 'privacyCustomBlocklist'];
+    scalars.forEach((k) => {
+      if (c[k] !== undefined) setField(k, c[k]);
+    });
+    const bools = ['fullscreen', 'edgeToEdge', 'keepScreenOn', 'useCleartext', 'splashEnabled',
+      'notifSound', 'notifVibration', 'adaptiveIconEnabled', 'desktopEnabled', 'offlineScreen',
+      'downloadManager', 'flagSecure', 'blockSelection', 'encryptedStorage', 'rootDetection',
+      'firebaseEnabled', 'admobInterstitial', 'admobRewarded', 'iapEnabled', 'twaEnabled',
+      'nativeAudio', 'nativeAutoplay', 'pullRefresh', 'transparentNavBar',
+      'webviewPullRefresh', 'webviewPinchZoom', 'webviewHideScrollbars', 'webviewDisableCopy', 'webviewDisableLongPress',
+      'privacyMode', 'privacyBlockAds', 'privacyBlockTracking', 'privacyBlockCookies', 'privacyBlockGeolocation',
+      'privacyBlockRedirects', 'privacyAutoDetect', 'signingEnabled'];
+    bools.forEach((k) => {
+      if (c[k] !== undefined) setField(k, !!c[k]);
+    });
+    if (Array.isArray(c.outputs) && c.outputs.length) setOutputs(c.outputs);
+    else if (c.outputType === 'both') setOutputs(['apk', 'aab']);
+    else if (c.outputType) setOutputs([c.outputType]);
+    Object.entries(c.permissions || {}).forEach(([k, v]) => setField(k, !!v));
+    Object.entries(c.plugins || {}).forEach(([k, v]) => setField('plugin_' + k, !!v));
+    if (c.provider) setProvider(c.provider);
+    if (Array.isArray(c.drawerItems) && c.drawerItems.length) setField('drawerItems', JSON.stringify(c.drawerItems, null, 2));
+    if (Array.isArray(c.bottomNavItems) && c.bottomNavItems.length) setField('bottomNavItems', JSON.stringify(c.bottomNavItems, null, 2));
+    if (Array.isArray(c.iapProducts) && c.iapProducts.length) setField('iapProducts', c.iapProducts.join(', '));
+    if (Array.isArray(c.deepLinkPaths) && c.deepLinkPaths.length) setField('deepLinkPaths', c.deepLinkPaths.join(', '));
+    if (c.iconBase64) {
+      state.iconBase64 = c.iconBase64;
+      const ip = $('#iconPreview');
+      if (ip) { ip.src = c.iconBase64; show(ip); }
+    }
+    if (c.keystoreBase64) {
+      keystoreBase64 = c.keystoreBase64;
+      const kl = $('#ksLabel');
+      if (kl) kl.textContent = tt('Keystore (.jks) cargado desde tu borrador');
+      show($('#ksFields'));
+    }
+    if (c.keystorePassword) {
+      const kp = $('#ksPass');
+      if (kp) kp.value = c.keystorePassword;
+    }
+    if (c.keyAlias) {
+      const ka = $('#ksAlias');
+      if (ka) ka.value = c.keyAlias;
+    }
+    if (c.keyPassword) {
+      const kkp = $('#ksKeyPass');
+      if (kkp) kkp.value = c.keyPassword;
+    }
+    if (c.iosP12Base64) iosP12Base64 = c.iosP12Base64;
+    if (c.iosProfileBase64) iosProfileBase64 = c.iosProfileBase64;
+    if (c.iosP12Base64 || c.iosProfileBase64) refreshIosFields();
+    if (c.adaptiveFgBase64) adaptiveFgBase64 = c.adaptiveFgBase64;
+    if (c.splashImageBase64) splashImageBase64 = c.splashImageBase64;
+    if (c.nativeAudio) show($('#nativeAudioBox'));
+    updateSigningVisibility();
+    Preview.refresh();
+    setTimeout(() => Permissions.runAudit(), 300);
+  };
+
+  const validate = () => {
+    const cfg = collect();
+    const errs = [];
+    if (cfg.inputType === 'url') {
+      const url = String(cfg.url || '').trim();
+      if (!url) errs.push('Falta la URL de tu sitio (paso 1).');
+      else {
+        try {
+          const u = new URL(url);
+          if (u.protocol !== 'http:' && u.protocol !== 'https:') errs.push('La URL debe empezar con http:// o https://.');
+          else if (/^(localhost|127\.|0\.0\.0\.0|192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/i.test(u.hostname)) errs.push('No se compila desde direcciones locales o privadas.');
+        } catch (_) {
+          errs.push('La URL no es válida. Ejemplo: https://mi-sitio.com');
+        }
+      }
+    } else {
+      const len = String(cfg.htmlCode || '').length;
+      if (len < 50) errs.push('Pega tu HTML en el paso 1 (está muy corto).');
+      else if (len > 500000) errs.push('El HTML supera el límite de 500 KB.');
+    }
+    if (String(cfg.appName || '').trim().length < 2) errs.push('Falta el nombre de la app (paso 1).');
+    if (cfg.splashEnabled) {
+      const sd = Number(cfg.splashDuration || 0);
+      if (!sd || sd <= 0) errs.push('La duración del splash debe ser mayor a 0 ms.');
+    }
+    if (cfg.themeColor && !/^#[0-9a-fA-F]{6}$/.test(cfg.themeColor)) errs.push('El color de tema debe ser un hex válido (ej. #4f46e5).');
+    if (cfg.signingEnabled) {
+      if (!cfg.keystoreBase64) errs.push('Falta el archivo Keystore (.jks) para firmar.');
+      if (!cfg.keyAlias) errs.push('Falta el alias de la clave (keyAlias).');
+      if (!cfg.keystorePassword) errs.push('Falta la contraseña del Keystore.');
+      if (!cfg.keyPassword) errs.push('Falta la contraseña de la clave privada.');
+    }
+    return errs.map(tt);
+  };
+
+  const DRAFT_KEY = 'ib:draft';
+  let draftTimer = null;
+  let draftBaseline = '';
+
+const writeDraft = (cfg) => {
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ t: Date.now(), cfg }));
+      return;
+    } catch (_) {}
+    ['iconBase64', 'keystoreBase64', 'iosP12Base64', 'iosProfileBase64', 'adaptiveFgBase64', 'splashImageBase64', 'keystorePassword', 'keyAlias', 'keyPassword'].forEach((k) => { delete cfg[k]; });
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ t: Date.now(), cfg })); } catch (___) {}
+  };
+
+  const saveDraft = () => {
+    if (draftTimer) clearTimeout(draftTimer);
+    draftTimer = setTimeout(() => {
+      draftTimer = null;
+      const cfg = collect();
+      const snap = JSON.stringify(cfg);
+      if (snap === draftBaseline) return;
+      writeDraft(cfg);
+    }, 700);
+  };
+
+  const initDraft = () => {
+    draftBaseline = JSON.stringify(collect());
+    document.addEventListener('change', saveDraft, true);
+    document.addEventListener('input', saveDraft, true);
+    if (new URLSearchParams(location.search).get('dup')) return;
+    let d = null;
+    try { d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (_) {}
+    if (!d || !d.cfg || !d.t || Date.now() - d.t > 604800000) {
+      try { localStorage.removeItem(DRAFT_KEY); } catch (_) {}
+      return;
+    }
+    show($('#draftBar'));
+    on('#draftRestore', 'click', () => {
+      applyConfig(d.cfg);
+      hide($('#draftBar'));
+      goToStep(0);
+    });
+    on('#draftDiscard', 'click', () => {
+      try { localStorage.removeItem(DRAFT_KEY); } catch (_) {}
+      hide($('#draftBar'));
+    });
+  };
+
   const collect = () => {
     const data = {};
     const outputs = [];
@@ -460,6 +741,7 @@ const Form = (() => {
     data.keystoreBase64 = keystoreBase64 || undefined;
     data.iosP12Base64 = iosP12Base64 || undefined;
     data.iosProfileBase64 = iosProfileBase64 || undefined;
+    data.splashImageBase64 = splashImageBase64 || undefined;
 
     data.permissions = {
       notifications: !!data.notifications,
@@ -558,6 +840,25 @@ const Form = (() => {
       mr: !!data.plugin_mr
     };
 
+    data.webview = {
+      pullRefresh: !!data.webviewPullRefresh,
+      pinchZoom: !!data.webviewPinchZoom,
+      hideScrollbars: !!data.webviewHideScrollbars,
+      disableCopy: !!data.webviewDisableCopy,
+      disableLongPress: !!data.webviewDisableLongPress
+    };
+
+    data.privacy = {
+      mode: !!data.privacyMode,
+      blockAds: !!data.privacyBlockAds,
+      blockTracking: !!data.privacyBlockTracking,
+      blockCookies: !!data.privacyBlockCookies,
+      blockGeolocation: !!data.privacyBlockGeolocation,
+      blockRedirects: !!data.privacyBlockRedirects,
+      autoDetect: !!data.privacyAutoDetect,
+      customBlocklist: data.privacyCustomBlocklist || ''
+    };
+
     if (!data.url && data.inputType === 'url') data.url = '';
     return data;
   };
@@ -609,5 +910,13 @@ const Form = (() => {
     });
   });
 
-  return { collect, setOutputs };
+  $$('input[name="provider"]').forEach((r) => {
+    r.addEventListener('change', syncOutputsForProvider);
+  });
+  const platformSelectEl = $('#platformSelect');
+  if (platformSelectEl) platformSelectEl.addEventListener('change', syncOutputsForProvider);
+
+  syncOutputsForProvider();
+
+  return { collect, setOutputs, applyConfig, validate, initDraft };
 })();

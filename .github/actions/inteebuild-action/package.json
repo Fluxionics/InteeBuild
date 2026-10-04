@@ -1,0 +1,31 @@
+{
+  "name": "inteebuild-action",
+  "version": "1.0.0",
+  "description": "GitHub Action to build Android APK/AAB/iOS IPA/Desktop from web app using InteeBuild",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "ncc build src/index.js -o dist",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "github-action",
+    "inteebuild",
+    "android",
+    "ios",
+    "apk",
+    "aab",
+    "ipa",
+    "capacitor",
+    "tauri"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.10.1",
+    "@actions/github": "^6.0.0",
+    "@actions/http-client": "^2.2.1",
+    "@actions/artifact": "^2.1.1"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.38.1"
+  }
+}

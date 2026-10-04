@@ -16,7 +16,7 @@ function formatsFromArtifacts(artifacts) {
 }
 
 module.exports = function registerBuildRoutes(app, ctx) {
-  const { gh, generator, templates, configFromBody, isBlockedUrl, startBuild, requireApiKey, builds, loadHistory } = ctx;
+  const { gh, generator, templates, configFromBody, isBlockedUrl, startBuild, requireApiKey, builds, loadHistory, addSSEListener, removeSSEListener } = ctx;
 
   async function availableFormats(state) {
     if (!state.runId) return [];
@@ -40,6 +40,80 @@ module.exports = function registerBuildRoutes(app, ctx) {
     } catch (e) { res.status(500).json({ error: e.message }); }
   });
 
+  const sseRateLimits = new Map();
+const MAX_SSE_PER_IP = 5;
+
+function checkSSELimit(ip) {
+  const now = Date.now();
+  const entry = sseRateLimits.get(ip);
+  if (!entry || now > entry.resetAt) {
+    sseRateLimits.set(ip, { count: 1, resetAt: now + 60000 });
+    return true;
+  }
+  if (entry.count >= MAX_SSE_PER_IP) return false;
+  entry.count++;
+  return true;
+}
+
+  app.get('/api/build/:id/stream', async (req, res) => {
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    if (!checkSSELimit(ip)) {
+      return res.status(429).json({ error: 'Demasiadas conexiones SSE desde esta IP (max 5)' });
+    }
+
+    const buildId = req.params.id;
+    const state = builds.get(buildId);
+    if (!state) {
+      return res.status(404).json({ error: 'Build no encontrado' });
+    }
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
+
+    const sendEvent = (event, data) => {
+      res.write(`event: ${event}\n`);
+      res.write(`data: ${JSON.stringify(data)}\n\n`);
+    };
+
+    sendEvent('state', {
+      phase: state.phase,
+      percent: state.percent,
+      step: state.step,
+      queuePos: state.queuePos,
+      actionsSteps: state.actionsSteps,
+      status: state.status,
+      error: state.error,
+      runUrl: state.runUrl,
+      apkUrl: state.apkUrl,
+      artifacts: state.artifacts
+    });
+
+    const listener = (event, data) => {
+      sendEvent(event, data);
+    };
+
+    addSSEListener(buildId, listener);
+
+    const heartbeat = setInterval(() => {
+      res.write(': heartbeat\n\n');
+    }, 15000);
+
+    const cleanup = () => {
+      clearInterval(heartbeat);
+      removeSSEListener(buildId, listener);
+      res.end();
+    };
+
+    req.on('close', cleanup);
+
+    if (state.status === 'success' || state.status === 'failed' || state.status === 'error') {
+      sendEvent('end', { status: state.status });
+      setTimeout(cleanup, 100);
+    }
+  });
+
   app.get('/api/build/:id', async (req, res) => {
     const state = builds.get(req.params.id);
     if (!state) {
@@ -53,7 +127,9 @@ module.exports = function registerBuildRoutes(app, ctx) {
       runUrl: state.runUrl, apkUrl: state.apkUrl, artifacts: state.artifacts,
       error: state.error, appName: state.appName, outputType: state.outputType,
       outputs: state.outputs || [],
-      formats: await availableFormats(state)
+      formats: await availableFormats(state),
+      phase: state.phase, percent: state.percent, queuePos: state.queuePos,
+      actionsSteps: state.actionsSteps || []
     });
   });
 
@@ -153,7 +229,9 @@ module.exports = function registerBuildRoutes(app, ctx) {
       ipaUrl: state.artifacts && state.artifacts.some(a => a.name.includes('ipa')) ? `/api/download/${state.id}/ipa` : null,
       outputs: state.outputs || [],
       formats: await availableFormats(state),
-      runUrl: state.runUrl, error: state.error, appName: state.appName
+      runUrl: state.runUrl, error: state.error, appName: state.appName,
+      phase: state.phase, percent: state.percent, queuePos: state.queuePos,
+      actionsSteps: state.actionsSteps || []
     });
   });
 };

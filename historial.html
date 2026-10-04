@@ -74,6 +74,8 @@
         if ((h.outputs || []).indexOf('xapk') !== -1) buttons.push('<a class="btn ghost sm" href="/api/download/' + esc(h.id) + '/xapk">XAPK</a>');
       }
       if (h.runUrl) buttons.push('<a class="btn ghost sm" href="' + esc(h.runUrl) + '" target="_blank" rel="noopener">Logs</a>');
+      var useLbl = 'Usar configuración';
+      if (h.config) buttons.push('<button type="button" class="btn ghost sm" data-use="' + esc(h.id) + '">' + useLbl + '</button>');
       buttons.push('<button type="button" class="btn ghost sm" data-x="' + esc(h.id) + '">Eliminar</button>');
       return '<div class="hitem">' +
         '<div class="hitem-left">' +
@@ -91,6 +93,11 @@
         if (!confirm('¿Eliminar esta compilación del historial?')) return;
         fetch('/api/history/' + btn.getAttribute('data-x'), { method: 'DELETE' })
           .then(function (r) { if (r.ok) location.reload(); });
+      });
+    });
+    list.querySelectorAll('[data-use]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        location.href = './index.html?dup=' + encodeURIComponent(btn.getAttribute('data-use'));
       });
     });
   }

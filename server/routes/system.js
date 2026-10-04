@@ -137,6 +137,10 @@ module.exports = function registerSystemRoutes(app, ctx) {
         versions:'GET /api/versions/:appId, POST /api/versions/publish, GET /api/check-update',
         cicd:'POST /api/cicd (workflow gratis para auto-build on push)'
       },
+      examples:{
+        curl:'curl -X POST /api/build -H "Content-Type: application/json" -d \'{"url":"https://tu-sitio.com","appName":"Mi App"}\'',
+        node:'const r = await fetch("/api/build", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: "https://tu-sitio.com", appName: "Mi App" }) });\nconst b = await r.json(); console.log(b.id);'
+      },
       auth:'Header X-API-Key o Authorization: Bearer ib_... (opcional si no hay keys, obligatorio si existen)',
       permissions:'Permisos granulares nativos: runtime request + manifest + WebChromeClient grant selectivo + plugins auto'
     });

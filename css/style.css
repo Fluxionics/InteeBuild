@@ -428,9 +428,45 @@ footer .sep { color: rgba(255, 255, 255, .18); }
 .phone-iframe-wrap { width: 100%; aspect-ratio: 9/16; overflow: hidden; position: relative; }
 .phone-iframe-wrap iframe { width: 375px; height: 812px; border: none; transform-origin: top left; transform: scale(0.48); pointer-events: none; }
 
+.phone.device-iphone { border-radius: 40px; border-width: 10px; border-color: rgba(9, 13, 22, .95); }
+.phone.device-iphone .phone-notch { width: 134px; height: 26px; border-radius: 0 0 20px 20px; }
+.phone.device-galaxy { border-radius: 38px; border-width: 10px; border-color: rgba(9, 13, 22, .9); }
+.phone.device-galaxy .phone-notch { width: 60px; height: 22px; border-radius: 0 0 16px 16px; background: #0a0a0a; }
+.phone.device-pixel { border-radius: 36px; border-width: 10px; border-color: rgba(9, 13, 22, .9); }
+.phone.device-pixel .phone-notch { width: 84px; height: 18px; border-radius: 0 0 12px 12px; }
+.phone.device-tablet { width: 220px; border-radius: 20px; border-width: 8px; border-color: rgba(9, 13, 22, .8); }
+.phone.device-tablet.landscape { width: 320px; }
+.phone.device-tablet .phone-notch { display: none; }
+.phone.device-desktop { width: 320px; border-radius: 8px; border-width: 4px; border-color: #333; }
+.phone.device-desktop .phone-notch { display: none; }
+.phone.device-desktop .phone-nav { display: none; }
+
 .preview-controls { display: flex; gap: 6px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
 .preview-device-select { margin-top: 10px; }
 .preview-device-select select { font-size: 12px; padding: 6px 10px; margin: 0; }
+
+.network-indicator { font-weight: 600; }
+.network-indicator.online { background: var(--success-soft); color: var(--success); }
+.network-indicator.offline { background: var(--danger-soft); color: var(--danger); }
+.network-indicator.slow-3g, .network-indicator.fast-3g { background: var(--warn-soft); color: var(--warn); }
+
+.console-entry { display: flex; gap: 8px; padding: 4px 8px; border-radius: 4px; margin-bottom: 4px; background: var(--surface); border: 1px solid var(--border); }
+.console-entry:hover { background: var(--surface-2); }
+.console-time { color: var(--muted); font-size: 10px; min-width: 55px; }
+.console-level { font-weight: 700; font-size: 10px; padding: 1px 6px; border-radius: 3px; text-transform: uppercase; min-width: 50px; text-align: center; }
+.console-level.log { background: var(--accent-soft); color: var(--accent); }
+.console-level.error { background: var(--danger-soft); color: var(--danger); }
+.console-level.warn { background: var(--warn-soft); color: var(--warn); }
+.console-level.info { background: var(--info-soft); color: var(--info); }
+.console-message { flex: 1; word-break: break-word; color: var(--text); }
+.console-stack { margin-top: 4px; padding: 6px 8px; background: #0f172a; border-radius: 4px; color: #f87171; font-size: 10px; white-space: pre-wrap; word-break: break-all; }
+
+.preview-toolbar select, .preview-toolbar button { font-size: 12px; }
+
+@media (max-width: 900px) {
+  .step[data-step="4"] .preview-console { display: none; }
+  .step[data-step="4"] > div > div[style*="grid-template-columns"] { grid-template-columns: 1fr; }
+}
 
 .template-select { padding: 8px 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 12.5px; background: var(--glass-bg); color: #fff; box-shadow: var(--glass-highlight); }
 
@@ -649,6 +685,9 @@ footer a:hover { color: var(--text); text-decoration: underline; }
 .steps-explain { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 14px; }
 .card.faq { margin-bottom: 8px; cursor: pointer; }
 .card.faq summary { font-weight: 600; cursor: pointer; }
+details.acc { border: 1px solid var(--glass-border); border-radius: 10px; background: var(--glass-bg); margin: 7px 0; padding: 0 12px; }
+details.acc > summary { cursor: pointer; font-weight: 700; font-size: 12.5px; padding: 9px 0; color: var(--text); text-transform: capitalize; }
+details.acc[open] > summary { border-bottom: 1px solid var(--glass-border); margin-bottom: 6px; }
 .hist-tools { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
 .hist-tools input, .hist-tools select { flex: 1; min-width: 140px; }
 .preset-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }

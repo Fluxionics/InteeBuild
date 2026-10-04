@@ -37,7 +37,7 @@ jobs:
   # Android and iOS jobs are independent: they run in parallel and each one only
   # touches its own project folder (android/ or ios/).
   compile:
-    if: \${{ github.event.inputs.platform != 'ios' && github.event.inputs.provider != 'flutter' && github.event.inputs.provider != 'cordova' }}
+    if: \${{ github.event.inputs.platform != 'ios' && github.event.inputs.provider != 'flutter' && github.event.inputs.provider != 'cordova' && github.event.inputs.provider != 'twa' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -51,6 +51,8 @@ jobs:
           echo "build_apk=\${{ contains(github.event.inputs.outputs, 'apk') || contains(github.event.inputs.outputs, 'xapk') || github.event.inputs.outputs == '' }}" >> "$GITHUB_OUTPUT"
           echo "aab=\${{ contains(github.event.inputs.outputs, 'aab') }}" >> "$GITHUB_OUTPUT"
           echo "build_aab=\${{ contains(github.event.inputs.outputs, 'aab') || contains(github.event.inputs.outputs, 'apks') || contains(github.event.inputs.outputs, 'xapk') }}" >> "$GITHUB_OUTPUT"
+          echo "release_apk=\${{ contains(github.event.inputs.outputs, 'release-apk') }}" >> "$GITHUB_OUTPUT"
+          echo "release_aab=\${{ contains(github.event.inputs.outputs, 'release-aab') }}" >> "$GITHUB_OUTPUT"
           echo "xapk=\${{ contains(github.event.inputs.outputs, 'xapk') }}" >> "$GITHUB_OUTPUT"
           echo "apks=\${{ contains(github.event.inputs.outputs, 'apks') }}" >> "$GITHUB_OUTPUT"
 
@@ -300,7 +302,7 @@ jobs:
         run: ./gradlew assembleDebug --no-daemon
 
       - name: Compile Release APK
-        if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.apk == 'true' }}
+        if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_apk == 'true' }}
         working-directory: android
         run: ./gradlew assembleRelease --no-daemon
 
@@ -310,7 +312,7 @@ jobs:
         run: ./gradlew bundleDebug --no-daemon
 
       - name: Compile Release AAB
-        if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.aab == 'true' }}
+        if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_aab == 'true' }}
         working-directory: android
         run: ./gradlew bundleRelease --no-daemon
 
@@ -352,7 +354,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload Release APK
-        if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.apk == 'true' }}
+        if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_apk == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: inteebuild-\${{ github.event.inputs.id }}-release-apk
@@ -368,7 +370,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload Release AAB
-        if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.aab == 'true' }}
+        if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_aab == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: inteebuild-\${{ github.event.inputs.id }}-release-aab
@@ -771,6 +773,97 @@ jobs:
         with:
           name: inteebuild-\${{ github.event.inputs.id }}-aab
           path: flutter/build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+
+  # --- TWA (provider == twa) ---
+  twa-build:
+    if: \${{ github.event.inputs.provider == 'twa' && github.event.inputs.platform != 'ios' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve requested outputs
+        id: fmt
+        run: |
+          echo "apk=\${{ contains(github.event.inputs.outputs, 'apk') || github.event.inputs.outputs == '' }}" >> "$GITHUB_OUTPUT"
+          echo "aab=\${{ contains(github.event.inputs.outputs, 'aab') }}" >> "$GITHUB_OUTPUT"
+          echo "release_apk=\${{ contains(github.event.inputs.outputs, 'release-apk') }}" >> "$GITHUB_OUTPUT"
+          echo "release_aab=\${{ contains(github.event.inputs.outputs, 'release-aab') }}" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Read build config
+        run: |
+          echo '--- build-config.json ---'
+          cat build-config.json
+
+      - name: Install Bubblewrap CLI
+        run: npm install -g @bubblewrap/cli
+
+      - name: Initialize Bubblewrap project
+        if: \${{ hashFiles('twa-manifest.json') != '' }}
+        run: |
+          bubblewrap init --manifest=twa-manifest.json --directory=twa-project --skipGeneratingIcon=true --skipGeneratingSplash=true || true
+          ls -la twa-project/
+
+      - name: Build TWA
+        if: \${{ hashFiles('twa-project') != '' }}
+        run: |
+          cd twa-project
+          bubblewrap build
+          echo "--- Build output ---"
+          ls -la app/build/outputs/
+
+      - name: Sign TWA (if keystore provided)
+        if: \${{ hashFiles('user-keystore.jks') != '' && hashFiles('twa-project') != '' }}
+        run: |
+          cd twa-project
+          cp ../user-keystore.jks .
+          cp ../signing.properties .
+          bubblewrap sign --keystore user-keystore.jks --storePassword "\${{ fromJson(file('signing.properties')).storePassword }}" --keyAlias "\${{ fromJson(file('signing.properties')).keyAlias }}" --keyPassword "\${{ fromJson(file('signing.properties')).keyPassword }}"
+          echo "--- Signed output ---"
+          ls -la app/build/outputs/
+
+      - name: Upload APK
+        if: \${{ steps.fmt.outputs.apk == 'true' && hashFiles('twa-project/app/build/outputs/apk/debug/*.apk') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-apk
+          path: twa-project/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      - name: Upload Release APK
+        if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_apk == 'true' && hashFiles('twa-project/app/build/outputs/apk/release/*.apk') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-release-apk
+          path: twa-project/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+
+      - name: Upload AAB
+        if: \${{ steps.fmt.outputs.aab == 'true' && hashFiles('twa-project/app/build/outputs/bundle/debug/*.aab') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-aab
+          path: twa-project/app/build/outputs/bundle/debug/*.aab
+          if-no-files-found: error
+
+      - name: Upload Release AAB
+        if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_aab == 'true' && hashFiles('twa-project/app/build/outputs/bundle/release/*.aab') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-\${{ github.event.inputs.id }}-release-aab
+          path: twa-project/app/build/outputs/bundle/release/*.aab
           if-no-files-found: error
 
   # --- Tauri (provider == tauri) ---

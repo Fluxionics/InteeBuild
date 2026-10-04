@@ -3,6 +3,7 @@
   "version": "4.2.0",
   "description": "Convierte tu web o HTML en APK/AAB nativo con permisos Android granulares, audio nativo, 2 providers WebView listos, splash screen, historial de builds y configuracion completa.",
   "main": "server/server.js",
+  "bin": "server/server.js",
   "type": "commonjs",
   "scripts": {
     "start": "node server/server.js",
@@ -12,7 +13,32 @@
     "i18n:cov": "node scripts/cov-all.js",
     "check": "node scripts/comment-audit.js && node scripts/wf-check.js && node scripts/devhtml-check.js && node scripts/cov-all.js && node i18n/validate.js",
     "check:routes": "node scripts/smoke-routes.js",
-    "check:smoke": "node scripts/smoke-i18n.js"
+    "check:smoke": "node scripts/smoke-i18n.js",
+    "build:binary": "pkg . --out-path dist/bin"
+  },
+  "pkg": {
+    "targets": [
+      "node22-linux-x64",
+      "node22-macos-x64",
+      "node22-win-x64"
+    ],
+    "assets": [
+      "index.html",
+      "about.html",
+      "docs.html",
+      "developer.html",
+      "historial.html",
+      "license.html",
+      "privacy.html",
+      "terms.html",
+      "robots.txt",
+      "sitemap.xml",
+      "css/**/*",
+      "js/**/*",
+      "assets/**/*",
+      "i18n/**/*",
+      "docs/**/*"
+    ]
   },
   "engines": {
     "node": ">=18"
