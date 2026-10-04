@@ -160,6 +160,16 @@ test('twa: emite generate-twa.js no interactivo y el workflow no usa init', () =
   assert.ok(wf.includes('twa-project/app-release-signed.apk'), 'sube el APK firmado de bubblewrap build');
 });
 
+test('gecko: geckoview usa version publicada en maven.mozilla.org', () => {
+  const providers = require('../server/generator/providers');
+  const wf = require('../server/generator/workflow').WORKFLOW_YML;
+  const dep = 'geckoview:120.0.20231208211905';
+  assert.ok(wf.includes(dep), 'job gecko-build fija la version verificada (POM/AAR 200, minSdk 21)');
+  assert.ok(!wf.includes('20240514094915'), 'eliminada la version inexistente que daba 404');
+  assert.ok(providers.geckoGradlePatchSrc().includes(dep), 'el patch del flujo compile usa la misma version');
+  assert.ok(!providers.geckoGradlePatchSrc().includes('156.0'), 'sin la 156 que exige minSdk 26');
+});
+
 test('build-config.json incluye provider para la eleccion de provider en CI', () => {
   const cfg = g.normalizeConfig({ appName: 'Provider Test', url: 'https://example.com', provider: 'native' });
   const bc = JSON.parse(g.generateFiles(cfg)['build-config.json']);

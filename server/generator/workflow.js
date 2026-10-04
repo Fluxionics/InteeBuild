@@ -953,7 +953,7 @@ jobs:
             }
           }
           dependencies {
-            implementation 'org.mozilla.geckoview:geckoview:120.0.20240514094915'
+            implementation 'org.mozilla.geckoview:geckoview:120.0.20231208211905'
             implementation 'androidx.appcompat:appcompat:1.6.1'
           }
           EOF

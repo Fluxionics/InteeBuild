@@ -218,7 +218,7 @@ function cordovaConfigXml(cfg) {
 
 function geckoGradlePatchSrc() {
   const NL = String.fromCharCode(10);
-  const dep = "    implementation 'org.mozilla.geckoview:geckoview:156.0.20260921121718'";
+  const dep = "    implementation 'org.mozilla.geckoview:geckoview:120.0.20231208211905'";
   return [
     "const fs=require('fs');",
     "const NL=String.fromCharCode(10);",
