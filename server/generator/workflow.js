@@ -813,7 +813,7 @@ jobs:
       - name: Initialize Bubblewrap project
         if: \${{ hashFiles('twa-manifest.json') != '' }}
         run: |
-          echo n | bubblewrap init --manifest=twa-manifest.json --directory=twa-project --skipGeneratingIcon=true --skipGeneratingSplash=true
+          (echo n; echo "$JAVA_HOME") | bubblewrap init --manifest=twa-manifest.json --directory=twa-project --skipGeneratingIcon=true --skipGeneratingSplash=true
           if [ ! -d "twa-project" ]; then
             echo "::error::Bubblewrap initialization failed - twa-project directory not created"
             exit 1
@@ -935,20 +935,9 @@ jobs:
           # build.gradle (project)
           cat > gecko-project/build.gradle <<'EOF'
           buildscript {
-            repositories {
-              google()
-              mavenCentral()
-              maven { url 'https://maven.mozilla.org/maven2/' }
-            }
             dependencies {
               classpath 'com.android.tools.build:gradle:8.5.0'
-            }
-          }
-          allprojects {
-            repositories {
-              google()
-              mavenCentral()
-              maven { url 'https://maven.mozilla.org/maven2/' }
+              classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0'
             }
           }
           EOF
