@@ -3,12 +3,12 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production
 COPY . .
-RUN npx pkg server/server.js --targets node22-linux-x64 --output inteebuild
 
-FROM alpine:3.20
-RUN apk add --no-cache libstdc++ ca-certificates
+FROM node:22-alpine
 WORKDIR /app
-COPY --from=builder /app/inteebuild .
+RUN apk add --no-cache dumb-init
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/server ./server
 COPY --from=builder /app/index.html ./index.html
 COPY --from=builder /app/about.html ./about.html
 COPY --from=builder /app/docs.html ./docs.html
@@ -24,6 +24,8 @@ COPY --from=builder /app/js ./js
 COPY --from=builder /app/assets ./assets
 COPY --from=builder /app/i18n ./i18n
 COPY --from=builder /app/docs ./docs
+COPY --from=builder /app/package.json ./package.json
 EXPOSE 8787
 ENV PORT=8787
-CMD ["./inteebuild"]
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "server/server.js"]
