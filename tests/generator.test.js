@@ -173,6 +173,12 @@ test('gecko: geckoview usa version publicada en maven.mozilla.org', () => {
   assert.ok(!wf.includes('20240514094915'), 'eliminada la version inexistente que daba 404');
   assert.ok(providers.geckoGradlePatchSrc().includes(dep), 'el patch del flujo compile usa la misma version');
   assert.ok(!providers.geckoGradlePatchSrc().includes('156.0'), 'sin la 156 que exige minSdk 26');
+  assert.ok(wf.includes('geckoSession.open(geckoRuntime)'), 'API 120: new GeckoSession + open(runtime)');
+  assert.ok(!wf.includes('openSession()'), 'sin openSession() que no existe en GV 120');
+  assert.ok(wf.includes('geckoRuntime.shutdown()'), 'API 120: runtime.shutdown() en onDestroy');
+  assert.ok(!wf.includes('geckoRuntime.close()'), 'sin close() en el runtime');
+  assert.ok(wf.includes('onCanGoBack'), 'canGoBack via NavigationDelegate (default method de la 120)');
+  assert.ok(!wf.includes('geckoSession.canGoBack()'), 'sin canGoBack() sincrono inexistente');
 });
 
 test('gecko: emite make-icons.js y el workflow lo corre (mipmap ic_launcher)', () => {

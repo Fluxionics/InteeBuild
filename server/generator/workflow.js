@@ -1009,6 +1009,7 @@ jobs:
             private GeckoView geckoView;
             private GeckoSession geckoSession;
             private GeckoRuntime geckoRuntime;
+            private boolean canGoBack = false;
 
             @Override
             protected void onCreate(Bundle savedInstanceState) {
@@ -1017,7 +1018,14 @@ jobs:
               setContentView(geckoView);
 
               geckoRuntime = GeckoRuntime.create(this);
-              geckoSession = geckoRuntime.openSession();
+              geckoSession = new GeckoSession();
+              geckoSession.open(geckoRuntime);
+              geckoSession.setNavigationDelegate(new GeckoSession.NavigationDelegate() {
+                @Override
+                public void onCanGoBack(GeckoSession session, boolean value) {
+                  canGoBack = value;
+                }
+              });
               geckoView.setSession(geckoSession);
 
               Intent intent = getIntent();
@@ -1030,13 +1038,13 @@ jobs:
             @Override
             protected void onDestroy() {
               geckoSession.close();
-              geckoRuntime.close();
+              geckoRuntime.shutdown();
               super.onDestroy();
             }
 
             @Override
             public void onBackPressed() {
-              if (geckoSession.canGoBack()) {
+              if (canGoBack && geckoSession != null) {
                 geckoSession.goBack();
               } else {
                 super.onBackPressed();
