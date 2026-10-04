@@ -813,7 +813,7 @@ jobs:
       - name: Initialize Bubblewrap project
         if: \${{ hashFiles('twa-manifest.json') != '' }}
         run: |
-          bubblewrap init --manifest=twa-manifest.json --directory=twa-project --skipGeneratingIcon=true --skipGeneratingSplash=true
+          echo n | bubblewrap init --manifest=twa-manifest.json --directory=twa-project --skipGeneratingIcon=true --skipGeneratingSplash=true
           if [ ! -d "twa-project" ]; then
             echo "::error::Bubblewrap initialization failed - twa-project directory not created"
             exit 1
