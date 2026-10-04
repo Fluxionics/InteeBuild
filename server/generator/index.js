@@ -14,6 +14,7 @@ const { packageFiles } = require('./package-files');
 const { assetFiles } = require('./assets');
 const { starterHtml, catalogFiles, finalizeWebAssets } = require('./web-assets');
 const { providerFiles, integrationFiles, platformProjects, finalizeFlutterProject } = require('./platforms');
+const { generateTwaScriptSrc } = require('./twa-script');
 const { buildPlayListing } = require('./listing');
 
 const { Buffer } = require('buffer');
@@ -582,6 +583,8 @@ function generateFiles(cfg) {
       enableLocation: !!cfg.permissions.gps,
       splashScreenFadeOutDuration: 300
     }, null, 2);
+
+    files['generate-twa.js'] = generateTwaScriptSrc();
 
     const sha256 = '00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00';
     files['assetlinks.json'] = JSON.stringify([{

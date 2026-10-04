@@ -808,78 +808,71 @@ jobs:
           cat build-config.json
 
       - name: Install Bubblewrap CLI
-        run: npm install -g @bubblewrap/cli
+        run: npm install -g @bubblewrap/cli @bubblewrap/core
 
-      - name: Initialize Bubblewrap project
+      - name: Configure Bubblewrap
+        run: |
+          mkdir -p ~/.bubblewrap
+          printf '{"jdkPath":"%s","androidSdkPath":"%s"}' "$JAVA_HOME" "$ANDROID_HOME" > ~/.bubblewrap/config.json
+          cat ~/.bubblewrap/config.json
+
+      - name: Generate TWA project
         if: \${{ hashFiles('twa-manifest.json') != '' }}
         run: |
-          (echo n; echo "$JAVA_HOME") | bubblewrap init --manifest=twa-manifest.json --directory=twa-project --skipGeneratingIcon=true --skipGeneratingSplash=true
+          NODE_PATH=$(npm root -g) node generate-twa.js
           if [ ! -d "twa-project" ]; then
-            echo "::error::Bubblewrap initialization failed - twa-project directory not created"
+            echo "::error::TWA project not generated"
             exit 1
           fi
           ls -la twa-project/
 
+      - name: Ensure Android SDK platform
+        if: \${{ hashFiles('twa-manifest.json') != '' }}
+        run: |
+          SDK_VER=$(grep -oE 'compileSdkVersion [0-9]+' twa-project/app/build.gradle | grep -oE '[0-9]+' | head -1)
+          echo "platform requerida: $SDK_VER"
+          yes | sdkmanager --licenses || true
+          sdkmanager --install "platforms;android-$SDK_VER" 2>&1 | tail -5 || true
+
       - name: Build TWA
-        if: \${{ hashFiles('twa-project') != '' }}
+        if: \${{ hashFiles('twa-manifest.json') != '' }}
         run: |
           cd twa-project
           bubblewrap build
-          echo "--- Build output ---"
-          ls -la app/build/outputs/
-
-      - name: Read signing properties
-        if: \${{ hashFiles('user-keystore.jks') != '' && hashFiles('twa-project') != '' }}
-        id: signing
-        run: |
-          cd twa-project
-          cp ../user-keystore.jks .
-          cp ../signing.properties .
-          STORE_PWD=$(grep '^storePassword=' signing.properties | cut -d'=' -f2-)
-          KEY_ALIAS=$(grep '^keyAlias=' signing.properties | cut -d'=' -f2-)
-          KEY_PWD=$(grep '^keyPassword=' signing.properties | cut -d'=' -f2-)
-          echo "storePassword=$STORE_PWD" >> "$GITHUB_OUTPUT"
-          echo "keyAlias=$KEY_ALIAS" >> "$GITHUB_OUTPUT"
-          echo "keyPassword=$KEY_PWD" >> "$GITHUB_OUTPUT"
-
-      - name: Sign TWA (if keystore provided)
-        if: \${{ hashFiles('user-keystore.jks') != '' && hashFiles('twa-project') != '' }}
-        run: |
-          cd twa-project
-          bubblewrap sign --keystore user-keystore.jks --storePassword "\${{ steps.signing.outputs.storePassword }}" --keyAlias "\${{ steps.signing.outputs.keyAlias }}" --keyPassword "\${{ steps.signing.outputs.keyPassword }}"
-          echo "--- Signed output ---"
-          ls -la app/build/outputs/
+          test -f app-release-signed.apk
+          test -f app-release-bundle.aab
+          ls -la app-release-signed.apk app-release-bundle.aab
 
       - name: Upload APK
-        if: \${{ steps.fmt.outputs.apk == 'true' && hashFiles('twa-project/app/build/outputs/apk/debug/*.apk') != '' }}
+        if: \${{ steps.fmt.outputs.apk == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: inteebuild-\${{ github.event.inputs.id }}-apk
-          path: twa-project/app/build/outputs/apk/debug/*.apk
+          path: twa-project/app-release-signed.apk
           if-no-files-found: error
 
       - name: Upload Release APK
-        if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_apk == 'true' && hashFiles('twa-project/app/build/outputs/apk/release/*.apk') != '' }}
+        if: \${{ steps.fmt.outputs.release_apk == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: inteebuild-\${{ github.event.inputs.id }}-release-apk
-          path: twa-project/app/build/outputs/apk/release/*.apk
+          path: twa-project/app-release-signed.apk
           if-no-files-found: error
 
       - name: Upload AAB
-        if: \${{ steps.fmt.outputs.aab == 'true' && hashFiles('twa-project/app/build/outputs/bundle/debug/*.aab') != '' }}
+        if: \${{ steps.fmt.outputs.aab == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: inteebuild-\${{ github.event.inputs.id }}-aab
-          path: twa-project/app/build/outputs/bundle/debug/*.aab
+          path: twa-project/app-release-bundle.aab
           if-no-files-found: error
 
       - name: Upload Release AAB
-        if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_aab == 'true' && hashFiles('twa-project/app/build/outputs/bundle/release/*.aab') != '' }}
+        if: \${{ steps.fmt.outputs.release_aab == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: inteebuild-\${{ github.event.inputs.id }}-release-aab
-          path: twa-project/app/build/outputs/bundle/release/*.aab
+          path: twa-project/app-release-bundle.aab
           if-no-files-found: error
 
   # --- GeckoView (provider == gecko) ---
@@ -913,6 +906,7 @@ jobs:
         run: |
           echo '--- build-config.json ---'
           cat build-config.json
+          echo "COMPILE_SDK=$(node -p 'require("./build-config.json").compileSdk')" >> "$GITHUB_ENV"
 
       - name: Create GeckoView Android project
         run: |
@@ -932,21 +926,10 @@ jobs:
           mkdir -p gecko-project/app/src/main/res/xml
           mkdir -p gecko-project/app/src/main/assets
 
-          # build.gradle (project)
-          cat > gecko-project/build.gradle <<'EOF'
-          buildscript {
-            dependencies {
-              classpath 'com.android.tools.build:gradle:8.5.0'
-              classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0'
-            }
-          }
-          EOF
-
           # build.gradle (app)
           cat > gecko-project/app/build.gradle <<EOF
           plugins {
             id 'com.android.application'
-            id 'kotlin-android'
           }
           android {
             namespace '$PKG'
@@ -968,15 +951,10 @@ jobs:
               sourceCompatibility JavaVersion.VERSION_11
               targetCompatibility JavaVersion.VERSION_11
             }
-            kotlinOptions {
-              jvmTarget = '11'
-            }
           }
           dependencies {
             implementation 'org.mozilla.geckoview:geckoview:120.0.20240514094915'
             implementation 'androidx.appcompat:appcompat:1.6.1'
-            implementation 'androidx.core:core-ktx:1.12.0'
-            implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.0'
           }
           EOF
 
@@ -988,6 +966,9 @@ jobs:
               mavenCentral()
               gradlePluginPortal()
               maven { url 'https://maven.mozilla.org/maven2/' }
+            }
+            plugins {
+              id 'com.android.application' version '8.7.2'
             }
           }
           dependencyResolutionManagement {
@@ -1007,52 +988,54 @@ jobs:
           org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
           android.useAndroidX=true
           android.enableJetifier=true
-          kotlin.code.style=official
           EOF
 
-          # MainActivity.kt
-          cat > gecko-project/app/src/main/java/$(echo $PKG | tr . /)/MainActivity.kt <<EOF
-          package $PKG
+          # MainActivity.java
+          cat > gecko-project/app/src/main/java/$(echo $PKG | tr . /)/MainActivity.java <<EOF
+          package $PKG;
 
-          import android.os.Bundle
-          import androidx.appcompat.app.AppCompatActivity
-          import org.mozilla.geckoview.GeckoRuntime
-          import org.mozilla.geckoview.GeckoSession
-          import org.mozilla.geckoview.GeckoView
+          import android.content.Intent;
+          import android.os.Bundle;
+          import androidx.appcompat.app.AppCompatActivity;
+          import org.mozilla.geckoview.GeckoRuntime;
+          import org.mozilla.geckoview.GeckoSession;
+          import org.mozilla.geckoview.GeckoView;
 
-          class MainActivity : AppCompatActivity() {
-            private lateinit var geckoView: GeckoView
-            private lateinit var geckoSession: GeckoSession
-            private lateinit var geckoRuntime: GeckoRuntime
+          public class MainActivity extends AppCompatActivity {
+            private GeckoView geckoView;
+            private GeckoSession geckoSession;
+            private GeckoRuntime geckoRuntime;
 
-            override fun onCreate(savedInstanceState: Bundle?) {
-              super.onCreate(savedInstanceState)
-              geckoView = GeckoView(this)
-              setContentView(geckoView)
+            @Override
+            protected void onCreate(Bundle savedInstanceState) {
+              super.onCreate(savedInstanceState);
+              geckoView = new GeckoView(this);
+              setContentView(geckoView);
 
-              geckoRuntime = GeckoRuntime.create(this)
-              geckoSession = geckoRuntime.openSession()
-              geckoView.setSession(geckoSession)
+              geckoRuntime = GeckoRuntime.create(this);
+              geckoSession = geckoRuntime.openSession();
+              geckoView.setSession(geckoSession);
 
-              // Load URL
-              val intentUrl = intent.dataString ?: "$START_URL"
-              geckoSession.loadUri(intentUrl)
+              Intent intent = getIntent();
+              String launchUrl = intent != null && intent.getDataString() != null ? intent.getDataString() : "$START_URL";
+              geckoSession.loadUri(launchUrl);
 
-              // Apply theme color
-              geckoView.setBackgroundColor(android.graphics.Color.parseColor("$THEME_COLOR"))
+              geckoView.setBackgroundColor(android.graphics.Color.parseColor("$THEME_COLOR"));
             }
 
-            override fun onDestroy() {
-              geckoSession.close()
-              geckoRuntime.close()
-              super.onDestroy()
+            @Override
+            protected void onDestroy() {
+              geckoSession.close();
+              geckoRuntime.close();
+              super.onDestroy();
             }
 
-            override fun onBackPressed() {
+            @Override
+            public void onBackPressed() {
               if (geckoSession.canGoBack()) {
-                geckoSession.goBack()
+                geckoSession.goBack();
               } else {
-                super.onBackPressed()
+                super.onBackPressed();
               }
             }
           }
@@ -1061,8 +1044,7 @@ jobs:
           # AndroidManifest.xml
           cat > gecko-project/app/src/main/AndroidManifest.xml <<EOF
           <?xml version="1.0" encoding="utf-8"?>
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-            package="$PKG">
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
             <uses-permission android:name="android.permission.INTERNET" />
             <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -1110,7 +1092,7 @@ jobs:
       - name: Generate Gradle wrapper
         run: |
           cd gecko-project
-          gradle wrapper --gradle-version 8.5 --distribution-type all
+          gradle wrapper --gradle-version 8.9 --distribution-type bin
 
       - name: Setup Android SDK
         run: |
@@ -1118,12 +1100,6 @@ jobs:
           yes | sdkmanager --licenses || true
           sdkmanager --install "platform-tools" "platforms;android-\${COMPILE_SDK:-35}" "build-tools;35.0.0" 2>&1 | tail -20 || true
           echo "SDK ready"
-
-      - name: Install dependencies
-        run: |
-          cd gecko-project
-          # Download Kotlin Gradle plugin
-          curl -fsSL -o kotlin-gradle-plugin.jar https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin/1.9.0/kotlin-gradle-plugin-1.9.0.jar 2>/dev/null || true
 
       - name: Build Debug APK
         if: \${{ steps.fmt.outputs.apk == 'true' }}

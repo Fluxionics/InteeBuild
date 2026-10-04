@@ -145,6 +145,21 @@ test('workflow principal: YAML valido y build-config leido sin escapes rotos', (
   }
 });
 
+test('twa: emite generate-twa.js no interactivo y el workflow no usa init', () => {
+  const files = g.generateFiles(g.normalizeConfig({ appName: 'Twa Test', url: 'https://example.com', provider: 'twa', permissions: {} }));
+  const src = files['generate-twa.js'];
+  assert.ok(src, 'generate-twa.js emitido');
+  assert.ok(src.includes('createTwaProject'), 'genera el proyecto con TwaGenerator');
+  assert.ok(src.includes('manifest-checksum.txt'), 'escribe checksum para evitar el prompt de update en build');
+  assert.ok(src.includes('BUBBLEWRAP_KEYSTORE_PASSWORD'), 'exporta contrasenas via GITHUB_ENV');
+  assert.ok(src.includes('process.exit(0)'), 'el servidor de iconos no deja el proceso colgado');
+  const wf = require('../server/generator/workflow').WORKFLOW_YML;
+  assert.ok(!wf.includes('bubblewrap init'), 'sin init interactiva');
+  assert.ok(!wf.includes('bubblewrap sign'), 'sin comando sign inexistente');
+  assert.ok(wf.includes('node generate-twa.js'), 'workflow corre generate-twa.js');
+  assert.ok(wf.includes('twa-project/app-release-signed.apk'), 'sube el APK firmado de bubblewrap build');
+});
+
 test('build-config.json incluye provider para la eleccion de provider en CI', () => {
   const cfg = g.normalizeConfig({ appName: 'Provider Test', url: 'https://example.com', provider: 'native' });
   const bc = JSON.parse(g.generateFiles(cfg)['build-config.json']);
