@@ -800,7 +800,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '17'
 
       - name: Read build config
         run: |
@@ -833,6 +833,10 @@ jobs:
           echo "platform requerida: $SDK_VER"
           yes | sdkmanager --licenses || true
           sdkmanager --install "platforms;android-$SDK_VER" 2>&1 | tail -5 || true
+          SKDMGR=$(command -v sdkmanager || echo "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager")
+          mkdir -p "$ANDROID_HOME/bin"
+          ln -sf "$SKDMGR" "$ANDROID_HOME/bin/sdkmanager"
+          ls -la "$ANDROID_HOME/bin/sdkmanager"
 
       - name: Build TWA
         if: \${{ hashFiles('twa-manifest.json') != '' }}

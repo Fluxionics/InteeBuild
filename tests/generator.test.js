@@ -158,6 +158,11 @@ test('twa: emite generate-twa.js no interactivo y el workflow no usa init', () =
   assert.ok(!wf.includes('bubblewrap sign'), 'sin comando sign inexistente');
   assert.ok(wf.includes('node generate-twa.js'), 'workflow corre generate-twa.js');
   assert.ok(wf.includes('twa-project/app-release-signed.apk'), 'sube el APK firmado de bubblewrap build');
+  const twaJob = /twa-build:\n([\s\S]*?)(?=\n  [a-z][\w-]*:\n|$)/.exec(wf)[1];
+  assert.ok(twaJob.includes("java-version: '17'"), 'bubblewrap exige JDK 17 literal en el release file');
+  assert.ok(!twaJob.includes("java-version: '21'"), 'sin JDK 21 en el job TWA');
+  assert.ok(twaJob.includes('$ANDROID_HOME/bin/sdkmanager'), 'symlink bin/sdkmanager para validatePath de bubblewrap');
+  assert.ok(twaJob.includes('platforms;android-'), 'instala la plataforma que pide el template');
 });
 
 test('gecko: geckoview usa version publicada en maven.mozilla.org', () => {
