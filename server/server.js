@@ -24,9 +24,8 @@ const registerArtifactRoutes = require('./routes/artifacts');
 
 const app = express();
 const PORT = process.env.PORT || 8787;
-const ALLOWED_ORIGIN = process.env.CORS_ORIGIN || null;
 
-app.use(cors(ALLOWED_ORIGIN ? { origin: ALLOWED_ORIGIN } : { origin: true }));
+app.use(cors(require('./cors-config')()));
 app.use(express.json({ limit: '110mb' }));
 app.use(express.raw({ type: 'application/octet-stream', limit: '100mb' }));
 app.use((req, res, next) => {

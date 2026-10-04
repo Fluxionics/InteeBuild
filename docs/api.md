@@ -9,17 +9,31 @@ Si necesitas una vista navegable de los mismos endpoints, está `developer.html`
 Las API keys no son obligatorias: mientras no exista ninguna, la API está abierta. En cuanto creas la primera, `POST /api/v1/build` pasa a exigirla.
 
 ```bash
-curl -X POST /api/keys -H "Content-Type: application/json" -d '{"name":"ci"}'
-# → {"id":"…","key":"ib_…","keyHash":"…","prefix":"ib_…","scopes":["build","decompile","analyze"]}
+curl -X POST /api/keys -H "Content-Type: application/json" -d '{"name":"ci","scopes":["build"],"expiresInDays":90}'
+# → {"id":"…","key":"ib_…","keyHash":"…","prefix":"ib_…","scopes":["build"],"expiresAt":…}
 ```
 
-La key se devuelve una sola vez, en esa respuesta. En disco sólo queda su hash sha256 (`keyHash`) y el prefijo (los diez primeros caracteres), nunca el secreto. `GET /api/keys` devuelve el enmascarado (`ib_1a2b3c4…` más las últimas cuatro del hash), uso, última llamada y estado; `DELETE /api/keys/:id` hace borrado lógico marcando `revokedAt`, y esa key deja de servir. El límite son 10 keys activas.
+La key se devuelve una sola vez, en esa respuesta. En disco sólo queda su hash sha256 (`keyHash`) y el prefijo (los diez primeros caracteres), nunca el secreto. `GET /api/keys` devuelve el enmascarado (`ib_1a2b3c4…` más las últimas cuatro del hash), uso, última llamada, expiración y estado; el límite son 10 keys activas.
 
 Se acepta de dos formas: `X-API-Key: ib_…` o `Authorization: Bearer ib_…`.
 
-Un detalle que conviene saber: los `scopes` se guardan y se pueden limitar al crear la key, pero no se comprueban en ninguna ruta. El permiso real es "la key existe y no está revocada".
+Los `scopes` **sí se comprueban**: `POST /api/v1/build` exige el scope `build` y responde `403` si la key no lo incluye. Al crear la key puedes limitarlos (`build`, `decompile`, `analyze`) y opcionalmente ponerles caducidad con `expiresInDays` (1-365); una key expirada responde `401` con "API Key expirada".
 
-También tienes `GET /api/keys` para el listado y la revocación desde tu propio cliente.
+Ciclo de vida completo:
+
+- `POST /api/keys/:id/rotate` — revoca la vieja y devuelve una nueva con el mismo nombre, scopes y caducidad restante (rotación sin downtime de configuración).
+- `DELETE /api/keys/:id` — revocación lógica (`revokedAt`); esa key deja de servir.
+- `GET /api/keys/:id/activity` — últimas entradas del audit log para esa key (`key_created`, `ok_build`, `key_denied`, `scope_denied`, `quota_exceeded`, `key_revoked`, `key_rotated`…). El log vive en `data/audit.log`, es append-only y se auto-recorta al pasar de 2 MB.
+
+Límites anti-abuso:
+
+- `API_KEY_RATE_LIMIT` (default **20 builds/hora por key**) en `POST /api/v1/build`; al superarlo responde `429`.
+- `POST /api/build` y la descompilación comparten el rate limit de **10/h por IP**.
+- `API_KEYS_DISABLED=1` — kill switch: toda llamada con key responde `503` aunque la key sea válida. Palanca de emergencia para el dueño de la instancia.
+
+Protección de las rutas admin (opt-in): si defines `ADMIN_TOKEN` en el entorno, `GET/POST/DELETE /api/keys`, `POST /api/keys/:id/rotate`, `GET /api/keys/:id/activity` y las rutas de `git/connect` exigen el header `X-Admin-Token: …` (o `Authorization: Bearer …`) y responden `403` sin él. Sin la variable definida, todo sigue funcionando como antes.
+
+Nota de CORS en producción: si `NODE_ENV=production` y no hay `CORS_ORIGIN`, el servidor **no** refleja orígenes externos (las llamadas server-to-server y la interfaz same-origin no se ven afectadas). Para exponer la API a otro dominio, define `CORS_ORIGIN=https://tu-frontend.example`.
 
 ## Compilar
 
@@ -73,7 +87,7 @@ Los tres funcionan igual: buscan el artefacto del run, abren el ZIP que subió G
 
 Hay una condición que conviene recordar: la descarga necesita que la build esté en memoria del servidor. Si el proceso se reinició, el endpoint responde `404` aunque el artefacto exista en GitHub. El historial sirve para consultar estado y configuración, no para descargar.
 
-Los artefactos se sirven desde GitHub Actions y caducan a los 30 minutos. `GET /api/apk-info/:id` devuelve ficha del artefacto (nombre, tamaño en MB, enlaces de cada uno) sólo cuando la build ya terminó. `GET /api/build/:id/logs` devuelve el log del run truncado a 80.000 caracteres, y sólo si la build ya tiene `runId`.
+Los artefactos se sirven desde GitHub Actions (caducan a los 30 minutos en la URL de descarga que usa el servidor; el workflow los conserva 3 días —7 en la descompilación— con `retention-days` y un grupo de concurrencia serializa los runs para que nadie llene el cuota en paralelo). `GET /api/apk-info/:id` devuelve ficha del artefacto (nombre, tamaño en MB, enlaces de cada uno) sólo cuando la build ya terminó. `GET /api/build/:id/logs` devuelve el log del run truncado a 80.000 caracteres, y sólo si la build ya tiene `runId`.
 
 El servidor consulta GitHub cada 6 segundos y hace 200 intentos: si se agotan, la build pasa a `failed` con "Tiempo de espera agotado consultando GitHub" y la rama se borra a los 60 segundos.
 
@@ -165,7 +179,7 @@ curl -X POST /api/cicd -H "Content-Type: application/json" -d '{"repo":"usuario/
 
 `versions/publish` guarda hasta 20 entradas por `appId` con `version` (formato `1.0.1`), `changelog` y fecha. `check-update` compara con la última publicada y responde `{updateAvailable, latest, changelog}`. No hay cliente OTA embebido en la app: es un registro que puedes consultar desde donde quieras.
 
-`cicd` devuelve el contenido de `.github/workflows/inteebuild-auto.yml` para que lo subas a tu repo, con el `curl` que dispara el webhook. La integración real es `POST /api/git/connect` con `{repo, branch, token, webhookUrl}`, que guarda el token con hash; luego `POST /api/git/webhook` con `{"repository":{"full_name":"usuario/repo"},"ref":"refs/heads/main"}` arranca una build con la config que mandes o con una mínima derivada del repo. `GET /api/git/integrations` lista y `DELETE /api/git/:id` borra.
+`cicd` devuelve el contenido de `.github/workflows/inteebuild-auto.yml` para que lo subas a tu repo, con el `curl` que dispara el webhook. La integración real es `POST /api/git/connect` con `{repo, branch, token, webhookUrl}`, que guarda el token con hash (y ya no lo devuelve en claro en el listado); luego `POST /api/git/webhook` con `{"repository":{"full_name":"usuario/repo"},"ref":"refs/heads/main"}` arranca una build con la config que mandes o con una mínima derivada del repo. `GET /api/git/integrations` lista (sin tokens) y `DELETE /api/git/:id` borra. Con `ADMIN_TOKEN` definido, connect y delete exigen `X-Admin-Token`.
 
 ## Webhooks
 

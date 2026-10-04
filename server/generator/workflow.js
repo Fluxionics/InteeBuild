@@ -33,6 +33,10 @@ permissions:
   contents: read
   actions: write
 
+concurrency:
+  group: ib-build-\${{ github.repository }}
+  cancel-in-progress: false
+
 jobs:
   # Android and iOS jobs are independent: they run in parallel and each one only
   # touches its own project folder (android/ or ios/).
@@ -349,6 +353,7 @@ jobs:
         if: \${{ steps.fmt.outputs.apk == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-apk
           path: android/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
@@ -357,6 +362,7 @@ jobs:
         if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_apk == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-release-apk
           path: android/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
@@ -365,6 +371,7 @@ jobs:
         if: \${{ steps.fmt.outputs.aab == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-aab
           path: android/app/build/outputs/bundle/debug/*.aab
           if-no-files-found: error
@@ -373,6 +380,7 @@ jobs:
         if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_aab == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-release-aab
           path: android/app/build/outputs/bundle/release/*.aab
           if-no-files-found: error
@@ -381,6 +389,7 @@ jobs:
         if: \${{ steps.fmt.outputs.xapk == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-xapk
           path: app.xapk
           if-no-files-found: error
@@ -389,6 +398,7 @@ jobs:
         if: \${{ steps.fmt.outputs.apks == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-apks
           path: universal.apks
           if-no-files-found: error
@@ -434,6 +444,7 @@ jobs:
         if: \${{ hashFiles('ios-cert.p12') != '' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-ipa
           path: /tmp/ib-export/*.ipa
           if-no-files-found: error
@@ -481,6 +492,7 @@ jobs:
         if: \${{ steps.desktop.outputs.present == 'true' && contains(github.event.inputs.outputs, 'exe') }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-exe
           path: desktop/dist/*.exe
           if-no-files-found: error
@@ -489,6 +501,7 @@ jobs:
         if: \${{ steps.desktop.outputs.present == 'true' && contains(github.event.inputs.outputs, 'msi') }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-msi
           path: desktop/dist/*.msi
           if-no-files-found: error
@@ -537,6 +550,7 @@ jobs:
         if: \${{ steps.desktop.outputs.present == 'true' && contains(github.event.inputs.outputs, 'dmg') }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-dmg
           path: desktop/dist/*.dmg
           if-no-files-found: error
@@ -583,6 +597,7 @@ jobs:
         if: \${{ steps.desktop.outputs.present == 'true' && contains(github.event.inputs.outputs, 'appimage') }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-appimage
           path: desktop/dist/*.AppImage
           if-no-files-found: error
@@ -681,6 +696,7 @@ jobs:
         if: \${{ steps.fmt.outputs.apk == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-apk
           path: platforms/android/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
@@ -689,6 +705,7 @@ jobs:
         if: \${{ hashFiles('user-keystore.jks') != '' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-release-apk
           path: platforms/android/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
@@ -697,6 +714,7 @@ jobs:
         if: \${{ steps.fmt.outputs.aab == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-aab
           path: platforms/android/app/build/outputs/bundle/debug/*.aab
           if-no-files-found: warn
@@ -763,6 +781,7 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-apk
           path: flutter/build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
@@ -771,6 +790,7 @@ jobs:
         if: \${{ contains(github.event.inputs.outputs, 'aab') }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-aab
           path: flutter/build/app/outputs/bundle/release/app-release.aab
           if-no-files-found: error
@@ -851,6 +871,7 @@ jobs:
         if: \${{ steps.fmt.outputs.apk == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-apk
           path: twa-project/app-release-signed.apk
           if-no-files-found: error
@@ -859,6 +880,7 @@ jobs:
         if: \${{ steps.fmt.outputs.release_apk == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-release-apk
           path: twa-project/app-release-signed.apk
           if-no-files-found: error
@@ -867,6 +889,7 @@ jobs:
         if: \${{ steps.fmt.outputs.aab == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-aab
           path: twa-project/app-release-bundle.aab
           if-no-files-found: error
@@ -875,6 +898,7 @@ jobs:
         if: \${{ steps.fmt.outputs.release_aab == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-release-aab
           path: twa-project/app-release-bundle.aab
           if-no-files-found: error
@@ -1148,6 +1172,7 @@ jobs:
         if: \${{ steps.fmt.outputs.apk == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-apk
           path: gecko-project/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
@@ -1156,6 +1181,7 @@ jobs:
         if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_apk == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-release-apk
           path: gecko-project/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
@@ -1164,6 +1190,7 @@ jobs:
         if: \${{ steps.fmt.outputs.aab == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-aab
           path: gecko-project/app/build/outputs/bundle/debug/*.aab
           if-no-files-found: error
@@ -1172,6 +1199,7 @@ jobs:
         if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_aab == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-release-aab
           path: gecko-project/app/build/outputs/bundle/release/*.aab
           if-no-files-found: error
@@ -1282,6 +1310,7 @@ jobs:
         if: \${{ steps.fmt.outputs.apk == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-apk
           path: android/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
@@ -1290,6 +1319,7 @@ jobs:
         if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_apk == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-release-apk
           path: android/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
@@ -1298,6 +1328,7 @@ jobs:
         if: \${{ steps.fmt.outputs.aab == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-aab
           path: android/app/build/outputs/bundle/debug/*.aab
           if-no-files-found: error
@@ -1306,6 +1337,7 @@ jobs:
         if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_aab == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-release-aab
           path: android/app/build/outputs/bundle/release/*.aab
           if-no-files-found: error
@@ -1408,6 +1440,7 @@ jobs:
         if: \${{ steps.fmt.outputs.apk == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-apk
           path: android/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
@@ -1416,6 +1449,7 @@ jobs:
         if: \${{ hashFiles('user-keystore.jks') != '' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-release-apk
           path: android/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
@@ -1424,6 +1458,7 @@ jobs:
         if: \${{ steps.fmt.outputs.aab == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-aab
           path: android/app/build/outputs/bundle/debug/*.aab
           if-no-files-found: error
@@ -1432,6 +1467,7 @@ jobs:
         if: \${{ hashFiles('user-keystore.jks') != '' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-release-aab
           path: android/app/build/outputs/bundle/release/*.aab
           if-no-files-found: error
@@ -1536,6 +1572,7 @@ jobs:
         if: \${{ steps.fmt.outputs.apk == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-apk
           path: android/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
@@ -1544,6 +1581,7 @@ jobs:
         if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_apk == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-release-apk
           path: android/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
@@ -1552,6 +1590,7 @@ jobs:
         if: \${{ steps.fmt.outputs.aab == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-aab
           path: android/app/build/outputs/bundle/debug/*.aab
           if-no-files-found: error
@@ -1560,6 +1599,7 @@ jobs:
         if: \${{ hashFiles('user-keystore.jks') != '' && steps.fmt.outputs.release_aab == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-release-aab
           path: android/app/build/outputs/bundle/release/*.aab
           if-no-files-found: error
@@ -1591,6 +1631,7 @@ jobs:
       - name: Upload EXE
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 3
           name: inteebuild-\${{ github.event.inputs.id }}-exe
           path: \${{ steps.bin.outputs.path }}
           if-no-files-found: error
@@ -1612,6 +1653,10 @@ on:
 permissions:
   contents: write
   actions: write
+
+concurrency:
+  group: ib-decompile-\${{ github.repository }}
+  cancel-in-progress: false
 
 jobs:
   decompile:

@@ -16,7 +16,7 @@ function formatsFromArtifacts(artifacts) {
 }
 
 module.exports = function registerBuildRoutes(app, ctx) {
-  const { gh, generator, templates, configFromBody, isBlockedUrl, startBuild, requireApiKey, builds, loadHistory, addSSEListener, removeSSEListener } = ctx;
+  const { gh, generator, templates, configFromBody, isBlockedUrl, startBuild, requireApiKey, checkRateLimit, builds, loadHistory, addSSEListener, removeSSEListener } = ctx;
 
   async function availableFormats(state) {
     if (!state.runId) return [];
@@ -154,6 +154,7 @@ function checkSSELimit(ip) {
 
   app.post('/api/build', async (req, res) => {
     const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    if (!checkRateLimit(ip)) return res.status(429).json({ error: 'Rate limit: 10/h por IP' });
     let cfg;
     try {
       cfg = configFromBody(req.body);
@@ -172,7 +173,7 @@ function checkSSELimit(ip) {
     }
   });
 
-  app.post('/api/v1/build', requireApiKey, async (req, res) => {
+  app.post('/api/v1/build', requireApiKey('build'), async (req, res) => {
     const ip = req.ip || req.connection.remoteAddress || 'unknown';
     const body = req.body || {};
 
