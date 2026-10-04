@@ -824,13 +824,25 @@ jobs:
           echo "--- Build output ---"
           ls -la app/build/outputs/
 
-      - name: Sign TWA (if keystore provided)
+      - name: Read signing properties
         if: \${{ hashFiles('user-keystore.jks') != '' && hashFiles('twa-project') != '' }}
+        id: signing
         run: |
           cd twa-project
           cp ../user-keystore.jks .
           cp ../signing.properties .
-          bubblewrap sign --keystore user-keystore.jks --storePassword "\${{ fromJson(file('signing.properties')).storePassword }}" --keyAlias "\${{ fromJson(file('signing.properties')).keyAlias }}" --keyPassword "\${{ fromJson(file('signing.properties')).keyPassword }}"
+          STORE_PWD=$(grep '^storePassword=' signing.properties | cut -d'=' -f2-)
+          KEY_ALIAS=$(grep '^keyAlias=' signing.properties | cut -d'=' -f2-)
+          KEY_PWD=$(grep '^keyPassword=' signing.properties | cut -d'=' -f2-)
+          echo "storePassword=$STORE_PWD" >> "$GITHUB_OUTPUT"
+          echo "keyAlias=$KEY_ALIAS" >> "$GITHUB_OUTPUT"
+          echo "keyPassword=$KEY_PWD" >> "$GITHUB_OUTPUT"
+
+      - name: Sign TWA (if keystore provided)
+        if: \${{ hashFiles('user-keystore.jks') != '' && hashFiles('twa-project') != '' }}
+        run: |
+          cd twa-project
+          bubblewrap sign --keystore user-keystore.jks --storePassword "\${{ steps.signing.outputs.storePassword }}" --keyAlias "\${{ steps.signing.outputs.keyAlias }}" --keyPassword "\${{ steps.signing.outputs.keyPassword }}"
           echo "--- Signed output ---"
           ls -la app/build/outputs/
 
