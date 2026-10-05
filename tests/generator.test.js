@@ -61,6 +61,8 @@ test('native y gecko hornean DownloadManager y file chooser', () => {
   assert.ok(j.includes('setDownloadListener'));
   assert.ok(j.includes('DownloadManager.Request'));
   assert.ok(j.includes('onShowFileChooser'));
+  assert.ok(j.includes('getMode()==WebChromeClient.FileChooserParams.MODE_OPEN_MULTIPLE'), 'multiple por getMode: allowMultiple() no existe en FileChooserParams');
+  assert.ok(!j.includes('allowMultiple()'), 'sin allowMultiple() que no compila');
   assert.ok(j.includes('ValueCallback<Uri[]>'));
   assert.ok(j.includes('onActivityResult'));
   const fgek = g.generateFiles(g.normalizeConfig({ appName: 'Dl Test', url: 'https://example.com', provider: 'gecko', permissions: {}, downloadManager: true }));
