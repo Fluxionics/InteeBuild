@@ -4,6 +4,4 @@ node_modules/
 _test*.js
 _CHK*.js
 .DS_Store
-data/apikeys.json
-data/git-integrations.json
-data/versions.json
+data/
