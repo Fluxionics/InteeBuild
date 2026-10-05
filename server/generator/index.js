@@ -154,7 +154,10 @@ function themeColorFiles(cfg) {
   if (!cfg.themeColor) return {};
 
   const files = {};
-  const pkgPath = cfg.packageName.replace(/\./g, '/');
+  const launchBg = cfg.splashEnabled && cfg.splashImageBase64
+    ? `
+        <item name="android:windowBackground">@drawable/splash_background</item>`
+    : '';
 
   files['android/app/src/main/res/values/colors.xml'] = `<?xml version="1.0" encoding="utf-8"?>
 <resources>
@@ -164,9 +167,9 @@ function themeColorFiles(cfg) {
     <color name="colorAccent">${cfg.accentColor || '#4f46e5'}</color>
 </resources>`;
 
-  files['android/app/src/main/res/values/themes.xml'] = `<?xml version="1.0" encoding="utf-8"?>
+  files['android/app/src/main/res/values/styles.xml'] = `<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -178,8 +181,7 @@ function themeColorFiles(cfg) {
 
     <style name="AppTheme.NoActionBarLaunch" parent="AppTheme">
         <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="windowNoTitle">true</item>${launchBg}
     </style>
 </resources>`;
 

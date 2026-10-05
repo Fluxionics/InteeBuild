@@ -1114,7 +1114,7 @@ public class ChromeOSMainActivity extends AppCompatActivity {
   
   files['android/app/src/main/res/values/chromeos_themes.xml'] = `<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.ChromeOS" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.ChromeOS" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="android:windowSoftInputMode">adjustResize</item>
         <item name="android:resizeableActivity">true</item>
         <item name="android:supportsPictureInPicture">true</item>

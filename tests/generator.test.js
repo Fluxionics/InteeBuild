@@ -255,3 +255,19 @@ test('workflow: cap add android respeta los archivos pre-generados (overlay)', (
   assert.match(WORKFLOW_YML, /if \[ -d \/tmp\/prebuilt-android \]; then cp -r \/tmp\/prebuilt-android\/\. android\/; fi/, 'fusion despues de cap add');
 });
 
+test('tema: styles.xml propio pisa el de Capacitor (sin AppTheme duplicado)', () => {
+  const cfg = g.normalizeConfig({ appName: 'Theme Test', url: 'https://example.com', outputs: ['apk'], themeColor: '#123456' });
+  const files = g.generateFiles(cfg);
+  const styles = files['android/app/src/main/res/values/styles.xml'];
+  assert.ok(styles, 'emite styles.xml con el tema');
+  assert.ok(!files['android/app/src/main/res/values/themes.xml'], 'no emite themes.xml aparte');
+  assert.match(styles, /style name="AppTheme"/, 'AppTheme definido');
+  assert.match(styles, /style name="AppTheme.NoActionBarLaunch"/, 'NoActionBarLaunch definido');
+  assert.match(styles, /Theme\.AppCompat\.DayNight\.DarkActionBar/, 'parent AppCompat: la app solo incluye appcompat');
+  assert.ok(!/splash_background/.test(styles), 'sin splash no referencia drawable/splash_background');
+  assert.ok(cfg.themeColor, 'themeColor siempre tiene valor tras normalize -> styles.xml siempre pisa el de Capacitor');
+  const conSplash = g.normalizeConfig({ appName: 'Splash Theme', url: 'https://example.com', outputs: ['apk'], themeColor: '#123456', splashEnabled: true, splashImageBase64: 'data:image/png;base64,aGVsbG8=' });
+  const f2 = g.generateFiles(conSplash);
+  assert.match(f2['android/app/src/main/res/values/styles.xml'], /splash_background/, 'con splash usa splash_background como fondo de lanzamiento');
+});
+

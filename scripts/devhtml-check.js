@@ -38,11 +38,15 @@ ok(html.includes('id="epSearch"'), 'buscador de endpoints');
 
 const rootHtml = fs.readdirSync(ROOT).filter(f => f.endsWith('.html'));
 const mojibake = [];
+const emojis = [];
+const emojiRe = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{2B00}-\u{2BFF}]/u;
 for (const f of rootHtml) {
   const s = fs.readFileSync(path.join(ROOT, f), 'utf8');
   if (s.includes('ðŸ')) mojibake.push(f);
+  if (emojiRe.test(s)) emojis.push(f);
 }
 ok(mojibake.length === 0, 'sin emojis corruptos (mojibake)' + (mojibake.length ? ': ' + mojibake.join(', ') : ''));
+ok(emojis.length === 0, 'sin emojis en las paginas' + (emojis.length ? ': ' + emojis.join(', ') : ''));
 
 console.log(fails ? 'FALLOS: ' + fails : 'TODO OK');
 process.exit(fails ? 1 : 0);
