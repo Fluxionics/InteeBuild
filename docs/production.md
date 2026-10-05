@@ -32,6 +32,8 @@ El repo de builds no cuesta nada y se auto-limpia: cada 30 minutos el servidor b
 
 ## Diagnóstico
 
+Todo lo que el servidor escribe por consola (avisos `[mailer]`, limpiezas, errores) también queda espejado en `data/server.log` con fecha y hora, con recorte automático a las últimas 500 líneas al pasar de 2 MB. Para bajártelo en un `.txt`: `GET /api/logs/txt` — necesita `?secret=TU_CLEANUP_SECRET` o header `X-Admin-Token: TU_ADMIN_TOKEN`; si no hay ninguno de los dos configurado responde `403`.
+
 Abre `/api/diag` en tu dominio (también hay enlace "Diagnóstico" en el footer). Recorre cinco pasos y se detiene en el primero que falla:
 
 - `env.hasToken` o `env.hasRepo` en `false`: faltan variables en Render > Environment. Añádelas y haz redeploy.

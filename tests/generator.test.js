@@ -244,3 +244,14 @@ test('outputs de escritorio (exe/msi/dmg/appimage) generan el proyecto desktop',
   assert.equal(plain.desktopEnabled, false, 'apk solo no activa desktop');
   assert.ok(!g.generateFiles(plain)['desktop/package.json'], 'sin desktop si no se pide');
 });
+
+test('workflow: cap add android respeta los archivos pre-generados (overlay)', () => {
+  const { WORKFLOW_YML } = require('../server/generator/workflow');
+  const adds = (WORKFLOW_YML.match(/npx cap add android/g) || []).length;
+  const refs = (WORKFLOW_YML.match(/prebuilt-android/g) || []).length;
+  assert.equal(adds, 4, 'los 4 jobs de android pasan por cap add');
+  assert.equal(refs, 12, 'cada cap add hace backup y fusion (3 referencias)');
+  assert.match(WORKFLOW_YML, /if \[ -d android \]; then cp -r android \/tmp\/prebuilt-android && rm -rf android; fi/, 'backup antes de cap add');
+  assert.match(WORKFLOW_YML, /if \[ -d \/tmp\/prebuilt-android \]; then cp -r \/tmp\/prebuilt-android\/\. android\/; fi/, 'fusion despues de cap add');
+});
+

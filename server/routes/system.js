@@ -3,7 +3,7 @@
 const CLEANUP_SECRET = process.env.CLEANUP_SECRET || '';
 
 module.exports = function registerSystemRoutes(app, ctx) {
-  const { gh, VERSION, loadHistory, saveHistory } = ctx;
+  const { gh, VERSION, loadHistory, saveHistory, safeEq } = ctx;
 
   app.get('/api/health', (req, res) => {
     const g = gh.config();
@@ -155,5 +155,23 @@ module.exports = function registerSystemRoutes(app, ctx) {
       r => res.json({ ok: true, ...r }),
       err => res.status(500).json({ error: err.message })
     );
+  });
+
+  app.get('/api/logs/txt', (req, res) => {
+    const adminToken = process.env.ADMIN_TOKEN || '';
+    const cleanupSecret = process.env.CLEANUP_SECRET || '';
+    const q = String(req.query.secret || '');
+    const h = String(req.get('x-admin-token') || '');
+    const okToken = !!adminToken && (safeEq(h, adminToken) || safeEq(q, adminToken));
+    const okSecret = !!cleanupSecret && safeEq(q, cleanupSecret);
+    if (!okToken && !okSecret) {
+      if (!adminToken && !cleanupSecret) return res.status(403).json({ error: 'Logs desactivados. Configura ADMIN_TOKEN (header X-Admin-Token) o CLEANUP_SECRET (?secret=...).' });
+      return res.status(403).json({ error: 'Secret invalido' });
+    }
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('Content-Disposition', 'attachment; filename="inteebuild-logs.txt"');
+    const txt = require('../logger').read();
+    res.send(txt || '(sin registros aun)');
   });
 };

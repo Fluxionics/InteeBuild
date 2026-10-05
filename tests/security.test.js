@@ -21,6 +21,7 @@ function mockRes(){
   const res = { statusCode: 200, body: null, headers: {} };
   res.status = c => { res.statusCode = c; return res; };
   res.json = o => { res.body = o; return res; };
+  res.send = o => { res.body = o; return res; };
   res.setHeader = (k, v) => { res.headers[k] = v; };
   return res;
 }
@@ -208,4 +209,46 @@ test('server: CORS sin fallback abierto en produccion', () => {
   const src = fs.readFileSync(path.join(__dirname, '..', 'server', 'server.js'), 'utf8');
   assert.ok(!src.includes('origin: true'), 'sin origin: true reflejando todo');
   assert.match(src, /cors-config/, 'usa el modulo cors-config');
+});
+
+test('logs: /api/logs/txt exige secret o admin token', () => {
+  const handlers = {};
+  const app = { get: (p, ...h) => { handlers['GET ' + p] = h; }, post: () => {}, delete: () => {} };
+  const gh = require('../server/github');
+  require('../server/routes/system')(app, { gh, VERSION: 'test', loadHistory: () => [], saveHistory: () => {}, safeEq: store.safeEq });
+  const mw = handlers['GET /api/logs/txt'][0];
+  assert.ok(mw, 'ruta de logs registrada');
+  const mk = (q, header) => ({ query: q || {}, get: (k) => (k === 'x-admin-token' ? header : undefined) });
+  delete process.env.ADMIN_TOKEN;
+  delete process.env.CLEANUP_SECRET;
+  const r1 = mockRes();
+  mw(mk(), r1, () => assert.fail('sin secret no debe pasar'));
+  assert.equal(r1.statusCode, 403, 'sin nada configurado -> 403');
+  process.env.CLEANUP_SECRET = 's3cret-log';
+  try {
+    const r2 = mockRes();
+    mw(mk({ secret: 's3cret-log' }), r2, () => {});
+    assert.equal(r2.statusCode, 200, 'con CLEANUP_SECRET pasa');
+    assert.match(r2.headers['Content-Type'], /text\/plain/, 'entrega text/plain');
+    const r3 = mockRes();
+    mw(mk({ secret: 'mal' }), r3, () => assert.fail('secret malo no debe pasar'));
+    assert.equal(r3.statusCode, 403, 'secret equivocado -> 403');
+  } finally { delete process.env.CLEANUP_SECRET; }
+  process.env.ADMIN_TOKEN = 'tok-abc';
+  try {
+    const r4 = mockRes();
+    mw(mk({}, 'tok-abc'), r4, () => {});
+    assert.equal(r4.statusCode, 200, 'con X-Admin-Token pasa');
+    const r5 = mockRes();
+    mw(mk({ secret: 'tok-abc' }), r5, () => {});
+    assert.equal(r5.statusCode, 200, 'token por query tambien');
+  } finally { delete process.env.ADMIN_TOKEN; }
+});
+
+test('logger: el espejo de consola queda en data/server.log', () => {
+  const logger = require('../server/logger');
+  logger.install();
+  const mark = 'logger-test-' + Date.now().toString(36);
+  console.log(mark);
+  assert.ok(logger.read().includes(mark), 'la linea aparece en el .txt');
 });

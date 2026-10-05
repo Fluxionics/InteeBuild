@@ -1,6 +1,7 @@
 'use strict';
 
 require('dotenv').config();
+require('./logger').install();
 
 const express = require('express');
 const cors = require('cors');

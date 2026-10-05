@@ -36,5 +36,13 @@ ok(tabs.length === panes.length && tabs.every(t => panes.includes(t)), 'tabs emp
 ok(html.includes('<div class="ep-group">'), 'grupos de endpoints');
 ok(html.includes('id="epSearch"'), 'buscador de endpoints');
 
+const rootHtml = fs.readdirSync(ROOT).filter(f => f.endsWith('.html'));
+const mojibake = [];
+for (const f of rootHtml) {
+  const s = fs.readFileSync(path.join(ROOT, f), 'utf8');
+  if (s.includes('ðŸ')) mojibake.push(f);
+}
+ok(mojibake.length === 0, 'sin emojis corruptos (mojibake)' + (mojibake.length ? ': ' + mojibake.join(', ') : ''));
+
 console.log(fails ? 'FALLOS: ' + fails : 'TODO OK');
 process.exit(fails ? 1 : 0);

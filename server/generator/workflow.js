@@ -94,7 +94,10 @@ jobs:
         run: npm install
 
       - name: Add Capacitor Android platform
-        run: npx cap add android
+        run: |
+          if [ -d android ]; then cp -r android /tmp/prebuilt-android && rm -rf android; fi
+          npx cap add android
+          if [ -d /tmp/prebuilt-android ]; then cp -r /tmp/prebuilt-android/. android/; fi
 
       - name: Sync Capacitor Android
         run: npx cap sync android
@@ -1251,7 +1254,10 @@ jobs:
         run: npm install
 
       - name: Add Capacitor Android platform
-        run: npx cap add android
+        run: |
+          if [ -d android ]; then cp -r android /tmp/prebuilt-android && rm -rf android; fi
+          npx cap add android
+          if [ -d /tmp/prebuilt-android ]; then cp -r /tmp/prebuilt-android/. android/; fi
 
       - name: Sync Capacitor Android
         run: npx cap sync android
@@ -1387,7 +1393,10 @@ jobs:
         run: npm install
 
       - name: Add Capacitor Android platform
-        run: npx cap add android
+        run: |
+          if [ -d android ]; then cp -r android /tmp/prebuilt-android && rm -rf android; fi
+          npx cap add android
+          if [ -d /tmp/prebuilt-android ]; then cp -r /tmp/prebuilt-android/. android/; fi
 
       - name: Sync Capacitor Android
         run: npx cap sync android
@@ -1519,7 +1528,10 @@ jobs:
         run: npm install
 
       - name: Add Capacitor Android platform
-        run: npx cap add android
+        run: |
+          if [ -d android ]; then cp -r android /tmp/prebuilt-android && rm -rf android; fi
+          npx cap add android
+          if [ -d /tmp/prebuilt-android ]; then cp -r /tmp/prebuilt-android/. android/; fi
 
       - name: Sync Capacitor Android
         run: npx cap sync android
