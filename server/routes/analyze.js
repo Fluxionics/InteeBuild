@@ -1,9 +1,11 @@
 'use strict';
 
 module.exports = function registerAnalyzeRoutes(app, ctx) {
-  const { isBlockedUrl, detectFramework, detectWebApis, buildRecommendations, securityScan, errorDetection, optimizationReport, autoFixHtml } = ctx;
+  const { isBlockedUrl, detectFramework, detectWebApis, buildRecommendations, securityScan, errorDetection, optimizationReport, autoFixHtml, checkRateLimit } = ctx;
 
   app.get('/api/analyze', async (req, res) => {
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    if (!checkRateLimit(ip, 'analyze')) return res.status(429).json({ error: 'Rate limit: 10/h por IP' });
     const url = String(req.query.url || '').trim();
     if (!url) return res.status(400).json({ error: 'Falta url' });
     if (isBlockedUrl(url)) return res.status(400).json({ error: 'URL bloqueada por seguridad' });
@@ -96,6 +98,8 @@ module.exports = function registerAnalyzeRoutes(app, ctx) {
 
 
   app.post('/api/analyze/html', async (req,res)=>{
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    if (!checkRateLimit(ip, 'analyze')) return res.status(429).json({ error: 'Rate limit: 10/h por IP' });
     const html=String(req.body.html||'');
     if(!html) return res.status(400).json({error:'Falta html'});
     if(html.length>600000) return res.status(400).json({error:'HTML demasiado grande'});
@@ -107,6 +111,8 @@ module.exports = function registerAnalyzeRoutes(app, ctx) {
   });
 
   app.post('/api/analyze/fix', async (req,res)=>{
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    if (!checkRateLimit(ip, 'analyze')) return res.status(429).json({ error: 'Rate limit: 10/h por IP' });
     const html=String(req.body.html||'');
     if(!html) return res.status(400).json({error:'Falta html'});
     const fixed=autoFixHtml(html);

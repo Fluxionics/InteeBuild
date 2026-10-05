@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function registerOutputRoutes(app, ctx) {
-  const { generator, configFromBody, loadVersions, saveVersions } = ctx;
+  const { generator, configFromBody, loadVersions, saveVersions, checkRateLimit } = ctx;
 
 
 
@@ -14,6 +14,8 @@ module.exports = function registerOutputRoutes(app, ctx) {
   const adCache = new Map();
 
   app.get('/api/ads/:slot', (req, res) => {
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    if (!checkRateLimit(ip, 'ads')) return res.status(429).json({ error: 'Rate limit: 10/h por IP' });
     const slot = AD_SLOTS[String(req.params.slot || '').toLowerCase()];
     if (!slot) return res.status(404).json({ error: 'Slot no existe (banner, mobile)' });
     const loader = '/api/ad-proxy?u=' + encodeURIComponent('https://www.highrevenueformat.com/' + slot.key + '/invoke.js');
@@ -21,6 +23,8 @@ module.exports = function registerOutputRoutes(app, ctx) {
   });
 
   app.get('/api/ad-proxy', async (req, res) => {
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    if (!checkRateLimit(ip, 'ads')) return res.status(429).json({ error: 'Rate limit: 10/h por IP' });
     let target = '';
     try {
       target = new URL(String(req.query.u || ''));

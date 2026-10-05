@@ -3,7 +3,7 @@
 const CLEANUP_SECRET = process.env.CLEANUP_SECRET || '';
 
 module.exports = function registerSystemRoutes(app, ctx) {
-  const { gh, VERSION, loadHistory, saveHistory, safeEq } = ctx;
+  const { gh, VERSION, loadHistory, saveHistory, safeEq, pruneData } = ctx;
 
   app.get('/api/health', (req, res) => {
     const g = gh.config();
@@ -152,7 +152,7 @@ module.exports = function registerSystemRoutes(app, ctx) {
     const g = gh.config();
     if (!g.ready) return res.status(503).json({ error: 'GitHub no esta configurado' });
     gh.cleanup(g.owner, g.repo).then(
-      r => res.json({ ok: true, ...r }),
+      r => res.json({ ok: true, ...r, data: typeof pruneData === 'function' ? pruneData() : null }),
       err => res.status(500).json({ error: err.message })
     );
   });

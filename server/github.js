@@ -272,15 +272,24 @@ async function getJobs(owner, repo, runId) {
   );
 }
 
-async function getRunLogs(owner, repo, runId) {
+async function getRunLogsZip(owner, repo, runId) {
   const { token } = config();
   const res = await fetch(`${API}/repos/${owner}/${repo}/actions/runs/${runId}/logs`, {
     headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' }
   });
-  if (res.ok) {
+  if (!res.ok) return null;
+  try {
+    const JSZip = require('jszip');
+    return await JSZip.loadAsync(Buffer.from(await res.arrayBuffer()));
+  } catch (_) {
+    return null;
+  }
+}
+
+async function getRunLogs(owner, repo, runId) {
+  const zip = await getRunLogsZip(owner, repo, runId);
+  if (zip) {
     try {
-      const JSZip = require('jszip');
-      const zip = await JSZip.loadAsync(Buffer.from(await res.arrayBuffer()));
       const names = Object.keys(zip.files)
         .filter(n => !zip.files[n].dir)
         .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
@@ -323,6 +332,7 @@ module.exports = {
   findRun,
   getRun,
   getRunLogs,
+  getRunLogsZip,
   getJobs,
   getArtifacts,
   downloadArtifact,

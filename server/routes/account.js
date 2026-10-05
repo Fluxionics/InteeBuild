@@ -1,6 +1,7 @@
 'use strict';
 
 const crypto = require('crypto');
+const { isBlockedUrl } = require('../url-guard');
 
 module.exports = function registerAccountRoutes(app, ctx) {
   const { generator, loadKeys, saveKeys, createApiKey, rotateApiKey, readAudit, audit, requireAdmin, loadGits, saveGits, startBuild } = ctx;
@@ -40,6 +41,7 @@ module.exports = function registerAccountRoutes(app, ctx) {
     const token=String(req.body.token||'').trim();
     const webhookUrl=String(req.body.webhookUrl||'').trim();
     if(!/^[^/]+\/[^/]+$/.test(repo)) return res.status(400).json({error:'Repo debe ser usuario/repo'});
+    if(webhookUrl && isBlockedUrl(webhookUrl)) return res.status(400).json({error:'Webhook URL bloqueada (no se permite hosts privados o metadata)'});
     const gits=loadGits();
     const id=crypto.randomBytes(4).toString('hex');
     const entry={id, repo, branch, hasToken:!!token, token: token? crypto.createHash('sha256').update(token).digest('hex').slice(0,12)+'...':null, rawToken: token||null, webhookUrl, createdAt:Date.now()};

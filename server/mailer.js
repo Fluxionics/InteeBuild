@@ -4,6 +4,7 @@ const net = require('net');
 const tls = require('tls');
 const crypto = require('crypto');
 const { builds } = require('./store');
+const { clipText } = require('./actions-error');
 
 const ENV_KEYS = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS', 'SMTP_FROM', 'SMTP_SECURE', 'SMTP_STARTTLS', 'NOTIFY_EMAIL', 'PUBLIC_URL'];
 
@@ -234,7 +235,8 @@ function notifyBuildFailure(payload) {
       const appName = (st && st.appName) || payload.appName || 'Aplicacion';
       const runUrl = payload.runUrl || (st && st.runUrl) || '';
       const base = env('PUBLIC_URL').replace(/\/$/, '');
-      const text = [
+      const detail = String(payload.detail || (st && st.errorDetail) || '').trim();
+      const lines = [
         'Un build de InteeBuild fallo.',
         '',
         'App: ' + appName,
@@ -242,7 +244,9 @@ function notifyBuildFailure(payload) {
         'Motivo: ' + (payload.error || 'sin detalle'),
         runUrl ? 'Log: ' + runUrl : null,
         base ? 'Detalle: ' + base + '/api/build/' + id : null
-      ].filter(Boolean).join('\r\n');
+      ].filter(Boolean);
+      if (detail) lines.push('', 'Motivo real del fallo:', clipText(detail, 2000));
+      const text = lines.join('\r\n');
       try {
         await sendMail({ to: splitRecipients(env('NOTIFY_EMAIL')), subject: 'Build fallido: ' + appName, text });
         console.log('[mailer] aviso de build fallido enviado (' + id + ')');

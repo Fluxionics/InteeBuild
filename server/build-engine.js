@@ -6,12 +6,22 @@ const { gh, generator } = require('./deps');
 const { builds, checkRateLimit, addHistory, updateHistory } = require('./store');
 const { deriveOutputs } = require('./generator/config');
 const mailer = require('./mailer');
+const { isBlockedUrl } = require('./url-guard');
+const { summarizeRunLogs } = require('./actions-error');
 
 async function fireWebhook(url, payload) {
   if (payload && (payload.event === 'build.failed' || payload.event === 'build.error')) {
     try { mailer.notifyBuildFailure(payload); } catch (_) {}
   }
   if (!url) return;
+  if (isBlockedUrl(url)) {
+    console.warn('[webhook] URL bloqueada por seguridad (SSRF), evento no enviado:', url);
+    return;
+  }
+  if (process.env.NODE_ENV === 'production' && !/^https:\/\//i.test(url)) {
+    console.warn('[webhook] URL sin https en produccion, evento no enviado:', url);
+    return;
+  }
   try {
     await fetch(url, {
       method: 'POST',
@@ -20,6 +30,33 @@ async function fireWebhook(url, payload) {
       signal: AbortSignal.timeout(8000)
     });
   } catch (_) {}
+}
+
+function withTimeout(promise, ms) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('timeout al leer los logs')), ms);
+    promise.then(
+      (value) => { clearTimeout(timer); resolve(value); },
+      (err) => { clearTimeout(timer); reject(err); }
+    );
+  });
+}
+
+function loadErrorDetail(g, state) {
+  if (!state.runId) return Promise.resolve(null);
+  if (!state.errorDetailPromise) {
+    state.errorDetailPromise = gh.getRunLogsZip(g.owner, g.repo, state.runId)
+      .then((zip) => summarizeRunLogs(zip))
+      .then((detail) => {
+        if (detail) {
+          state.errorDetail = detail;
+          updateHistory(state.id, { errorDetail: detail });
+        }
+        return detail || null;
+      })
+      .catch(() => null);
+  }
+  return state.errorDetailPromise;
 }
 
 function computePercent(state) {
@@ -93,7 +130,8 @@ function pollBuild(g, state) {
             state.step = 'Build fallido';
             state.error = `GitHub Actions concluyo: ${run.conclusion}`;
             updateHistory(state.id, { status: 'failed', error: state.error });
-            await fireWebhook(state.webhookUrl, { event: 'build.failed', buildId: state.id, status: 'failed', error: state.error, runUrl: state.runUrl });
+            await withTimeout(loadErrorDetail(g, state), 20000).catch(() => null);
+            await fireWebhook(state.webhookUrl, { event: 'build.failed', buildId: state.id, status: 'failed', error: state.error, detail: state.errorDetail || null, runUrl: state.runUrl });
             try { gh.deleteBranchSoon(g.owner, g.repo, state.branch, 60000); } catch (_) {}
           }
         } else if (run.status === 'in_progress') {
@@ -169,7 +207,7 @@ async function startBuild(cfg, ip) {
     id, branch, appName: cfg.appName, status: 'queued',
     step: 'En cola local', createdAt: Date.now(),
     runUrl: null, runId: null, apkUrl: null, outputType: cfg.outputType,
-    outputs, error: null, webhookUrl: cfg.webhookUrl || '',
+    outputs, error: null, errorDetail: null, webhookUrl: cfg.webhookUrl || '',
     phase: 'queued', queuePos: null, percent: 3, actionsSteps: []
   };
   builds.set(id, state);
@@ -303,7 +341,8 @@ function pollBuild(g, state) {
             state.step = 'Build fallido';
             state.error = `GitHub Actions concluyo: ${run.conclusion}`;
             updateHistory(state.id, { status: 'failed', error: state.error });
-            await fireWebhook(state.webhookUrl, { event: 'build.failed', buildId: state.id, status: 'failed', error: state.error, runUrl: state.runUrl });
+            await withTimeout(loadErrorDetail(g, state), 20000).catch(() => null);
+            await fireWebhook(state.webhookUrl, { event: 'build.failed', buildId: state.id, status: 'failed', error: state.error, detail: state.errorDetail || null, runUrl: state.runUrl });
             try { gh.deleteBranchSoon(g.owner, g.repo, state.branch, 60000); } catch (_) {}
           }
         } else if (run.status === 'in_progress') {
@@ -329,6 +368,7 @@ function pollBuild(g, state) {
         actionsSteps: state.actionsSteps,
         status: state.status,
         error: state.error,
+        errorDetail: state.errorDetail || null,
         runUrl: state.runUrl,
         apkUrl: state.apkUrl,
         artifacts: state.artifacts
@@ -343,7 +383,8 @@ function pollBuild(g, state) {
         queuePos: state.queuePos,
         actionsSteps: state.actionsSteps,
         status: state.status,
-        error: state.error
+        error: state.error,
+        errorDetail: state.errorDetail || null
       });
     }
 
@@ -365,7 +406,8 @@ function pollBuild(g, state) {
         queuePos: state.queuePos,
         actionsSteps: state.actionsSteps,
         status: state.status,
-        error: state.error
+        error: state.error,
+        errorDetail: state.errorDetail || null
       });
     }
   }, 6000);

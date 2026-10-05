@@ -1,0 +1,39 @@
+name: test-build
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 4 * * *'
+permissions:
+  contents: read
+concurrency:
+  group: test-build-${{ github.repository }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Instalar dependencias del repo
+        run: if [ -f package-lock.json ]; then npm ci; else npm install; fi
+      - name: Generar proyecto y compilar APK y AAB
+        run: node scripts/e2e-build.js
+        env:
+          E2E_OUT_DIR: ${{ runner.temp }}/e2e-artifacts
+      - name: Subir binarios verificados
+        uses: actions/upload-artifact@v4
+        with:
+          name: inteebuild-e2e-binaries
+          path: ${{ runner.temp }}/e2e-artifacts/*
+          if-no-files-found: error
+          retention-days: 3

@@ -2,6 +2,7 @@
 
 const { PERMISSION_SPEC } = require('./permissions');
 const { CAPACITOR_VERSIONS, VALID_COMPILE_SDKS, VALID_TARGET_SDKS, VALID_MIN_SDKS } = require('./versions');
+const { isBlockedUrl } = require('../url-guard');
 
 function badRequest(message) {
   return Object.assign(new Error(message), { status: 400 });
@@ -226,6 +227,7 @@ function readNotifications(raw, appName) {
 }
 
 function readWebView(raw) {
+  const webhookUrl = typeof raw.webhookUrl === 'string' ? raw.webhookUrl.trim() : '';
   return {
     appTheme: ['light', 'dark', 'system'].includes(raw.appTheme) ? raw.appTheme : 'system',
     entryAnimation: ['none', 'fade', 'slide'].includes(raw.entryAnimation) ? raw.entryAnimation : 'none',
@@ -235,7 +237,7 @@ function readWebView(raw) {
     cacheMode: ['normal', 'no-cache', 'force-cache'].includes(raw.cacheMode) ? raw.cacheMode : 'normal',
     backButtonBehavior: ['back', 'exit', 'confirm', 'none'].includes(raw.backButtonBehavior) ? raw.backButtonBehavior : 'back',
     customHeaders: typeof raw.customHeaders === 'string' ? raw.customHeaders.slice(0, 2000) : '',
-    webhookUrl: typeof raw.webhookUrl === 'string' && /^https?:\/\//.test(raw.webhookUrl.trim()) ? raw.webhookUrl.trim().slice(0, 500) : '',
+    webhookUrl: /^https?:\/\//.test(webhookUrl) && !isBlockedUrl(webhookUrl) ? webhookUrl.slice(0, 500) : '',
     pullToRefresh: !!raw.webviewPullToRefresh,
     pinchZoom: !!raw.webviewPinchZoom,
     hideScrollbars: !!raw.webviewHideScrollbars,

@@ -119,6 +119,44 @@ test('mailer: notifyBuildFailure arma el correo con appName y motivo', async () 
   } finally { server.close(); clearEnv(); }
 });
 
+test('mailer: notifyBuildFailure incluye el detalle real del fallo', async () => {
+  const { server, port, inbox } = await startFakeSmtp();
+  try {
+    setSmtp(port);
+    const { builds } = require('../server/store');
+    builds.set('mdet', { appName: 'Mi App' });
+    const sent = await mailer.notifyBuildFailure({
+      event: 'build.failed',
+      buildId: 'mdet',
+      error: 'GitHub Actions concluyo: failure',
+      detail: 'error: cannot find symbol\n1 error'
+    });
+    assert.equal(sent, true);
+    const body = decodeBody(await waitData(inbox));
+    assert.match(body, /Motivo real del fallo:/);
+    assert.match(body, /error: cannot find symbol/);
+    assert.match(body, /GitHub Actions concluyo: failure/);
+    builds.delete('mdet');
+  } finally { server.close(); clearEnv(); }
+});
+
+test('mailer: el detalle del fallo se recorta a 2000 caracteres', async () => {
+  const { server, port, inbox } = await startFakeSmtp();
+  try {
+    setSmtp(port);
+    const sent = await mailer.notifyBuildFailure({
+      event: 'build.failed',
+      buildId: 'mlong',
+      error: 'boom',
+      detail: 'x'.repeat(5000)
+    });
+    assert.equal(sent, true);
+    const body = decodeBody(await waitData(inbox));
+    assert.ok(body.includes('x'.repeat(2000) + '...'), 'recorte con sufijo');
+    assert.ok(!body.includes('x'.repeat(2001)), 'sin exceso de caracteres');
+  } finally { server.close(); clearEnv(); }
+});
+
 test('mailer: un mismo build solo avisa una vez', async () => {
   const { server, port, inbox } = await startFakeSmtp();
   try {

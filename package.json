@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node server/server.js",
     "dev": "node --watch server/server.js",
-    "test": "node --test tests/permissions.test.js tests/generator.test.js tests/security.test.js tests/mailer.test.js",
+    "test": "node --test tests/permissions.test.js tests/generator.test.js tests/security.test.js tests/mailer.test.js tests/webhook-ssrf.test.js tests/zip-guard.test.js tests/rate-extra.test.js tests/actions-error.test.js tests/cleanup.test.js tests/e2e-build.test.js",
     "i18n:extract": "node i18n/extract.js && node i18n/group.js && node i18n/validate.js",
     "i18n:cov": "node scripts/cov-all.js",
     "check": "node scripts/comment-audit.js && node scripts/wf-check.js && node scripts/devhtml-check.js && node scripts/cov-all.js && node i18n/validate.js",
@@ -50,6 +50,7 @@
     "jszip": "^3.10.1"
   },
   "devDependencies": {
+    "acorn": "^8.19.0",
     "js-yaml": "^5.4.2"
   }
 }

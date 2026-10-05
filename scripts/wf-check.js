@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 const ROOT = path.join(__dirname, '..');
 const yaml = require(path.join(ROOT, 'node_modules', 'js-yaml'));
 const wf = require(path.join(ROOT, 'server', 'generator', 'workflow.js'));
@@ -19,6 +20,14 @@ if (!ok) process.exit(1);
 const d2 = yaml.load(wf.DECOMPILE_WORKFLOW_YML);
 console.log('YAML decompila OK:', !!(d2 && d2.jobs));
 if (!d2 || !d2.jobs) process.exit(1);
+
+const wfDir = path.join(ROOT, '.github', 'workflows');
+const repoWf = fs.existsSync(wfDir) ? fs.readdirSync(wfDir).filter(n => /\.ya?ml$/.test(n)).sort() : [];
+for (const name of repoWf) {
+  const doc = yaml.load(fs.readFileSync(path.join(wfDir, name), 'utf8'));
+  if (!doc || !doc.jobs) throw new Error('YAML invalido en .github/workflows/' + name);
+  console.log('workflow del repo OK:', name, '| jobs:', Object.keys(doc.jobs).join(','));
+}
 
 const cfg = require(path.join(ROOT, 'server', 'generator', 'config.js'));
 const files = require(path.join(ROOT, 'server', 'generator', 'package-files.js'));

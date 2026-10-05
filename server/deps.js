@@ -9,7 +9,7 @@ const templates = require('./templates');
 const packageJson = require('../package.json');
 
 const ROOT = path.resolve(__dirname, '..');
-const DATA_DIR = path.join(ROOT, 'data');
+const DATA_DIR = process.env.INTEE_DATA_DIR ? path.resolve(process.env.INTEE_DATA_DIR) : path.join(ROOT, 'data');
 const HISTORY_FILE = path.join(DATA_DIR, 'builds.json');
 const APIKEYS_FILE = path.join(DATA_DIR, 'apikeys.json');
 const GIT_FILE = path.join(DATA_DIR, 'git-integrations.json');

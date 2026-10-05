@@ -129,6 +129,7 @@ app.use((req, res) => {
 });
 
 setInterval(() => {
+  try { store.pruneData(); } catch (_) {}
   const g = deps.gh.config();
   if (!g.ready) return;
   deps.gh.cleanup(g.owner, g.repo).then(

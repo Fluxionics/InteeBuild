@@ -17,11 +17,36 @@ const rateLimits = new Map();
 const RATE_LIMIT = 10;
 const RATE_WINDOW = 3600000;
 
-function checkRateLimit(ip) {
+const MAX_HISTORY = 50;
+const MAX_HISTORY_BYTES = 2 * 1024 * 1024;
+const MAX_FIELD_PERSIST = 100000;
+const AUDIT_MAX_BYTES = 2 * 1024 * 1024;
+const AUDIT_KEEP_LINES = 500;
+const MAX_KEYS = 100;
+const MAX_GITS = 50;
+const MAX_VERSION_APPS = 100;
+const MAX_VERSIONS_PER_APP = 20;
+const MAX_CHANGELOG = 500;
+
+const LIMITS = {
+  MAX_HISTORY,
+  MAX_HISTORY_BYTES,
+  MAX_FIELD_PERSIST,
+  AUDIT_MAX_BYTES,
+  AUDIT_KEEP_LINES,
+  MAX_KEYS,
+  MAX_GITS,
+  MAX_VERSION_APPS,
+  MAX_VERSIONS_PER_APP,
+  MAX_CHANGELOG
+};
+
+function checkRateLimit(ip, bucket = '') {
+  const key = bucket ? ip + '|' + bucket : ip;
   const now = Date.now();
-  const entry = rateLimits.get(ip);
+  const entry = rateLimits.get(key);
   if (!entry || now > entry.resetAt) {
-    rateLimits.set(ip, { count: 1, resetAt: now + RATE_WINDOW });
+    rateLimits.set(key, { count: 1, resetAt: now + RATE_WINDOW });
     return true;
   }
   if (entry.count >= RATE_LIMIT) return false;
@@ -34,8 +59,40 @@ function loadHistory() {
   catch (_) { return []; }
 }
 
+function entryNeedsTrim(entry) {
+  if (!entry || typeof entry !== 'object' || !entry.config || typeof entry.config !== 'object') return false;
+  return Object.keys(entry.config).some(k => typeof entry.config[k] === 'string' && entry.config[k].length > MAX_FIELD_PERSIST);
+}
+
+function trimEntry(entry) {
+  if (!entryNeedsTrim(entry)) return entry;
+  const config = {};
+  const omitted = [];
+  Object.keys(entry.config).forEach(k => {
+    const v = entry.config[k];
+    if (typeof v === 'string' && v.length > MAX_FIELD_PERSIST) {
+      config[k] = '';
+      omitted.push(k);
+    } else {
+      config[k] = v;
+    }
+  });
+  config.omittedFields = omitted;
+  return Object.assign({}, entry, { config });
+}
+
+function buildHistory(arr) {
+  let kept = (Array.isArray(arr) ? arr : []).slice(0, MAX_HISTORY).map(trimEntry);
+  let text = JSON.stringify(kept, null, 2);
+  while (kept.length > 1 && text.length > MAX_HISTORY_BYTES) {
+    kept = kept.slice(0, -1);
+    text = JSON.stringify(kept, null, 2);
+  }
+  return { kept, text };
+}
+
 function saveHistory(arr) {
-  fs.writeFileSync(HISTORY_FILE, JSON.stringify(arr.slice(-50), null, 2), 'utf-8');
+  fs.writeFileSync(HISTORY_FILE, buildHistory(arr).text, 'utf-8');
 }
 
 function addHistory(entry) {
@@ -52,7 +109,15 @@ function updateHistory(id, updates) {
 
 
 function loadKeys(){ try{ return JSON.parse(fs.readFileSync(APIKEYS_FILE,'utf-8')); }catch{ return []; } }
-function saveKeys(a){ fs.writeFileSync(APIKEYS_FILE, JSON.stringify(a,null,2),'utf-8'); }
+function pruneKeys(list){
+  if(list.length <= MAX_KEYS) return list;
+  const exceso = list.length - MAX_KEYS;
+  const victimas = new Set();
+  list.forEach((k, i) => { if(victimas.size < exceso && k && k.revokedAt) victimas.add(i); });
+  for(let i = 0; i < list.length && victimas.size < exceso; i++) if(!victimas.has(i)) victimas.add(i);
+  return list.filter((_, i) => !victimas.has(i));
+}
+function saveKeys(a){ fs.writeFileSync(APIKEYS_FILE, JSON.stringify(pruneKeys(Array.isArray(a)?a:[]),null,2),'utf-8'); }
 function hashKey(key){ return crypto.createHash('sha256').update(String(key)).digest('hex'); }
 function safeEq(a, b){
   const ha=crypto.createHash('sha256').update(String(a||'')).digest();
@@ -62,13 +127,27 @@ function safeEq(a, b){
 function apiKeysDisabled(){ return /^(1|true|yes)$/i.test(String(process.env.API_KEYS_DISABLED||'')); }
 
 const AUDIT_FILE = path.join(DATA_DIR, 'audit.log');
+
+function fileSize(file){
+  try{ return fs.statSync(file).size; }catch(_){ return 0; }
+}
+
+function trimAudit(force){
+  try{
+    const size = fs.statSync(AUDIT_FILE).size;
+    if(!force && size <= AUDIT_MAX_BYTES) return false;
+    const lines = fs.readFileSync(AUDIT_FILE, 'utf-8').split('\n').filter(Boolean);
+    const keep = lines.slice(-AUDIT_KEEP_LINES);
+    const trimmed = lines.length > keep.length;
+    fs.writeFileSync(AUDIT_FILE, keep.join('\n')+'\n', 'utf-8');
+    return trimmed;
+  }catch(_){ return false; }
+}
+
 function audit(ev){
   try{
     fs.appendFileSync(AUDIT_FILE, JSON.stringify(Object.assign({ts:Date.now()}, ev))+'\n');
-    if(fs.statSync(AUDIT_FILE).size > 2*1024*1024){
-      const lines=fs.readFileSync(AUDIT_FILE,'utf-8').split('\n').filter(Boolean).slice(-500);
-      fs.writeFileSync(AUDIT_FILE, lines.join('\n')+'\n');
-    }
+    trimAudit(false);
   }catch(_){}
 }
 function readAudit(keyId, limit){
@@ -168,14 +247,66 @@ function requireAdmin(req,res,next){
 
 
 function loadGits(){ try{ return JSON.parse(fs.readFileSync(GIT_FILE,'utf-8')); }catch{ return []; } }
-function saveGits(a){ fs.writeFileSync(GIT_FILE, JSON.stringify(a,null,2),'utf-8'); }
+function saveGits(a){ const list=Array.isArray(a)?a:[]; fs.writeFileSync(GIT_FILE, JSON.stringify(list.slice(-MAX_GITS),null,2),'utf-8'); }
 
 
 function loadVersions(){ try{ return JSON.parse(fs.readFileSync(VERSIONS_FILE,'utf-8')); }catch{ return {}; } }
-function saveVersions(v){ fs.writeFileSync(VERSIONS_FILE, JSON.stringify(v,null,2),'utf-8'); }
+function trimVersionEntry(entry){
+  const src = entry && typeof entry === 'object' ? entry : {};
+  const versions = (Array.isArray(src.versions)?src.versions:[]).slice(0, MAX_VERSIONS_PER_APP).map(v => {
+    const one = v && typeof v === 'object' ? v : {};
+    return { version: String(one.version||'').slice(0,20), changelog: String(one.changelog||'').slice(0,MAX_CHANGELOG), publishedAt: Number(one.publishedAt)||0 };
+  });
+  return Object.assign({}, src, { versions });
+}
+function pruneVersions(v){
+  const src = (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};
+  const apps = Object.keys(src).map(k => {
+    const entry = trimVersionEntry(src[k]);
+    return { key: k, entry, last: entry.versions.length ? entry.versions[0].publishedAt : 0 };
+  });
+  apps.sort((a,b)=>b.last-a.last);
+  const out = {};
+  apps.slice(0, MAX_VERSION_APPS).forEach(a => { out[a.key]=a.entry; });
+  return out;
+}
+function saveVersions(v){ fs.writeFileSync(VERSIONS_FILE, JSON.stringify(pruneVersions(v),null,2),'utf-8'); }
+
+function readJson(file, fallback){
+  try{ return JSON.parse(fs.readFileSync(file, 'utf-8')); }catch(_){ return fallback; }
+}
+
+function pruneData(){
+  const out = { auditTrimmed:false, auditBytes:0, historyTrimmed:false, historyEntries:0, historyBytes:0, versionApps:0, versionTrimmed:false, versionBytes:0 };
+  const history = readJson(HISTORY_FILE, null);
+  if(Array.isArray(history)){
+    const built = buildHistory(history);
+    out.historyEntries = built.kept.length;
+    if(built.text !== JSON.stringify(history, null, 2)){
+      fs.writeFileSync(HISTORY_FILE, built.text, 'utf-8');
+      out.historyTrimmed = true;
+    }
+  }
+  out.historyBytes = fileSize(HISTORY_FILE);
+  out.auditTrimmed = trimAudit(true);
+  out.auditBytes = fileSize(AUDIT_FILE);
+  const versions = readJson(VERSIONS_FILE, null);
+  if(versions && typeof versions === 'object' && !Array.isArray(versions)){
+    const pruned = pruneVersions(versions);
+    out.versionApps = Object.keys(pruned).length;
+    const text = JSON.stringify(pruned, null, 2);
+    if(text !== JSON.stringify(versions, null, 2)){
+      fs.writeFileSync(VERSIONS_FILE, text, 'utf-8');
+      out.versionTrimmed = true;
+    }
+  }
+  out.versionBytes = fileSize(VERSIONS_FILE);
+  return out;
+}
 
 module.exports = {
   builds,
+  LIMITS,
   checkRateLimit,
   loadHistory,
   saveHistory,
@@ -197,5 +328,6 @@ module.exports = {
   loadGits,
   saveGits,
   loadVersions,
-  saveVersions
+  saveVersions,
+  pruneData
 };

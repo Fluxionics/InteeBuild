@@ -2,6 +2,7 @@
 
 const crypto = require('crypto');
 const JSZip = require('jszip');
+const { loadZipGuarded, entryText, entryBuffer } = require('../zip-guard');
 
 function readApkBuffer(req) {
   if (req.is('application/octet-stream') && Buffer.isBuffer(req.body)) return req.body;
@@ -27,8 +28,9 @@ module.exports = function registerDecompileRoutes(app, ctx) {
       } else if(req.body.buffer) buf=Buffer.from(req.body.buffer,'base64');
       if(!buf || buf.length<100) return res.status(400).json({error:'Envía apkBase64 (data:...;base64,xxx o solo base64) o raw octet-stream. Tamaño min 100 bytes'});
       if(buf.length>100*1024*1024) return res.status(400).json({error:'APK demasiado grande (max 100MB). Para builds de 1GB usa el ZIP del proyecto, no el APK firmado'});
-      let zip;
-      try{ zip=await JSZip.loadAsync(buf); }catch{ return res.status(400).json({error:'Archivo no es ZIP/APK válido (JSZip falló)'}); }
+      const guarded=await loadZipGuarded(buf);
+      if(!guarded.ok) return res.status(guarded.status||400).json({error:guarded.error});
+      const zip=guarded.zip;
       const entries=Object.keys(zip.files);
       let manifestStr='';
       let manifestBuf=null;
@@ -42,10 +44,10 @@ module.exports = function registerDecompileRoutes(app, ctx) {
       let dexInfo=null;
       let decodedManifest='';
       if(zip.files['build-config.json']){
-        try{ buildConfig=JSON.parse(await zip.files['build-config.json'].async('string')); packageName=buildConfig.packageName||packageName; appName=buildConfig.appName||appName; permissions=Object.keys(buildConfig.permissions||{}).filter(k=>buildConfig.permissions[k]); versionName=buildConfig.versionName||''; }catch{}
+        try{ const buildText=await entryText(zip.files['build-config.json']); if(buildText){ buildConfig=JSON.parse(buildText); packageName=buildConfig.packageName||packageName; appName=buildConfig.appName||appName; permissions=Object.keys(buildConfig.permissions||{}).filter(k=>buildConfig.permissions[k]); versionName=buildConfig.versionName||''; } }catch{}
       }
       if(zip.files['AndroidManifest.xml']){
-        try{ manifestBuf=await zip.files['AndroidManifest.xml'].async('nodebuffer'); }catch{ manifestBuf=null; }
+        manifestBuf=await entryBuffer(zip.files['AndroidManifest.xml']);
         if(manifestBuf){
 
           const head=manifestBuf.toString('utf8',0,Math.min(100,manifestBuf.length));
@@ -91,21 +93,21 @@ module.exports = function registerDecompileRoutes(app, ctx) {
         }
       }catch{}
       if(zip.files['capacitor.config.json']){
-        try{ const cap=JSON.parse(await zip.files['capacitor.config.json'].async('string')); if(cap.appId && packageName==='desconocido') packageName=cap.appId; if(cap.appName) appName=cap.appName; if(cap.server && cap.server.url) appName+=' ('+cap.server.url.slice(0,30)+')'; }catch{}
+        try{ const capText=await entryText(zip.files['capacitor.config.json']); if(capText){ const cap=JSON.parse(capText); if(cap.appId && packageName==='desconocido') packageName=cap.appId; if(cap.appName) appName=cap.appName; if(cap.server && cap.server.url) appName+=' ('+cap.server.url.slice(0,30)+')'; } }catch{}
       }
       if(zip.files['www/index.html']){
-        try{ const html=await zip.files['www/index.html'].async('string'); const m=html.match(/https?:\/\/[^"'\s<]+/); if(m) appName+=' -> '+m[0].slice(0,40); }catch{}
+        try{ const html=await entryText(zip.files['www/index.html']); if(html){ const m=html.match(/https?:\/\/[^"'\s<]+/); if(m) appName+=' -> '+m[0].slice(0,40); } }catch{}
       }
       if(zip.files['assets/www/index.html']){
-        try{ const html=await zip.files['assets/www/index.html'].async('string'); const m=html.match(/https?:\/\/[^"'\s<]+/); if(m) appName+=' -> '+m[0].slice(0,40); }catch{}
+        try{ const html=await entryText(zip.files['assets/www/index.html']); if(html){ const m=html.match(/https?:\/\/[^"'\s<]+/); if(m) appName+=' -> '+m[0].slice(0,40); } }catch{}
       }
 
       let iconBase64=null;
       try{
         const iconEntry=entries.find(e=>/(mipmap.*ic_launcher|app-icon)\.png$/i.test(e));
         if(iconEntry){
-          const ib=await zip.files[iconEntry].async('nodebuffer');
-          if(ib.length>100 && ib.length<500*1024) iconBase64='data:image/png;base64,'+ib.toString('base64');
+          const ib=await entryBuffer(zip.files[iconEntry], 512*1024);
+          if(ib && ib.length>100 && ib.length<500*1024) iconBase64='data:image/png;base64,'+ib.toString('base64');
         }
       }catch{}
       const hasIcon=entries.some(e=>/ic_launcher|app-icon|mipmap.*\.png/i.test(e)) || !!iconBase64;
@@ -117,10 +119,8 @@ module.exports = function registerDecompileRoutes(app, ctx) {
         for(const [name, file] of Object.entries(zip.files)){
           if(file.dir) continue;
           if(name.includes('..')) continue;
-          try{
-            const content=await file.async('nodebuffer');
-            if(content.length < 4*1024*1024) sourceZip.file(name, content);
-          }catch{}
+          const content=await entryBuffer(file, 4*1024*1024);
+          if(content) sourceZip.file(name, content);
         }
 
         if(decodedManifest) sourceZip.file('DECODED-AndroidManifest.xml', decodedManifest);

@@ -4,6 +4,7 @@ const JSZip = require('jszip');
 
 
 const { artifactFormat } = require('./artifacts');
+const { clipText } = require('../actions-error');
 
 
 function formatsFromArtifacts(artifacts) {
@@ -17,6 +18,11 @@ function formatsFromArtifacts(artifacts) {
 
 module.exports = function registerBuildRoutes(app, ctx) {
   const { gh, generator, templates, configFromBody, isBlockedUrl, startBuild, requireApiKey, checkRateLimit, builds, loadHistory, addSSEListener, removeSSEListener } = ctx;
+
+  function assertSafeWebhook(value) {
+    const url = String(value || '').trim();
+    if (url && isBlockedUrl(url)) throw Object.assign(new Error('Webhook URL bloqueada (no se permite hosts privados o metadata)'), { status: 400 });
+  }
 
   async function availableFormats(state) {
     if (!state.runId) return [];
@@ -85,6 +91,7 @@ function checkSSELimit(ip) {
       actionsSteps: state.actionsSteps,
       status: state.status,
       error: state.error,
+      errorDetail: state.errorDetail || null,
       runUrl: state.runUrl,
       apkUrl: state.apkUrl,
       artifacts: state.artifacts
@@ -119,13 +126,14 @@ function checkSSELimit(ip) {
     if (!state) {
       const history = loadHistory();
       const h = history.find(x => x.id === req.params.id);
-      if (h) return res.json({ ...h, fromHistory: true });
+      if (h) return res.json({ ...h, errorDetail: h.errorDetail ? clipText(h.errorDetail, 2000) : null, fromHistory: true });
       return res.status(404).json({ error: 'Build no encontrado' });
     }
     res.json({
       id: state.id, status: state.status, step: state.step,
       runUrl: state.runUrl, apkUrl: state.apkUrl, artifacts: state.artifacts,
-      error: state.error, appName: state.appName, outputType: state.outputType,
+      error: state.error, errorDetail: state.errorDetail ? clipText(state.errorDetail, 2000) : null,
+      appName: state.appName, outputType: state.outputType,
       outputs: state.outputs || [],
       formats: await availableFormats(state),
       phase: state.phase, percent: state.percent, queuePos: state.queuePos,
@@ -136,6 +144,7 @@ function checkSSELimit(ip) {
   app.post('/api/project', async (req, res) => {
     try {
       const cfg = configFromBody(req.body);
+      assertSafeWebhook(req.body?.webhookUrl);
       if (cfg.inputType === 'url' && isBlockedUrl(cfg.url)) throw Object.assign(new Error('URL bloqueada por seguridad'), { status: 400 });
       if (cfg.inputType === 'html' && cfg.htmlCode.length > 500000) throw Object.assign(new Error('HTML demasiado grande (max 500KB)'), { status: 400 });
       cfg._buildId = 'zip';
@@ -158,6 +167,7 @@ function checkSSELimit(ip) {
     let cfg;
     try {
       cfg = configFromBody(req.body);
+      assertSafeWebhook(req.body?.webhookUrl);
       if (cfg.inputType === 'url' && isBlockedUrl(cfg.url)) throw Object.assign(new Error('URL bloqueada por seguridad (localhost/IP privada)'), { status: 400 });
       if (cfg.inputType === 'html' && cfg.htmlCode.length > 500000) throw Object.assign(new Error('HTML demasiado grande (max 500KB)'), { status: 400 });
       if (cfg.iconBase64 && cfg.iconBase64.length > 7 * 1024 * 1024) throw Object.assign(new Error('Icono demasiado grande'), { status: 400 });
@@ -204,6 +214,7 @@ function checkSSELimit(ip) {
     try {
       cfg = generator.normalizeConfig(rawCfg);
       if (cfg.inputType === 'url' && isBlockedUrl(cfg.url)) throw Object.assign(new Error('URL bloqueada'), { status: 400 });
+      assertSafeWebhook(body.webhookUrl);
     } catch (err) {
       return res.status(err.status || 400).json({ error: err.message });
     }
@@ -220,7 +231,7 @@ function checkSSELimit(ip) {
     const state = builds.get(req.params.id);
     if (!state) {
       const h = loadHistory().find(x => x.id === req.params.id);
-      if (h) return res.json({ buildId: h.id, status: h.status, apkUrl: h.apkUrl, runUrl: h.runUrl, error: h.error });
+      if (h) return res.json({ buildId: h.id, status: h.status, apkUrl: h.apkUrl, runUrl: h.runUrl, error: h.error, errorDetail: h.errorDetail ? clipText(h.errorDetail, 2000) : null });
       return res.status(404).json({ error: 'Build no encontrado' });
     }
     res.json({
@@ -230,7 +241,9 @@ function checkSSELimit(ip) {
       ipaUrl: state.artifacts && state.artifacts.some(a => a.name.includes('ipa')) ? `/api/download/${state.id}/ipa` : null,
       outputs: state.outputs || [],
       formats: await availableFormats(state),
-      runUrl: state.runUrl, error: state.error, appName: state.appName,
+      runUrl: state.runUrl, error: state.error,
+      errorDetail: state.errorDetail ? clipText(state.errorDetail, 2000) : null,
+      appName: state.appName,
       phase: state.phase, percent: state.percent, queuePos: state.queuePos,
       actionsSteps: state.actionsSteps || []
     });

@@ -1,9 +1,9 @@
 'use strict';
 
-const JSZip = require('jszip');
+const { loadZipGuarded, entryBuffer } = require('../zip-guard');
 
 module.exports = function registerCatalogRoutes(app, ctx) {
-  const { generator, templates, configFromBody, detectWebApis, isBlockedUrl } = ctx;
+  const { generator, templates, configFromBody, detectWebApis, isBlockedUrl, checkRateLimit } = ctx;
 
 
   app.post('/api/manifest-diff', (req,res)=>{
@@ -23,6 +23,8 @@ module.exports = function registerCatalogRoutes(app, ctx) {
 
 
   app.post('/api/inspect', async (req,res)=>{
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    if (!checkRateLimit(ip, 'catalog')) return res.status(429).json({ error: 'Rate limit: 10/h por IP' });
     try{
       let buf=null;
       if(req.body.apkBase64){
@@ -31,12 +33,14 @@ module.exports = function registerCatalogRoutes(app, ctx) {
       }
       if(!buf || buf.length<100) return res.status(400).json({error:'Envía apkBase64. Tamaño min 100 bytes'});
       if(buf.length>30*1024*1024) return res.status(400).json({error:'APK demasiado grande (max 30MB)'});
-      let zip;
-      try{ zip=await JSZip.loadAsync(buf); }catch{ return res.status(400).json({error:'No es un APK/ZIP válido'}); }
+      const guarded=await loadZipGuarded(buf);
+      if(!guarded.ok) return res.status(guarded.status||400).json({error:guarded.error});
+      const zip=guarded.zip;
       const entries=Object.keys(zip.files);
       let manifestRaw='';
       if(zip.files['AndroidManifest.xml']){
-        try{ manifestRaw=await zip.files['AndroidManifest.xml'].async('nodebuffer').then(b=>b.toString('latin1')); }catch{ manifestRaw=''; }
+        const manifestBuf=await entryBuffer(zip.files['AndroidManifest.xml']);
+        if(manifestBuf) manifestRaw=manifestBuf.toString('latin1');
       }
       const isTextManifest=manifestRaw.includes('<manifest');
       const perms=[...new Set([...manifestRaw.matchAll(/android\.permission\.([A-Z_]+)/g)].map(m=>'android.permission.'+m[1]))];
@@ -90,6 +94,8 @@ module.exports = function registerCatalogRoutes(app, ctx) {
 
 
   app.get('/api/templates/:id/native', (req,res)=>{
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    if (!checkRateLimit(ip, 'catalog')) return res.status(429).json({ error: 'Rate limit: 10/h por IP' });
     const t=templates.getTemplate(req.params.id);
     if(!t) return res.status(404).json({error:'Plantilla no encontrada'});
     try{
@@ -123,6 +129,8 @@ module.exports = function registerCatalogRoutes(app, ctx) {
     }catch(e){ res.status(400).json({error:e.message}); }
   });
   app.post('/api/permissions/suggest', async (req,res)=>{
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    if (!checkRateLimit(ip, 'catalog')) return res.status(429).json({ error: 'Rate limit: 10/h por IP' });
     try{
       let html=String(req.body.html||'');
       const url=String(req.body.url||'').trim();

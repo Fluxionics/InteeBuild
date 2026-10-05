@@ -26,6 +26,16 @@ const Build = (() => {
     show(buildReady);
   };
 
+  const clipText = (value, max) => {
+    const s = String(value || '');
+    return s.length > max ? s.slice(0, max) + '...' : s;
+  };
+
+  const failureMessage = (s) => {
+    const base = s.error || 'La compilación ha fallado';
+    return s.errorDetail ? clipText(base + '\n' + s.errorDetail, 2000) : base;
+  };
+
   const setProgressStep = (idx, status) => {
     const el = $('#ps' + idx);
     if (!el) return;
@@ -424,8 +434,9 @@ const Build = (() => {
         }, 600);
       } else if (s.status === 'failed' || s.status === 'error') {
         closeEventSource();
-        notifyTerminal(false, s.error || 'La compilación ha fallado');
-        showError(s.error || 'La compilación ha fallado');
+        const failure = failureMessage(s);
+        notifyTerminal(false, clipText(failure, 240));
+        showError(failure);
       }
 
       if (buildConsole && s.runUrl) {
