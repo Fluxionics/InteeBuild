@@ -36,6 +36,93 @@ const Build = (() => {
 
   const tt = (k) => (window.IB_I18N && window.IB_I18N.t) ? window.IB_I18N.t(k) : k;
 
+  let audioCtx = null;
+  let terminalNotified = false;
+
+  const ensureAudio = () => {
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      if (!audioCtx) audioCtx = new AC();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    } catch (_) { return null; }
+  };
+
+  const beep = (notes) => {
+    const ctx = ensureAudio();
+    if (!ctx) return;
+    try {
+      let t = ctx.currentTime + 0.02;
+      for (const [freq, dur] of notes) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.exponentialRampToValueAtTime(0.18, t + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(t);
+        osc.stop(t + dur + 0.03);
+        t += dur + 0.06;
+      }
+    } catch (_) {}
+  };
+
+  const showToast = (kind, title, body) => {
+    try {
+      let wrap = document.getElementById('ibToasts');
+      if (!wrap) {
+        wrap = document.createElement('div');
+        wrap.id = 'ibToasts';
+        wrap.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:99999;display:flex;flex-direction:column;gap:8px;max-width:340px;';
+        document.body.appendChild(wrap);
+      }
+      const el = document.createElement('div');
+      el.style.cssText = 'padding:12px 14px;border-radius:10px;font-size:14px;line-height:1.35;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.35);cursor:pointer;opacity:0;transition:opacity .25s,transform .25s;transform:translateY(8px);' +
+        (kind === 'ok' ? 'background:#047857;border:1px solid #10b981;' : 'background:#7f1d1d;border:1px solid #ef4444;');
+      const b = document.createElement('b');
+      b.style.cssText = 'display:block;margin-bottom:2px;';
+      b.textContent = title;
+      const s = document.createElement('span');
+      s.style.cssText = 'opacity:.9;word-break:break-word;';
+      s.textContent = body || '';
+      el.appendChild(b);
+      el.appendChild(s);
+      wrap.appendChild(el);
+      requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; });
+      const close = () => { el.style.opacity = '0'; setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 300); };
+      el.addEventListener('click', close);
+      setTimeout(close, 6000);
+    } catch (_) {}
+  };
+
+  const ensureNotifPermission = () => {
+    try {
+      if (typeof Notification === 'undefined') return;
+      if (Notification.permission === 'default') Notification.requestPermission().catch(() => {});
+    } catch (_) {}
+  };
+
+  const showDesktopNotify = (title, body) => {
+    try {
+      if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+      const n = new Notification(title, { body, tag: 'inteebuild-build' });
+      n.onclick = () => { window.focus(); n.close(); };
+    } catch (_) {}
+  };
+
+  const notifyTerminal = (ok, body) => {
+    if (terminalNotified) return;
+    terminalNotified = true;
+    const title = 'InteeBuild — ' + (ok ? tt('Build completado') : tt('Build fallido'));
+    showToast(ok ? 'ok' : 'fail', title, body);
+    showDesktopNotify(title, body);
+    if (ok) beep([[659.25, 0.16], [880, 0.24]]);
+    else beep([[196, 0.2], [146.83, 0.32]]);
+  };
+
   const closeEventSource = () => {
     if (eventSource) {
       eventSource.close();
@@ -212,6 +299,9 @@ const Build = (() => {
       return;
     }
 
+    ensureAudio();
+    ensureNotifPermission();
+    terminalNotified = false;
     buildBtn.textContent = 'Verificando…';
     buildBtn.disabled = true;
     try {
@@ -309,6 +399,7 @@ const Build = (() => {
         setProgressStep(5, 'done');
         setProgressStep(6, 'done');
         progressBar.style.width = '100%';
+        notifyTerminal(true, (s.appName ? s.appName + ' · ' : '') + id);
 
         setTimeout(() => {
           hide(buildProgress);
@@ -333,6 +424,7 @@ const Build = (() => {
         }, 600);
       } else if (s.status === 'failed' || s.status === 'error') {
         closeEventSource();
+        notifyTerminal(false, s.error || 'La compilación ha fallado');
         showError(s.error || 'La compilación ha fallado');
       }
 

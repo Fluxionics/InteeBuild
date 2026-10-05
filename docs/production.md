@@ -4,7 +4,7 @@ Esta guía cubre cómo desplegar InteeBuild en servicios gratuitos y qué compro
 
 ## Despliegue gratuito
 
-`render.yaml` define el servicio con `plan: free`, `npm install` como build, `node server/server.js` como arranque y `/api/health` como health check. En Render > Environment van `GITHUB_TOKEN`, `INTEE_BUILDS_REPO`, `INTEE_DEFAULT_BRANCH` y, si quieres, `CORS_ORIGIN` y `CLEANUP_SECRET`.
+`render.yaml` define el servicio con `plan: free`, `npm install` como build, `node server/server.js` como arranque y `/api/health` como health check. En Render > Environment van `GITHUB_TOKEN`, `INTEE_BUILDS_REPO`, `INTEE_DEFAULT_BRANCH` y, si quieres, `CORS_ORIGIN`, `CLEANUP_SECRET`, `ADMIN_TOKEN` y las variables `SMTP_*` para avisos por correo.
 
 Tres cosas que conviene tener presentes del plan gratuito:
 
@@ -23,6 +23,12 @@ El repo de builds no cuesta nada y se auto-limpia: cada 30 minutos el servidor b
 5. **Rate limit activo.** 10 builds por hora por IP, compartidos con la descompilación en la nube. En Render el contador se pierde al reiniciar, que es un efecto lateral del disco efímero.
 6. **Protección SSRF activa.** Las URLs a localhost, redes privadas y endpoints de metadatos cloud quedan bloqueadas en `/api/build`, `/api/project` y `/api/analyze`, y también en las redirecciones que devuelva el analizador.
 7. **Sin secretos en las respuestas.** `/api/health` y `/api/diag` confirman que el token existe y si es válido, pero nunca lo devuelven. El listado de API keys devuelve el hash enmascarado, no la key.
+
+## Avisos cuando un build termina
+
+- **En el navegador.** Al terminar un build la página muestra un aviso emergente (toast), reproduce un sonido (agudo si salió bien, grave si falló) y, si diste permiso, una notificación del sistema con el motivo. El permiso se pide solo al lanzar un build.
+- **Por correo.** Cada build fallido manda un email con app, ID, motivo y enlace al log. Variables en el entorno: `SMTP_HOST` (obligatorio), `SMTP_PORT` (587 por defecto; usa 465 con `SMTP_SECURE=1`), `SMTP_USER` y `SMTP_PASS` (si el servidor exige autenticación), `SMTP_FROM` (opcional; por defecto el usuario), `NOTIFY_EMAIL` (obligatorio; varios destinatarios separados por coma) y `PUBLIC_URL` (opcional, para el enlace de detalle). `SMTP_STARTTLS=0` desactiva STARTTLS si tu servidor no lo soporta. Sin SMTP configurado no se manda nada. Cada build fallido avisa una sola vez aunque el evento se repita.
+- **Webhook.** Si prefieres integrarlo tú mismo, `webhookUrl` recibe `build.completed`, `build.failed` y `build.error` (ver [api.md](./api.md)).
 
 ## Diagnóstico
 

@@ -5,8 +5,12 @@ const crypto = require('crypto');
 const { gh, generator } = require('./deps');
 const { builds, checkRateLimit, addHistory, updateHistory } = require('./store');
 const { deriveOutputs } = require('./generator/config');
+const mailer = require('./mailer');
 
 async function fireWebhook(url, payload) {
+  if (payload && (payload.event === 'build.failed' || payload.event === 'build.error')) {
+    try { mailer.notifyBuildFailure(payload); } catch (_) {}
+  }
   if (!url) return;
   try {
     await fetch(url, {
