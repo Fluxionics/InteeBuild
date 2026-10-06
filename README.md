@@ -6,6 +6,97 @@ InteeBuild es una aplicación web que convierte una URL o un archivo HTML en una
 
 Versión 4.2.0, licencia MIT.
 
+<div align="center">
+  <a href="https://youtu.be/O1bPuUUDzHs">
+    <img src="./assets/promo-thumb.jpg" alt="InteeBuild promo video" width="720">
+  </a>
+</div>
+
+## How InteeBuild Works
+
+<div align="center">
+  <a href="https://github.com/Fluxionics/InteeBuild">
+    <img src="./docs/assets/inteebuild-flow.svg" alt="InteeBuild Architecture" width="100%">
+  </a>
+</div>
+
+InteeBuild transforms web content into native Android projects and uses GitHub Actions to compile the final APK or AAB.
+
+### Core Pipeline
+
+```text
+Web Content
+    │
+    ▼
+Analyzer
+    │
+    ▼
+Configuration
+    │
+    ├── Permissions
+    ├── Plugins
+    ├── Providers
+    ├── Templates
+    └── Settings
+    │
+    ▼
+Permission Audit
+    │
+    ▼
+Project Generator
+    │
+    ├── AndroidManifest.xml
+    ├── Native Runtime
+    ├── WebView / Provider
+    ├── Assets
+    ├── Gradle
+    └── GitHub Workflow
+    │
+    ▼
+GitHub API
+    │
+    ▼
+GitHub Actions
+    │
+    ▼
+Gradle
+    │
+    ├──────────────┐
+    ▼              ▼
+   APK            AAB
+    │              │
+    └──────┬───────┘
+           ▼
+       Artifacts
+           │
+           ▼
+   Download / QR / History
+```
+
+### Main Components
+
+| Component | Responsibility |
+| --- | --- |
+| Studio | Project configuration and build control |
+| Web Analyzer | Analyzes URLs and web content |
+| Permission Engine | Manages Android permissions |
+| Permission Audit | Validates generated permissions |
+| Generator | Creates the Android project |
+| Providers | Define the application runtime |
+| Plugins | Add native capabilities |
+| Templates | Provide predefined project structures |
+| GitHub API | Creates and manages build projects |
+| GitHub Actions | Performs cloud compilation |
+| Gradle | Compiles the Android application |
+| Artifacts | Stores generated APK/AAB files |
+| InteeBuild API | Handles downloads, QR codes and build history |
+
+### Build Flow
+
+```text
+Analyze → Configure → Audit → Generate → GitHub → Actions → Gradle → APK/AAB
+```
+
 ## Qué compila y qué no
 
 Las salidas binarias son **APK y AAB**, nada más. El campo `outputType` acepta `apk`, `aab` o `both`, y el workflow sólo tiene pasos de Gradle para esas dos salidas.
