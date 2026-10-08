@@ -104,6 +104,15 @@ const Form = (() => {
         + '<p class="hint" style="margin:8px 0 0;font-size:11px">AdMob está en COMING SOON (requiere SDK real, el Audit lo bloquea si se pide por API).</p>';
       adv.appendChild(wrap);
 
+      const activeProvider = $('input[name="provider"]:checked');
+      if (activeProvider && activeProvider.value === 'droncito') {
+        wrap.querySelectorAll('input[type="checkbox"]').forEach((el) => {
+          el.checked = true;
+          const tile = el.closest('.switch');
+          if (tile) tile.classList.add('checked');
+        });
+      }
+
 
       adv.addEventListener('change', (e) => {
         const el = e.target;
@@ -509,10 +518,12 @@ const Form = (() => {
     rad.closest('.plugin-card')?.classList.add('checked');
     const det = rad.closest('details');
     if (det) det.open = true;
-    syncOutputsForProvider();
+    droncitoDefaultsMark = '';
+    onProviderSelect();
   };
 
   const PROVIDER_OUTPUTS = {
+    droncito: { android: ['apk', 'aab', 'release-apk', 'release-aab'], ios: ['ipa'], both: ['apk', 'aab', 'release-apk', 'release-aab', 'ipa'] },
     capacitor: { android: ['apk', 'aab', 'xapk', 'apks', 'release-apk', 'release-aab'], ios: ['ipa'], both: ['apk', 'aab', 'xapk', 'apks', 'release-apk', 'release-aab', 'ipa'] },
     native: { android: ['apk', 'aab', 'release-apk', 'release-aab'], ios: ['ipa'], both: ['apk', 'aab', 'release-apk', 'release-aab', 'ipa'] },
     gecko: { android: ['apk', 'aab', 'release-apk', 'release-aab'], ios: ['ipa'], both: ['apk', 'aab', 'release-apk', 'release-aab', 'ipa'] },
@@ -551,6 +562,34 @@ const Form = (() => {
       fmtNote.textContent = `Formatos soportados por ${provider}: ${allowed.map(f => f.toUpperCase()).join(', ')}`;
       setTimeout(() => { fmtNote.textContent = ''; }, 4000);
     }
+  };
+
+  let droncitoDefaultsMark = '';
+  const applyProviderDefaults = () => {
+    const provider = $('input[name="provider"]:checked');
+    const p = provider ? provider.value : '';
+    if (p !== 'droncito') {
+      droncitoDefaultsMark = '';
+      return;
+    }
+    if (droncitoDefaultsMark === 'droncito') return;
+    droncitoDefaultsMark = 'droncito';
+    $$('#permEasy input[type="checkbox"], #permAdvanced input[type="checkbox"]').forEach((el) => {
+      el.checked = true;
+      const tile = el.closest('.perm-tile, .switch');
+      if (tile) tile.classList.add('checked');
+    });
+    $$('.plugin-cat[data-pcat="droncito"] .plugin-card input[type="checkbox"], input[name="plugin_inteebridge"]').forEach((el) => {
+      el.checked = true;
+      const card = el.closest('.plugin-card');
+      if (card) card.classList.add('checked');
+    });
+    setVisible($('#integridgeInfo'), true);
+  };
+
+  const onProviderSelect = () => {
+  onProviderSelect();
+    applyProviderDefaults();
   };
 
   const applyConfig = (c) => {
@@ -649,7 +688,7 @@ const Form = (() => {
       const sd = Number(cfg.splashDuration || 0);
       if (!sd || sd <= 0) errs.push('La duración del splash debe ser mayor a 0 ms.');
     }
-    if (cfg.themeColor && !/^#[0-9a-fA-F]{6}$/.test(cfg.themeColor)) errs.push('El color de tema debe ser un hex válido (ej. #4f46e5).');
+    if (cfg.themeColor && !/^#[0-9a-fA-F]{6}$/.test(cfg.themeColor)) errs.push('El color de tema debe ser un hex válido (ej. #22d3a7).');
     if (cfg.signingEnabled) {
       if (!cfg.keystoreBase64) errs.push('Falta el archivo Keystore (.jks) para firmar.');
       if (!cfg.keyAlias) errs.push('Falta el alias de la clave (keyAlias).');
@@ -911,7 +950,8 @@ const writeDraft = (cfg) => {
   });
 
   $$('input[name="provider"]').forEach((r) => {
-    r.addEventListener('change', syncOutputsForProvider);
+    r.addEventListener('change', onProviderSelect);
+    r.addEventListener('click', onProviderSelect);
   });
   const platformSelectEl = $('#platformSelect');
   if (platformSelectEl) platformSelectEl.addEventListener('change', syncOutputsForProvider);

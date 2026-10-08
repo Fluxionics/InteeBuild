@@ -164,7 +164,7 @@
     if (!document.body || document.getElementById('ib-langsw')) return;
     var box = document.createElement('div');
     box.id = 'ib-langsw';
-    box.style.cssText = 'position:fixed;right:14px;bottom:14px;z-index:99999;display:flex;gap:3px;background:#101722;border:1px solid #202b3b;border-radius:999px;padding:5px;font-family:Inter,Arial,sans-serif;box-shadow:0 6px 22px rgba(0,0,0,.45)';
+    box.style.cssText = 'position:fixed;right:14px;bottom:14px;z-index:99999;display:flex;gap:3px;background:#131519;border:1px solid #23272d;border-radius:999px;padding:5px;font-family:Inter,Arial,sans-serif;box-shadow:0 6px 22px rgba(0,0,0,.45)';
     var rest = location.pathname.replace(/^\/(?:es|en|ru|ch|br)(?=\/)/, '');
     var hash = location.hash || '';
     var langs = [['es', 'ES'], ['en', 'EN'], ['ru', 'RU'], ['ch', '中文'], ['br', 'PT']];
@@ -172,11 +172,11 @@
       var a = document.createElement('a');
       a.textContent = langs[i][1];
       a.href = '/' + langs[i][0] + (rest || '/') + hash;
-      a.style.cssText = 'text-decoration:none;font-size:11px;font-weight:700;padding:5px 9px;border-radius:999px;transition:color .15s ease,background .15s ease,transform .15s ease;color:' +
-        (langs[i][0] === lang ? '#fff' : '#8793a5') + ';background:' + (langs[i][0] === lang ? '#4f46e5' : 'transparent');
+      a.style.cssText = 'text-decoration:none;font-size:11px;font-weight:700;padding:5px 9px;border-radius:999px;transition:color .15s ease,background .15s ease;color:' +
+        (langs[i][0] === lang ? '#052018' : '#8793a5') + ';background:' + (langs[i][0] === lang ? '#22d3a7' : 'transparent');
       if (langs[i][0] !== lang) {
-        a.addEventListener('mouseenter', function () { this.style.color = '#e2e8f0'; this.style.transform = 'translateY(-1px)'; });
-        a.addEventListener('mouseleave', function () { this.style.color = '#8793a5'; this.style.transform = 'none'; });
+        a.addEventListener('mouseenter', function () { this.style.color = '#e2e8f0'; });
+        a.addEventListener('mouseleave', function () { this.style.color = '#8793a5'; });
       }
       a.addEventListener('click', function (e) {
         if (reduced) return;

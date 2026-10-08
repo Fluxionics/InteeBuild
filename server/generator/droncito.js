@@ -123,6 +123,9 @@ function droncitoPatchSrc() {
     "let src=fs.readFileSync(mp,'utf8');",
     "let changed=false;",
     "if(src.indexOf('DroncitoBridge')===-1 && /extends\\s+BridgeActivity/.test(src)){",
+    "  if(!/super\\s*\\.\\s*onCreate\\s*\\(/.test(src)){",
+    "    src=src.replace(/public class MainActivity extends BridgeActivity\\s*\\{/,m=>m+NL+'  @Override protected void onCreate(android.os.Bundle ibState) {'+NL+'    super.onCreate(ibState);'+NL+'  }'+NL);",
+    "  }",
 
     "  src=src.replace(/super\\.onCreate\\([^)]*\\);/,m=>m+NL+'    try{ getBridge().getWebView().addJavascriptInterface(new '+pkg+'.DroncitoBridge(this), \\'Droncito\\'); }catch(Exception ignored){}'+NL+'    try{ android.webkit.WebView wv2=getBridge().getWebView(); wv2.getSettings().setMediaPlaybackRequiresUserGesture(false); }catch(Exception ignored){}');",
     "  changed=true;",
@@ -192,6 +195,7 @@ function droncitoGradlePatchSrc() {
 }
 
 function droncitoNeedsGradle(cfg) {
+  if (cfg.provider === 'droncito') return true;
   const p = cfg.permissions || {};
   return !!(p.ar || p.aiSuite || p.advGeo || p.voiceRec || p.envSensors || p.powerMgmt || p.adaptiveNotif || p.advSecurity || p.dynamicUI || p.socialAnalytics || p.dataAnalytics || p.vr || p.blockchain || p.rpa || p.vulnScan || p.emoAI || p.iot || p.mr);
 }

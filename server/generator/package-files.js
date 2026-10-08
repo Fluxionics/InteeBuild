@@ -66,7 +66,7 @@ function appDependencies(cfg) {
   if (cfg.plugins.filesystem) deps['@capacitor/filesystem'] = pv('filesystem', cap);
   if (cfg.plugins.haptics) deps['@capacitor/haptics'] = pv('haptics', cap);
   if (cfg.plugins.clipboard) deps['@capacitor/clipboard'] = pv('clipboard', cap);
-  if (cfg.plugins.biometrics) deps['@capacitor/biometrics'] = '^1.0.0';
+  if (cfg.plugins.biometrics) deps['@capgo/capacitor-native-biometric'] = pv('biometrics', cap);
   if (cfg.plugins.notifications) deps['@capacitor/push-notifications'] = pv('pushNotifications', cap);
   if (cfg.plugins.localNotifications || cfg.notifySchedEnabled) deps['@capacitor/local-notifications'] = pv('localNotifications', cap);
   if (cfg.plugins.preferences) deps['@capacitor/preferences'] = pv('preferences', cap);
@@ -79,22 +79,21 @@ function appDependencies(cfg) {
   if (cfg.plugins.toast) deps['@capacitor/toast'] = pv('toast', cap);
   if (cfg.plugins.dialog) deps['@capacitor/dialog'] = pv('dialog', cap);
   if (cfg.plugins.screenReader) deps['@capacitor/screen-reader'] = pv('screenReader', cap);
-  if (cfg.plugins.bluetooth) deps['@capacitor-community/bluetooth-le'] = PLUGIN_VERSIONS.bluetoothLe;
+  if (cfg.plugins.bluetooth) deps['@capacitor-community/bluetooth-le'] = pv('bluetoothLe', cap);
   if (cfg.plugins.nfc) deps['phonegap-nfc'] = PLUGIN_VERSIONS.nfc;
-  if (cfg.plugins.admob) deps['@capacitor-community/admob'] = PLUGIN_VERSIONS.admob;
+  if (cfg.plugins.admob) deps['@capacitor-community/admob'] = pv('admob', cap);
 
 
 
-  if (cfg.plugins.voice) deps['@capacitor-community/speech-recognition'] = PLUGIN_VERSIONS.speechRecognition;
+  if (cfg.plugins.voice) deps['@capacitor-community/speech-recognition'] = pv('speechRecognition', cap);
   if (cfg.plugins.adaptiveNotif) deps['@capacitor/local-notifications'] = pv('localNotifications', cap);
   if (cfg.plugins.advGeo) deps['@capacitor/geolocation'] = pv('geolocation', cap);
   if (cfg.plugins.dynamicUI) deps['@capacitor/preferences'] = pv('preferences', cap);
 
-  if (cfg.iapEnabled) deps['@capgo/capacitor-purchases'] = '^5.4.0';
-  if (cfg.encryptedStorage) deps['capacitor-secure-storage-plugin'] = '^0.10.0';
+  if (cfg.encryptedStorage) deps['capacitor-secure-storage-plugin'] = pv('secureStorage', cap);
   if (cfg.firebaseEnabled) {
-    deps['@capacitor-firebase/analytics'] = '^6.0.0';
-    deps['@capacitor-firebase/crashlytics'] = '^6.0.0';
+    deps['@capacitor-firebase/analytics'] = pv('firebaseAnalytics', cap);
+    deps['@capacitor-firebase/crashlytics'] = pv('firebaseCrashlytics', cap);
   }
 
   return deps;

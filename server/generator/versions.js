@@ -30,10 +30,14 @@ const PLUGIN_VERSIONS = {
   toast: { 6: '^6.0.0', 7: '^7.0.0' },
   dialog: { 6: '^6.0.0', 7: '^7.0.0' },
   textZoom: { 6: '^6.0.0', 7: '^7.0.0' },
-  bluetoothLe: '^5.1.0',
+  bluetoothLe: { 6: '^6.1.0', 7: '^7.0.0' },
   nfc: '^1.2.0',
-  admob: '^5.0.0',
-  speechRecognition: '^5.1.0',
+  admob: { 6: '^6.0.0', 7: '^7.0.0' },
+  speechRecognition: { 6: '^6.0.1', 7: '^7.0.0' },
+  biometrics: { 6: '^6.0.4', 7: '^7.6.0' },
+  secureStorage: { 6: '^0.10.0', 7: '^0.11.0' },
+  firebaseAnalytics: { 6: '^6.0.0', 7: '^7.0.0' },
+  firebaseCrashlytics: { 6: '^6.0.0', 7: '^7.0.0' },
 
 
 

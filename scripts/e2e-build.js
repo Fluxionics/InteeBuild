@@ -182,7 +182,7 @@ function applyNativeModules(dir, bc) {
   for (const [script, gate] of PATCHES_PREVIO) {
     if (raiz.includes(script) && (!gate || raiz.includes(gate))) runNode(script, dir);
   }
-  const providerFile = bc.provider === 'native'
+  const providerFile = (bc.provider === 'native' || bc.provider === 'droncito')
     ? 'native-MainActivity.java'
     : (bc.provider === 'gecko' ? 'gecko-MainActivity.java' : null);
   if (providerFile && raiz.includes(providerFile)) {

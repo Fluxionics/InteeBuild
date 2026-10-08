@@ -4,6 +4,7 @@ const { nativeMainActivitySrc, geckoMainActivitySrc, cordovaConfigXml, geckoGrad
 const { starterHtml, finalizeWebAssets } = require('./web-assets');
 
 const WEBVIEW_LABELS = {
+  droncito: 'Droncito Compiler',
   gecko: 'GeckoView',
   native: 'Native WebView',
   twa: 'TWA Chrome',
@@ -19,7 +20,7 @@ function providerFiles(cfg) {
     }, null, 2)
   };
 
-  if (cfg.provider === 'native') files['native-MainActivity.java'] = nativeMainActivitySrc(cfg.packageName, cfg);
+  if (cfg.provider === 'native' || cfg.provider === 'droncito') files['native-MainActivity.java'] = nativeMainActivitySrc(cfg.packageName, cfg);
   if (cfg.provider === 'gecko') {
     files['gecko-MainActivity.java'] = geckoMainActivitySrc(cfg.packageName, cfg);
     files['patch-gecko-gradle.js'] = geckoGradlePatchSrc();

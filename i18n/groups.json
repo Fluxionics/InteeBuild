@@ -104,7 +104,8 @@
     "Transparencia",
     "Ver codigo",
     "web a APK/AAB",
-    "width=device-width, initial-scale=1.0"
+    "width=device-width, initial-scale=1.0",
+    "Sin registro, sin SDK local, compilacion en la nube con GitHub Actions. 86 permisos granulares, 8 providers (Droncito Compiler, Capacitor, Native, GeckoView, TWA, Cordova, Flutter y Tauri), firma personalizada y PWA."
   ],
   "docs.html": [
     "← Studio",
@@ -1287,7 +1288,22 @@
     "y la",
     "y los runs de Actions:",
     "Zoom",
-    "Zoom:"
+    "Zoom:",
+    "8 providers",
+    "URL o HTML → APK/AAB con permisos granulares reales, audit, readiness, 8 providers (Droncito Compiler, Capacitor, Native, GeckoView, TWA, Cordova, Flutter y Tauri), 29 plantillas verificadas, API para developers y decompiler. Compilación en GitHub Actions.",
+    "URL o HTML → APK/AAB nativo en minutos. Permission Engine, 8 providers, API y decompiler. Gratis y open source.",
+    "Droncito Compiler, Capacitor, Native, GeckoView, TWA, Cordova, Flutter y Tauri. Todos compilan hoy en CI.",
+    "Elige el motor. Droncito Compiler viene recomendado: shell nativo, DroncitoPack y permisos por defecto. Todos compilan hoy en CI (Android APK, Flutter APK+AAB, Tauri el .exe de escritorio).",
+    "READY = compila hoy en CI. droncito, capacitor, native, gecko y twa compilan el APK Android y comparten manifiesto y runtime de permisos; droncito además hornea DroncitoBridge y el Droncito Pack; cordova compila con cordova-android (proyecto propio); Flutter compila su propio proyecto (APK + AAB); Tauri compila el .exe (el APK Android de Tauri sigue siendo Capacitor). native y gecko hornean DownloadManager y file chooser en su MainActivity.",
+    "Droncito Compiler",
+    "RECOMENDADO",
+    "Shell nativo + DroncitoPack + permisos por defecto",
+    "Notificación",
+    "Denegar",
+    "Permitir",
+    "Reintentar",
+    "Comprueba tu conexión a internet",
+    "@capgo/capacitor-native-biometric"
   ],
   "historial.html": [
     "¿Eliminar esta compilación del historial?",

@@ -52,7 +52,39 @@ const Preview = (() => {
     }
   };
 
-  const initLivePreview = (mode = 'url') => {
+  let liveMode = null;
+  let liveDebounce = null;
+
+  const currentInputMode = () => {
+    const active = $('.toggle-btn.active');
+    return active ? active.dataset.input : 'url';
+  };
+
+  const showLivePlaceholder = () => {
+    const previewIconMain = $('#previewIconMain');
+    const previewUrlMain = $('#previewUrlMain');
+    if (previewIconMain) previewIconMain.style.display = '';
+    if (previewUrlMain) previewUrlMain.style.display = '';
+  };
+
+  const hideLivePlaceholder = () => {
+    const previewIconMain = $('#previewIconMain');
+    const previewUrlMain = $('#previewUrlMain');
+    if (previewIconMain) previewIconMain.style.display = 'none';
+    if (previewUrlMain) previewUrlMain.style.display = 'none';
+  };
+
+  const destroyLive = () => {
+    if (ppIframeWrap) {
+      ppIframeWrap.innerHTML = '';
+      ppIframeWrap.classList.add('hidden');
+    }
+    iframe = null;
+    liveMode = null;
+    showLivePlaceholder();
+  };
+
+  const createLive = (mode) => {
     if (!ppIframeWrap) return;
 
     ppIframeWrap.innerHTML = '';
@@ -69,11 +101,11 @@ const Preview = (() => {
 
     if (mode === 'html') {
       const code = $('[name="htmlCode"]') ? $('[name="htmlCode"]').value : '';
-      if (!code.trim()) return alert('Pega tu código HTML o importa un archivo primero');
+      if (!code.trim()) { destroyLive(); return; }
       iframe.srcdoc = code;
     } else {
       const url = urlInput ? urlInput.value.trim() : '';
-      if (!url) return alert('Por favor ingresa una URL válida primero');
+      if (!url) { destroyLive(); return; }
       iframe.src = url;
     }
 
@@ -81,15 +113,54 @@ const Preview = (() => {
       setupIframeCommunication(iframe);
       applyZoom();
       applyDarkMode();
-      applyNetworkSimulation();
+      simulateNetwork(networkStatus);
     };
 
     ppIframeWrap.appendChild(iframe);
+    liveMode = mode;
+    hideLivePlaceholder();
+  };
 
-    const previewIconMain = $('#previewIconMain');
-    const previewUrlMain = $('#previewUrlMain');
-    if (previewIconMain) previewIconMain.style.display = 'none';
-    if (previewUrlMain) previewUrlMain.style.display = 'none';
+  const isValidLiveUrl = (url) => {
+    try {
+      const u = new URL(url);
+      return u.protocol === 'http:' || u.protocol === 'https:';
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const ensureLive = (force) => {
+    if (!ppIframeWrap) return;
+    const mode = currentInputMode();
+
+    if (mode === 'html') {
+      const code = ($('[name="htmlCode"]')?.value || '').trim();
+      if (!code) { destroyLive(); return; }
+      if (iframe && liveMode === 'html' && !force) {
+        if (iframe.srcdoc !== code) iframe.srcdoc = code;
+        return;
+      }
+      createLive('html');
+      return;
+    }
+
+    const url = (urlInput?.value || '').trim();
+    if (!url || !isValidLiveUrl(url)) { destroyLive(); return; }
+    if (iframe && liveMode === 'url' && !force) {
+      if ((iframe.getAttribute('src') || '') !== url) iframe.src = url;
+      return;
+    }
+    createLive('url');
+  };
+
+  const scheduleLive = () => {
+    clearTimeout(liveDebounce);
+    liveDebounce = setTimeout(() => ensureLive(false), 700);
+  };
+
+  const initLivePreview = () => {
+    ensureLive(true);
   };
 
   const setupIframeCommunication = (frame) => {
@@ -339,7 +410,18 @@ const Preview = (() => {
 
   const init = () => {
     if (appNameInput) appNameInput.addEventListener('input', refresh);
-    if (urlInput) urlInput.addEventListener('input', refresh);
+    if (urlInput) {
+      urlInput.addEventListener('input', () => {
+        refresh();
+        scheduleLive();
+      });
+    }
+    const htmlCodeEl = $('[name="htmlCode"]');
+    if (htmlCodeEl) htmlCodeEl.addEventListener('input', scheduleLive);
+    document.addEventListener('click', (e) => {
+      const tb = e.target && e.target.closest ? e.target.closest('.toggle-btn[data-input]') : null;
+      if (tb) setTimeout(() => ensureLive(true), 40);
+    });
 
     on('#previewRotate', 'click', () => {
       isLandscape = !isLandscape;
@@ -387,27 +469,86 @@ const Preview = (() => {
     });
 
     on('#ppLive', 'click', () => {
-      const activeToggle = $('.toggle-btn.active');
-      const mode = activeToggle ? activeToggle.dataset.input : 'url';
+      const mode = currentInputMode();
 
-      if (ppIframeWrap.classList.contains('hidden')) {
-        initLivePreview(mode);
+      if (mode === 'html') {
+        const code = ($('[name="htmlCode"]')?.value || '').trim();
+        if (!code) return alert('Pega tu código HTML o importa un archivo primero');
       } else {
-        ppIframeWrap.classList.add('hidden');
-        ppIframeWrap.innerHTML = '';
-        const previewIconMain = $('#previewIconMain');
-        const previewUrlMain = $('#previewUrlMain');
-        if (previewIconMain) previewIconMain.style.display = '';
-        if (previewUrlMain) previewUrlMain.style.display = '';
+        const url = (urlInput?.value || '').trim();
+        if (!url || !isValidLiveUrl(url)) return alert('Por favor ingresa una URL válida primero');
       }
+      ensureLive(true);
     });
 
     if (zoomInBtn) on('#zoomIn', 'click', () => setZoom(zoomLevel + 0.25));
     if (zoomOutBtn) on('#zoomOut', 'click', () => setZoom(zoomLevel - 0.25));
     if (zoomResetBtn) on('#zoomReset', 'click', () => setZoom(1));
 
+    const closePermDialog = () => {
+      $('#ppPermDialog')?.classList.add('hidden');
+      $('#ppPerms')?.classList.remove('active');
+    };
+
+    on('#ppPerms', 'click', () => {
+      const dialog = $('#ppPermDialog');
+      if (!dialog) return;
+      const showing = !dialog.classList.contains('hidden');
+      closePermDialog();
+      if (showing) return;
+      const nameEl = $('#ppPermAppName');
+      if (nameEl) nameEl.textContent = (appNameInput && appNameInput.value) ? appNameInput.value : t('Mi Aplicación');
+      const textEl = $('#ppPermText');
+      if (textEl) textEl.textContent = t('¿Permitir que la app acceda a la ubicación de este dispositivo?');
+      dialog.classList.remove('hidden');
+      $('#ppPerms')?.classList.add('active');
+    });
+    on('#ppPermDeny', 'click', closePermDialog);
+    on('#ppPermAllow', 'click', closePermDialog);
+
+    let notifTimer = null;
+    const showNotifBanner = () => {
+      const banner = $('#ppNotifBanner');
+      if (!banner) return;
+      const titleEl = $('#ppNotifTitle');
+      if (titleEl) titleEl.textContent = (appNameInput && appNameInput.value) ? appNameInput.value : t('Mi Aplicación');
+      const notifyText = ($('[name="notifyText"]')?.value || '').trim();
+      const textEl = $('#ppNotifText');
+      if (textEl) textEl.textContent = notifyText || t('Notificación de prueba');
+      const timeEl = $('#ppNotifTime');
+      if (timeEl) timeEl.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      banner.classList.remove('hidden');
+      clearTimeout(notifTimer);
+      notifTimer = setTimeout(() => banner.classList.add('hidden'), 4500);
+    };
+    on('#ppNotif', 'click', showNotifBanner);
+    on('#ppNotifBanner', 'click', () => $('#ppNotifBanner')?.classList.add('hidden'));
+
+    const setOfflineSim = (on) => {
+      $('#ppOfflineScreen')?.classList.toggle('hidden', !on);
+      $('#ppOffline')?.classList.toggle('active', on);
+      const sel = $('#networkSelect');
+      const want = on ? 'offline' : 'online';
+      if (sel && sel.value !== want) {
+        sel.value = want;
+        simulateNetwork(want);
+      } else {
+        updateNetworkIndicator();
+      }
+    };
+    on('#ppOffline', 'click', () => {
+      const sel = $('#networkSelect');
+      setOfflineSim(!sel || sel.value !== 'offline');
+    });
+    on('#ppOfflineRetry', 'click', () => setOfflineSim(false));
+
     if (networkSelect) {
-      on('#networkSelect', 'change', (e) => simulateNetwork(e.target.value));
+      on('#networkSelect', 'change', (e) => {
+        simulateNetwork(e.target.value);
+        const offline = e.target.value === 'offline';
+        $('#ppOfflineScreen')?.classList.toggle('hidden', !offline);
+        $('#ppOffline')?.classList.toggle('active', offline);
+      });
     }
 
     if (fullscreenBtn) on('#previewFullscreenMain', 'click', openFullscreenModal);
@@ -450,6 +591,7 @@ const Preview = (() => {
     setDevice(currentDevice);
     updateZoomDisplay();
     updateNetworkIndicator();
+    ensureLive();
   };
 
   if (document.readyState === 'loading') {
@@ -458,5 +600,5 @@ const Preview = (() => {
     init();
   }
 
-  return { refresh, initLivePreview, setDevice, setZoom, toggleDark, simulateNetwork, toggleLandscape, openFullscreenModal };
+  return { refresh, initLivePreview, ensureLive, setDevice, setZoom, toggleDark, simulateNetwork, toggleLandscape, openFullscreenModal };
 })();

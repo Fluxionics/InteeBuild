@@ -417,7 +417,7 @@ public class PrivacyWebViewClient extends WebViewClient {
 }
 
 function webViewSettingsPatch(cfg) {
-  if (!cfg.provider || (cfg.provider !== 'native' && cfg.provider !== 'capacitor')) return '';
+  if (!cfg.provider || (cfg.provider !== 'native' && cfg.provider !== 'capacitor' && cfg.provider !== 'droncito')) return '';
 
   const NL = String.fromCharCode(10);
   const pkg = cfg.packageName;

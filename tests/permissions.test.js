@@ -74,9 +74,23 @@ test('audit: GENERATED vs SPEC ONLY honesto', () => {
   assert.equal(auditAds.canBuild, false);
 });
 
-test('grant WebView: selectivo, deny por defecto', () => {
+test('audit droncito: 85 defaults sin fails y provider READY', () => {
+  const cfg = g.normalizeConfig({ appName: 'Dron Test', url: 'https://example.com', provider: 'droncito' });
+  const audit = g.getPermissionAudit(cfg);
+  assert.equal(audit.total, 85, 'sin ads en los defaults');
+  assert.equal(audit.canBuild, true);
+  assert.equal(audit.verifiedAll, true);
+  const ar = audit.items.find(i => i.key === 'ar');
+  assert.ok(ar.provider.startsWith('OK (droncito)'), ar.provider);
+  assert.ok(!audit.items.some(i => i.key === 'ads'), 'los defaults nunca encienden ads');
+});
+
+test('grant WebView: Capacitor ya concede camara/mic, el parche no sustituye su WebChromeClient', () => {
   const cfg = g.normalizeConfig({ appName: 'Test Suite', url: 'https://example.com', permissions: { cameraMic: true } });
   const files = g.generateFiles(cfg);
-  assert.ok(files['patch-permissions.js'].includes('request.deny()'));
-  assert.ok(!files['patch-permissions.js'].includes('request.grant(request.getResources())'));
+  assert.ok(!files['patch-permissions.js'].includes('onPermissionRequest'), 'BridgeWebChromeClient de Capacitor ya maneja onPermissionRequest; reemplazarlo romperia el file chooser');
+  assert.ok(!files['patch-permissions.js'].includes('request.grant(request.getResources())'), 'sin grant-all');
+  const nat = g.generateFiles(g.normalizeConfig({ appName: 'Test Suite', url: 'https://example.com', provider: 'native', permissions: { cameraMic: true } }));
+  assert.ok(nat['native-MainActivity.java'].includes('onPermissionRequest'), 'el provider native si trae su propio grant selectivo');
+  assert.ok(nat['native-MainActivity.java'].includes('r.deny()'), 'native niega por defecto');
 });

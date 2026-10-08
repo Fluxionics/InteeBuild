@@ -25,7 +25,7 @@ function catalogUiJsSrc(cfg) {
   const bottomItems = JSON.stringify(cfg.bottomNavItems || []);
 
   return [
-    '(function(){var CFG=' + cfgJson + ';var DRAWER=' + drawerItems + ';var BOTTOM=' + bottomItems + ';',
+    '(function(){if(window.__ibCat)return;window.__ibCat=1;var CFG=' + cfgJson + ';var DRAWER=' + drawerItems + ';var BOTTOM=' + bottomItems + ';',
 
 
     'if(CFG.blockSelection){var s=document.createElement("style");s.textContent="*{ -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;} input,textarea{ -webkit-user-select:text; user-select:text;}";document.head.appendChild(s);document.addEventListener("contextmenu",e=>e.preventDefault());}',
@@ -57,6 +57,24 @@ function catalogUiJsSrc(cfg) {
 
 function patchCatalogSrc(cfg) {
   const NL = String.fromCharCode(10);
+
+  const downloadJava = [
+    'try{ getBridge().getWebView().setDownloadListener(new DownloadListener(){ public void onDownloadStart(String url, String ua, String cd, String mime, long len){ try{ Intent i=new Intent(Intent.ACTION_VIEW); i.setData(Uri.parse(url)); startActivity(i);}catch(Exception e){ try{ DownloadManager dm=(DownloadManager)getSystemService(DOWNLOAD_SERVICE); DownloadManager.Request r=new DownloadManager.Request(Uri.parse(url)); r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED); dm.enqueue(r);}catch(Exception ignored){}} } }); }catch(Exception ignored){}',
+    'try{ getBridge().getWebView().setWebViewClient(new com.getcapacitor.BridgeWebViewClient(getBridge()){'
+    + ' @Override public boolean shouldOverrideUrlLoading(WebView v, android.webkit.WebResourceRequest req){ String u=String.valueOf(req.getUrl());'
+    + ' if(u.startsWith("tel:")||u.startsWith("mailto:")||u.startsWith("sms:")||u.startsWith("whatsapp://")||u.startsWith("intent:")){ try{ startActivity(new Intent(Intent.ACTION_VIEW, req.getUrl())); return true;}catch(Exception e){ return false;}}'
+    + ' String rp=req.getUrl().getPath(); if(rp!=null&&rp.startsWith("/_capacitor_http_interceptor_")) return true;'
+    + ' String rs=req.getUrl().getScheme(); if("http".equals(rs)||"https".equals(rs)) return false;'
+    + ' return super.shouldOverrideUrlLoading(v, req); }'
+    + ' @Override public boolean shouldOverrideUrlLoading(WebView v, String u){'
+    + ' if(u.startsWith("tel:")||u.startsWith("mailto:")||u.startsWith("sms:")||u.startsWith("whatsapp://")||u.startsWith("intent:")){ try{ startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(u))); return true;}catch(Exception e){ return false;}}'
+    + ' android.net.Uri du=android.net.Uri.parse(u); String sp=du.getPath(); if(sp!=null&&sp.startsWith("/_capacitor_http_interceptor_")) return true;'
+    + ' String ss=du.getScheme(); if("http".equals(ss)||"https".equals(ss)) return false;'
+    + ' return super.shouldOverrideUrlLoading(v, u); }'
+    + ' @Override public void onPageFinished(WebView v, String url){ super.onPageFinished(v, url); try{ java.io.InputStream is=getAssets().open("public/catalog.js"); java.io.BufferedReader br=new java.io.BufferedReader(new java.io.InputStreamReader(is)); StringBuilder sb=new StringBuilder(); String line; while((line=br.readLine())!=null) sb.append(line).append("\\n"); br.close(); v.evaluateJavascript(sb.toString(), null);}catch(Exception ignored){} }'
+    + ' }); }catch(Exception ignored){}'
+  ].join(NL + '    ');
+
   return [
     "const fs=require('fs');",
     "const NL=String.fromCharCode(10);",
@@ -66,6 +84,11 @@ function patchCatalogSrc(cfg) {
     "let src=fs.readFileSync(mp,'utf8');",
     "let changed=false;",
 
+    "// onCreate: el scaffold vacio de Capacitor no lo trae, crearlo si hace falta",
+    "if(!/super\\s*\\.\\s*onCreate\\s*\\(/.test(src)){",
+    "  src=src.replace(/public class MainActivity extends BridgeActivity\\s*\\{/,m=>m+NL+'  @Override protected void onCreate(android.os.Bundle ibState) {'+NL+'    super.onCreate(ibState);'+NL+'  }'+NL);",
+    "  changed=true;",
+    "}",
 
     "// FLAG_SECURE",
     "if(cfg.flagSecure && src.indexOf('FLAG_SECURE')===-1){",
@@ -74,10 +97,10 @@ function patchCatalogSrc(cfg) {
     "}",
 
 
-    "// DownloadManager + tel/mailto intents + catalog JS injection",
+    "// DownloadManager + tel/mailto intents + catalog JS (delegando a BridgeWebViewClient)",
     "if(src.indexOf('DownloadListener')===-1){",
     "  src=src.replace(/import\\s+com\\.getcapacitor\\.BridgeActivity\\s*;/,'import android.app.DownloadManager; import android.content.Intent; import android.net.Uri; import android.webkit.DownloadListener; import android.webkit.WebView; import android.webkit.WebViewClient; import com.getcapacitor.BridgeActivity;');",
-    "  src=src.replace(/super\\.onCreate\\([^)]*\\);/,m=>m+NL+'    try{ getBridge().getWebView().setDownloadListener(new DownloadListener(){ public void onDownloadStart(String url, String ua, String cd, String mime, long len){ try{ Intent i=new Intent(Intent.ACTION_VIEW); i.setData(Uri.parse(url)); startActivity(i);}catch(Exception e){ try{ DownloadManager dm=(DownloadManager)getSystemService(DOWNLOAD_SERVICE); DownloadManager.Request r=new DownloadManager.Request(Uri.parse(url)); r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED); dm.enqueue(r);}catch(Exception ignored){}} } }); }catch(Exception ignored){}'+NL+'    try{ getBridge().getWebView().setWebViewClient(new WebViewClient(){ public boolean shouldOverrideUrlLoading(WebView v, String url){ if(url.startsWith(\"tel:\")||url.startsWith(\"mailto:\")||url.startsWith(\"sms:\")||url.startsWith(\"whatsapp://\")||url.startsWith(\"intent:\")){ try{ startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); return true;}catch(Exception e){ return false;}} return false; } public void onPageFinished(WebView v, String url){ super.onPageFinished(v,url); try{ java.io.InputStream is=getAssets().open(\"public/catalog.js\"); java.io.BufferedReader br=new java.io.BufferedReader(new java.io.InputStreamReader(is)); StringBuilder sb=new StringBuilder(); String line; while((line=br.readLine())!=null) sb.append(line).append(\"\\\\n\"); br.close(); v.evaluateJavascript(sb.toString(),null);}catch(Exception ignored){} } }); }catch(Exception ignored){}');",
+    "  src=src.replace(/super\\.onCreate\\([^)]*\\);/,m=>m+NL+" + JSON.stringify(downloadJava) + ");",
     "  changed=true;",
     "}",
 

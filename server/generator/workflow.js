@@ -167,7 +167,7 @@ jobs:
           PKG=$(node -p 'require("./build-config.json").packageName')
           DST="android/app/src/main/java/$(echo $PKG | tr . /)"
           echo "Provider: $PROVIDER"
-          if [ "$PROVIDER" = "native" ] && [ -f "native-MainActivity.java" ]; then cp native-MainActivity.java "$DST/MainActivity.java"; echo "native webview applied"; fi
+          if ( [ "$PROVIDER" = "native" ] || [ "$PROVIDER" = "droncito" ] ) && [ -f "native-MainActivity.java" ]; then cp native-MainActivity.java "$DST/MainActivity.java"; echo "native webview applied"; fi
           if [ "$PROVIDER" = "gecko" ] && [ -f "gecko-MainActivity.java" ]; then cp gecko-MainActivity.java "$DST/MainActivity.java"; echo "geckoview applied"; fi
           if [ "$PROVIDER" = "cordova" ] && [ -f "config.xml" ]; then cp config.xml ./config.xml; echo "cordova config applied"; fi
           cat provider.json || true
@@ -1279,7 +1279,7 @@ jobs:
           PKG=\$(node -p 'require("./build-config.json").packageName')
           DST="android/app/src/main/java/\$(echo \$PKG | tr . /)"
           echo "Provider: \$PROVIDER"
-          if [ "\$PROVIDER" = "native" ] && [ -f "native-MainActivity.java" ]; then cp native-MainActivity.java "\$DST/MainActivity.java"; echo "native webview applied"; fi
+          if ( [ "\$PROVIDER" = "native" ] || [ "\$PROVIDER" = "droncito" ] ) && [ -f "native-MainActivity.java" ]; then cp native-MainActivity.java "\$DST/MainActivity.java"; echo "native webview applied"; fi
           cat provider.json || true
 
       - name: Generate Gradle wrapper
@@ -1412,7 +1412,7 @@ jobs:
           PKG=\$(node -p 'require("./build-config.json").packageName')
           DST="android/app/src/main/java/\$(echo \$PKG | tr . /)"
           echo "Provider: \$PROVIDER"
-          if [ "\$PROVIDER" = "native" ] && [ -f "native-MainActivity.java" ]; then cp native-MainActivity.java "\$DST/MainActivity.java"; echo "native webview applied"; fi
+          if ( [ "\$PROVIDER" = "native" ] || [ "\$PROVIDER" = "droncito" ] ) && [ -f "native-MainActivity.java" ]; then cp native-MainActivity.java "\$DST/MainActivity.java"; echo "native webview applied"; fi
           cat provider.json || true
 
       - name: Generate Gradle wrapper
@@ -1547,7 +1547,7 @@ jobs:
           PKG=\$(node -p 'require("./build-config.json").packageName')
           DST="android/app/src/main/java/\$(echo \$PKG | tr . /)"
           echo "Provider: \$PROVIDER"
-          if [ "\$PROVIDER" = "native" ] && [ -f "native-MainActivity.java" ]; then cp native-MainActivity.java "\$DST/MainActivity.java"; echo "native webview applied"; fi
+          if ( [ "\$PROVIDER" = "native" ] || [ "\$PROVIDER" = "droncito" ] ) && [ -f "native-MainActivity.java" ]; then cp native-MainActivity.java "\$DST/MainActivity.java"; echo "native webview applied"; fi
           cat provider.json || true
 
       - name: Generate Gradle wrapper

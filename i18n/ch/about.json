@@ -26,5 +26,6 @@
   "Ver codigo": "查看代码",
   "web a APK/AAB": "网页转 APK/AAB",
   "width=device-width, initial-scale=1.0": "width=device-width, initial-scale=1.0",
-  "Historial": "历史记录"
+  "Historial": "历史记录",
+  "Sin registro, sin SDK local, compilacion en la nube con GitHub Actions. 86 permisos granulares, 8 providers (Droncito Compiler, Capacitor, Native, GeckoView, TWA, Cordova, Flutter y Tauri), firma personalizada y PWA.": "无需注册，无需本地 SDK，通过 GitHub Actions 云端构建。86 项细粒度权限，8 个 provider（Droncito Compiler、Capacitor、Native、GeckoView、TWA、Cordova、Flutter 和 Tauri），自定义签名和 PWA。"
 }

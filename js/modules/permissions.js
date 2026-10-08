@@ -21,10 +21,10 @@ const Permissions = (() => {
     });
     const br = await rr.json();
     const barColor = br.readiness >= 90
-      ? 'linear-gradient(90deg,var(--success),#34d399)'
+      ? 'var(--success)'
       : br.readiness >= 70
-        ? 'linear-gradient(90deg,var(--warn),#fbbf24)'
-        : 'linear-gradient(90deg,var(--danger),#f87171)';
+        ? 'var(--warn)'
+        : 'var(--danger)';
     const checks = Object.entries(br.checks || {})
       .map(([k, v]) => `<span class="readiness-check ${v ? 'yes' : 'no'}">${v ? IBIcon('check') : IBIcon('x')} ${escHtml(k)}</span>`)
       .join('');

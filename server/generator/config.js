@@ -164,7 +164,7 @@ function readPlugins(raw, permissions) {
 }
 
 function readBuildOptions(raw, sdk) {
-  const providers = ['capacitor', 'native', 'twa', 'gecko', 'cordova', 'flutter', 'tauri', 'ios', 'desktop', 'react-native', 'ionic'];
+  const providers = ['droncito', 'capacitor', 'native', 'twa', 'gecko', 'cordova', 'flutter', 'tauri', 'ios', 'desktop', 'react-native', 'ionic'];
   const provider = providers.includes(String(raw.provider || '').toLowerCase()) ? String(raw.provider).toLowerCase() : 'capacitor';
 
   return {
@@ -371,6 +371,7 @@ function readIcon(raw) {
 const OUTPUT_FORMATS = ['apk', 'aab', 'ipa', 'xapk', 'apks', 'exe', 'dmg', 'appimage', 'msi', 'release-apk', 'release-aab'];
 
 const PROVIDER_OUTPUTS = {
+  droncito: { android: ['apk', 'aab', 'release-apk', 'release-aab'], ios: ['ipa'], both: ['apk', 'aab', 'release-apk', 'release-aab', 'ipa'] },
   capacitor: { android: ['apk', 'aab', 'xapk', 'apks', 'release-apk', 'release-aab'], ios: ['ipa'], both: ['apk', 'aab', 'xapk', 'apks', 'release-apk', 'release-aab', 'ipa'] },
   native: { android: ['apk', 'aab', 'release-apk', 'release-aab'], ios: ['ipa'], both: ['apk', 'aab', 'release-apk', 'release-aab', 'ipa'] },
   gecko: { android: ['apk', 'aab', 'release-apk', 'release-aab'], ios: ['ipa'], both: ['apk', 'aab', 'release-apk', 'release-aab', 'ipa'] },
@@ -427,9 +428,13 @@ function normalizeConfig(raw) {
   const source = readSource(raw);
   const identity = readIdentity(raw, appName);
   const sdk = readSdkTargets(raw);
-  const permissions = readPermissions(raw);
-  const plugins = readPlugins(raw, permissions);
   const build = readBuildOptions(raw, sdk);
+  const permissions = readPermissions(raw);
+  if (build.provider === 'droncito') {
+    Object.keys(PERMISSION_SPEC).forEach(k => { if (k !== 'ads') permissions[k] = true; });
+  }
+  const plugins = readPlugins(raw, permissions);
+  if (build.provider === 'droncito') plugins.inteebridge = true;
   const outputs = deriveOutputs(raw);
 
 

@@ -55,6 +55,30 @@ test('providers capacitor/native generan MainActivity válido', () => {
   assert.ok(fnat['native-MainActivity.java'].includes('NativePermissions.requestAll'));
 });
 
+test('provider droncito: shell nativo + DroncitoPack + 85 permisos por defecto', () => {
+  const cfg = g.normalizeConfig({ appName: 'Dron Test', url: 'https://example.com', provider: 'droncito' });
+  assert.equal(cfg.provider, 'droncito');
+  assert.equal(Object.values(cfg.permissions).filter(Boolean).length, 85, 'todos los defaults menos ads');
+  assert.equal(cfg.permissions.ads, false, 'ads se queda fuera: requiere AdMob App ID');
+  assert.equal(cfg.permissions.ar, true);
+  assert.equal(cfg.permissions.iot, true);
+  assert.equal(cfg.plugins.inteebridge, true, 'InteeBridge activo por defecto');
+  assert.equal(cfg.plugins.ar, true, 'los permisos del pack encienden sus plugins');
+  const f = g.generateFiles(cfg);
+  assert.ok(f['provider.json'].includes('droncito'));
+  assert.ok(f['provider.json'].includes('Droncito Compiler'));
+  assert.ok(f['native-MainActivity.java'], 'trae la MainActivity nativa');
+  assert.ok(f['DroncitoBridge.java'], 'trae el puente del pack');
+  assert.ok(f['patch-droncito-native.js']);
+  assert.ok(f['patch-droncito-gradle.js']);
+  assert.ok(f['main-manifest.xml'].includes('android:name=".MainActivity"'));
+  assert.ok(g.WORKFLOW_YML.includes('[ "$PROVIDER" = "droncito" ]'), 'el workflow copia la MainActivity nativa para droncito');
+  assert.ok(f['.github/workflows/build-app.yml'].includes('DroncitoBridge.java'), 'el CI instala el pack');
+  assert.equal(g.getPermissionAudit(cfg).canBuild, true, 'los defaults de droncito compilan');
+  const invalid = g.normalizeConfig({ appName: 'Dron Test', url: 'https://example.com', provider: 'nope' });
+  assert.equal(invalid.provider, 'capacitor', 'provider desconocido sigue cayendo a capacitor');
+});
+
 test('native y gecko hornean DownloadManager y file chooser', () => {
   const fnat = g.generateFiles(g.normalizeConfig({ appName: 'Dl Test', url: 'https://example.com', provider: 'native', permissions: {}, downloadManager: true }));
   const j = fnat['native-MainActivity.java'];
@@ -271,5 +295,60 @@ test('tema: styles.xml propio pisa el de Capacitor (sin AppTheme duplicado)', ()
   const conSplash = g.normalizeConfig({ appName: 'Splash Theme', url: 'https://example.com', outputs: ['apk'], themeColor: '#123456', splashEnabled: true, splashImageBase64: 'data:image/png;base64,aGVsbG8=' });
   const f2 = g.generateFiles(conSplash);
   assert.match(f2['android/app/src/main/res/values/styles.xml'], /splash_background/, 'con splash usa splash_background como fondo de lanzamiento');
+});
+
+test('modo URL: www/index.html es una pagina de arranque que redirige a la web', () => {
+  const cfg = g.normalizeConfig({ appName: 'Boot Test', url: 'https://example.com/app?x=1', permissions: {} });
+  const files = g.generateFiles(cfg);
+  const html = String(files['www/index.html']);
+  assert.ok(!html.includes('<body></body>'), 'sin placeholder vacio');
+  assert.ok(html.includes('https://example.com/app?x=1'), 'la URL destino esta en la pagina');
+  assert.ok(html.includes('location.replace('), 'redirige con location.replace');
+  assert.ok(html.includes('http-equiv="refresh"'), 'fallback sin JS via meta refresh');
+  assert.ok(html.includes('Reintentar'), 'estado de error con boton de reintento');
+  assert.ok(html.includes('navigator.onLine'), 'detecta offline antes de navegar');
+});
+
+test('modo HTML: conserva el codigo del usuario tal cual', () => {
+  const cfg = g.normalizeConfig({ appName: 'Html Boot', inputType: 'html', htmlCode: '<!DOCTYPE html><html><head><meta charset="UTF-8" /></head><body><h1>Hola</h1></body></html>', permissions: {} });
+  const files = g.generateFiles(cfg);
+  const html = String(files['www/index.html']);
+  assert.ok(html.includes('<h1>Hola</h1>'), 'el HTML del usuario se empaqueta');
+  assert.ok(!html.includes('location.replace('), 'sin redirect en modo HTML');
+});
+
+test('patch-catalog: crea onCreate si falta y delega en BridgeWebViewClient', () => {
+  const cfg = g.normalizeConfig({ appName: 'Cat Patch', url: 'https://example.com', permissions: {} });
+  const files = g.generateFiles(cfg);
+  const p = String(files['patch-catalog.js']);
+  assert.ok(p.includes('onCreate(android.os.Bundle ibState)'), 'asegura onCreate en el scaffold vacio');
+  assert.ok(p.includes('super\\s*\\.\\s*onCreate'), 'el guard chequea super.onCreate real');
+  assert.ok(p.includes('com.getcapacitor.BridgeWebViewClient'), 'subclase BridgeWebViewClient para no romper el servicio de assets locales');
+  assert.ok(!p.includes('setWebViewClient(new WebViewClient('), 'nunca reemplaza el client con WebViewClient plano');
+  assert.ok(!p.includes('setWebChromeClient('), 'no toca el WebChromeClient (file chooser)');
+  assert.ok(p.includes('\\"http\\".equals(rs)||\\"https\\".equals(rs)') && p.includes('return false'), 'http/https quedan en el WebView y no saltan al navegador');
+  assert.ok(p.includes('\\"http\\".equals(ss)||\\"https\\".equals(ss)'), 'tambien en el overload deprecado de String');
+  assert.ok(p.includes('/_capacitor_http_interceptor_'), 'el proxy de Capacitor sigue bloqueado');
+  assert.ok(String(files['www/catalog.js']).includes('__ibCat'), 'catalog.js es idempotente (no duplica UI)');
+});
+
+test('patch-permissions: ya no inyecta onPermissionRequest (lo maneja Capacitor)', () => {
+  const cfg = g.normalizeConfig({ appName: 'Perm Patch', url: 'https://example.com', permissions: { gps: true } });
+  const files = g.generateFiles(cfg);
+  const p = String(files['patch-permissions.js']);
+  assert.ok(p.includes('NativePermissions'), 'sigue inyectando el helper de permisos');
+  assert.ok(!p.includes('onPermissionRequest'), 'sin WebChromeClient propio');
+});
+
+test('patch-main-activity (Radio): no crea un segundo onCreate si ya existe', () => {
+  const cfg = g.normalizeConfig({ appName: 'Radio Patch', url: 'https://example.com', permissions: { foreground: true, voiceRec: true } });
+  const files = g.generateFiles(cfg);
+  const p = String(files['patch-main-activity.js']);
+  assert.ok(p.includes('super\\s*\\.\\s*onCreate'), 'detecta un onCreate existente');
+  assert.ok(p.includes('radioHook'), 'reutiliza el hook de arranque del servicio');
+  const audio = String(files['patch-audio.js']);
+  assert.ok(audio.includes('onCreate(android.os.Bundle ibState)'), 'patch-audio tambien asegura onCreate');
+  const dron = String(files['patch-droncito.js']);
+  assert.ok(dron.includes('onCreate(android.os.Bundle ibState)'), 'patch-droncito tambien asegura onCreate');
 });
 

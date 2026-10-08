@@ -85,7 +85,7 @@ ${hardwareFeatureBlocks(cfg)}
 
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode"${orientationAttr}${keepOnAttr}
-            android:name="${cfg.provider==='native' || cfg.provider==='gecko' ? '.MainActivity' : 'com.getcapacitor.BridgeActivity'}"
+            android:name="${cfg.provider==='native' || cfg.provider==='gecko' || cfg.provider==='droncito' ? '.MainActivity' : 'com.getcapacitor.BridgeActivity'}"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBarLaunch"

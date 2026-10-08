@@ -26,5 +26,6 @@
   "Ver codigo": "Ver código",
   "web a APK/AAB": "web para APK/AAB",
   "width=device-width, initial-scale=1.0": "width=device-width, initial-scale=1.0",
-  "Historial": "Histórico"
+  "Historial": "Histórico",
+  "Sin registro, sin SDK local, compilacion en la nube con GitHub Actions. 86 permisos granulares, 8 providers (Droncito Compiler, Capacitor, Native, GeckoView, TWA, Cordova, Flutter y Tauri), firma personalizada y PWA.": "Sem cadastro, sem SDK local, compilação em nuvem com GitHub Actions. 86 permissões granulares, 8 providers (Droncito Compiler, Capacitor, Native, GeckoView, TWA, Cordova, Flutter e Tauri), assinatura personalizada e PWA."
 }

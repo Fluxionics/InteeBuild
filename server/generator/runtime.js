@@ -212,12 +212,7 @@ function patchPermissionsSrc(cfg) {
   const NL = String.fromCharCode(10);
   const vid = webGrantConsts(cfg, 'VIDEO').join(' || ');
   const aud = webGrantConsts(cfg, 'AUDIO').join(' || ');
-  const geo = webGrantConsts(cfg, 'GEO').join(' || ');
-  const grantChecks = [
-    vid ? 'if(r.contains("VIDEO")&&wantsVideo()&&hasVideo()) ok.add(r);' : '',
-    aud ? 'if(r.contains("AUDIO")&&wantsAudio()&&hasAudio()) ok.add(r);' : '',
-    geo ? 'if(r.contains("GEOLOCATION")&&wantsGeo()&&hasGeo()) ok.add(r);' : ''
-  ].filter(Boolean).join(' else ');
+  const geo = webGrantConsts(cfg, 'GEOLOCATION').join(' || ');
 
   return [
     "const fs=require('fs');",
@@ -243,9 +238,6 @@ function patchPermissionsSrc(cfg) {
     + "  @Override public void onRequestPermissionsResult(int c,String[] p,int[] r){ super.onRequestPermissionsResult(c,p,r); try{ if(c==NativePermissions.REQ_BATCH) NativePermissions.requestBackground(this); }catch(Exception ignored){} }');",
 
 
-    "  if(src.indexOf('onPermissionRequest')===-1){",
-    "    src=src.replace(/super\\.onCreate\\([^)]*\\);/,s=>s+NL+'    try{ getBridge().getWebView().setWebChromeClient(new WebChromeClient(){ @Override public void onPermissionRequest(final PermissionRequest request){ runOnUiThread(new Runnable(){ public void run(){ try{ String[] res=request.getResources(); java.util.List<String> ok=new java.util.ArrayList<>(); for(String r:res){ " + grantChecks + " } if(!ok.isEmpty()) request.grant(ok.toArray(new String[0])); else request.deny(); }catch(Exception e){ try{request.deny();}catch(Exception ignored){}} }}); } }); }catch(Exception ignored){}');",
-    "  }",
     "  fs.writeFileSync(mp,src); changed=true;",
     "}",
     "console.log('Permissions patch applied:'+changed+' hasNative:'+(src.indexOf('NativePermissions')!==-1));"
@@ -273,7 +265,7 @@ function patchSpecialSrc() {
 }
 
 function webViewSettingsPatch(cfg) {
-  if (!cfg.provider || (cfg.provider !== 'native' && cfg.provider !== 'capacitor')) return '';
+  if (!cfg.provider || (cfg.provider !== 'native' && cfg.provider !== 'capacitor' && cfg.provider !== 'droncito')) return '';
 
   const NL = String.fromCharCode(10);
   const pkg = cfg.packageName;
@@ -507,7 +499,7 @@ public class PrivacyWebViewClient extends WebViewClient {
 }
 
 function cookieManagerPatch(cfg) {
-  if (!cfg.provider || (cfg.provider !== 'native' && cfg.provider !== 'capacitor')) return '';
+  if (!cfg.provider || (cfg.provider !== 'native' && cfg.provider !== 'capacitor' && cfg.provider !== 'droncito')) return '';
   if (!cfg.privacyBlockCookies && !cfg.disableCopy) return '';
 
   const NL = String.fromCharCode(10);

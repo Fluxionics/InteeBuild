@@ -14,8 +14,8 @@ function getPermissionAudit(cfg){
   const batch = runtimeBatchConsts(cfg);
   const batchShort = batch.map(c=>c.split('.').pop());
   const specialOn = needsSpecialFile(cfg);
-  const READY_ANDROID = ['capacitor', 'native', 'twa', 'gecko'];
-  const RUNTIME_OF = { capacitor: 'capacitor', twa: 'capacitor', native: 'native', gecko: 'native' };
+  const READY_ANDROID = ['capacitor', 'native', 'droncito', 'twa', 'gecko'];
+  const RUNTIME_OF = { capacitor: 'capacitor', twa: 'capacitor', native: 'native', droncito: 'native', gecko: 'native' };
   const CI_ANDROID = ['flutter', 'tauri', 'react-native', 'ionic', 'cordova'];
   const res = selected.map(key=>{
     const spec = PERMISSION_SPEC[key];

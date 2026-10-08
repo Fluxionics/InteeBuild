@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>InteeBuild — Convierte tu web en APK Android gratis</title>
   <meta name="description" content="InteeBuild convierte cualquier web o HTML en una app Android nativa (APK/AAB) en minutos. Permisos granulares, audio nativo, compilación en la nube. Gratis y open source." />
-  <meta name="theme-color" content="#4f46e5" />
+  <meta name="theme-color" content="#22d3a7" />
   <meta property="og:title" content="InteeBuild — Convierte tu web en APK Android" />
-  <meta property="og:description" content="URL o HTML → APK/AAB nativo en minutos. Permission Engine, 7 providers, API y decompiler. Gratis y open source." />
+  <meta property="og:description" content="URL o HTML → APK/AAB nativo en minutos. Permission Engine, 8 providers, API y decompiler. Gratis y open source." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="./assets/social-preview.svg" />
   <meta property="og:image:width" content="1280" />
@@ -89,7 +89,6 @@
 
   <main>
     <section class="hero hero-perrona">
-      <div class="hero-bg" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="grid"></span></div>
       <div class="hero-badges">
         <span class="hbadge"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> APK + AAB</span>
         <span class="hbadge"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg> Permission Engine</span>
@@ -98,9 +97,9 @@
         <span class="hbadge"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> MIT Open Source</span>
       </div>
       <h1>Convierte tu web en una <span class="grad">App Nativa Android</span>.</h1>
-      <p class="sub">URL o HTML → APK/AAB con permisos granulares reales, audit, readiness, 7 providers (Capacitor, Native, GeckoView, TWA, Cordova, Flutter y Tauri), 29 plantillas verificadas, API para developers y decompiler. Compilación en GitHub Actions.</p>
+      <p class="sub">URL o HTML → APK/AAB con permisos granulares reales, audit, readiness, 8 providers (Droncito Compiler, Capacitor, Native, GeckoView, TWA, Cordova, Flutter y Tauri), 29 plantillas verificadas, API para developers y decompiler. Compilación en GitHub Actions.</p>
       <div class="hero-cta">
-        <a href="#wizard" class="btn primary btn-glow" onclick="goToStep(0);return false;"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12l3 3a22 22 0 0 0 2-3.95A12.88 12.88 0 0 0 2 2c0 2.72.78 7.5 6 11a22.35 22.35 0 0 0 4 2z"/><path d="M14.5 9.5l1.5 1.5"/></svg> Crear mi app ahora</a>
+        <a href="#wizard" class="btn primary" onclick="goToStep(0);return false;"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12l3 3a22 22 0 0 0 2-3.95A12.88 12.88 0 0 0 2 2c0 2.72.78 7.5 6 11a22.35 22.35 0 0 0 4 2z"/><path d="M14.5 9.5l1.5 1.5"/></svg> Crear mi app ahora</a>
         <a href="./developer.html" class="btn ghost"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg> Developer API</a>
         <a href="#como-funciona" class="btn ghost">Cómo funciona</a>
       </div>
@@ -123,7 +122,7 @@
         <div class="card feat"><b>URL o HTML</b><p class="hint">Pega tu sitio o escribe el código directo. Plantillas listas para usar.</p></div>
         <div class="card feat"><b>86 permisos granulares</b><p class="hint">Runtime, Settings y manifest verificados con audit real y readiness.</p></div>
         <div class="card feat"><b>29 plantillas</b><p class="hint">Radio, Podcast, Banking, Social, Delivery, Emergency y más. Todo verificado.</p></div>
-        <div class="card feat"><b>7 providers</b><p class="hint">Capacitor, Native, GeckoView, TWA, Cordova, Flutter y Tauri. Todos compilan hoy en CI.</p></div>
+        <div class="card feat"><b>8 providers</b><p class="hint">Droncito Compiler, Capacitor, Native, GeckoView, TWA, Cordova, Flutter y Tauri. Todos compilan hoy en CI.</p></div>
         <div class="card feat"><b>Splash a medida</b><p class="hint">Color, duración e icono adaptativo con mipmap-anydpi-v26.</p></div>
         <div class="card feat"><b>APK + AAB</b><p class="hint">Instalable directo o bundle para Google Play con firma personalizada.</p></div>
         <div class="card feat"><b>Diagnóstico web</b><p class="hint">Puntuación 0-100 antes de compilar con auto-fix de problemas comunes.</p></div>
@@ -294,9 +293,10 @@
               <svg class="card-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
               Proveedor de Compilación <span class="pro-badge">PRO</span>
             </div>
-            <p class="hint">Elige el motor. Todos compilan hoy en CI: los cinco primeros APK Android, Flutter APK+AAB, Tauri el .exe de escritorio.</p>
+            <p class="hint">Elige el motor. Droncito Compiler viene recomendado: shell nativo, DroncitoPack y permisos por defecto. Todos compilan hoy en CI (Android APK, Flutter APK+AAB, Tauri el .exe de escritorio).</p>
             <div class="provider-grid">
-              <label class="plugin-card" style="cursor:pointer"><input type="radio" name="provider" value="capacitor" checked style="display:none"/><div class="pi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><div class="pl"><b>Capacitor 7 <span class="audit-badge ok" style="font-size:9px">READY</span></b><small>Plugins + InteeBridge + Ads</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" style="cursor:pointer"><input type="radio" name="provider" value="droncito" checked style="display:none"/><div class="pi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg></div><div class="pl"><b>Droncito Compiler <span class="audit-badge ok" style="font-size:9px">READY</span><span class="rec-badge">RECOMENDADO</span></b><small>Shell nativo + DroncitoPack + permisos por defecto</small></div><div class="plugin-check"></div></label>
+              <label class="plugin-card" style="cursor:pointer"><input type="radio" name="provider" value="capacitor" style="display:none"/><div class="pi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l-1-8z"/></svg></div><div class="pl"><b>Capacitor 7 <span class="audit-badge ok" style="font-size:9px">READY</span></b><small>Plugins + InteeBridge + Ads</small></div><div class="plugin-check"></div></label>
             </div>
             <details class="acc" style="margin-top:6px">
               <summary>Más providers (avanzado)</summary>
@@ -309,7 +309,7 @@
               <label class="plugin-card" style="cursor:pointer"><input type="radio" name="provider" value="cordova" style="display:none"/><div class="pi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div><div class="pl"><b>Cordova <span class="audit-badge ok" style="font-size:9px">READY</span></b><small>APK con config.xml Cordova incluida</small></div><div class="plugin-check"></div></label>
               </div>
             </details>
-            <p class="hint" style="margin-top:8px;font-size:11px">READY = compila hoy en CI. capacitor, native, gecko y twa compilan el APK Android y comparten manifiesto y runtime de permisos; cordova compila con cordova-android (proyecto propio); Flutter compila su propio proyecto (APK + AAB); Tauri compila el .exe (el APK Android de Tauri sigue siendo Capacitor). native y gecko hornean DownloadManager y file chooser en su MainActivity.</p>
+            <p class="hint" style="margin-top:8px;font-size:11px">READY = compila hoy en CI. droncito, capacitor, native, gecko y twa compilan el APK Android y comparten manifiesto y runtime de permisos; droncito además hornea DroncitoBridge y el Droncito Pack; cordova compila con cordova-android (proyecto propio); Flutter compila su propio proyecto (APK + AAB); Tauri compila el .exe (el APK Android de Tauri sigue siendo Capacitor). native y gecko hornean DownloadManager y file chooser en su MainActivity.</p>
           </div>
 
           <div class="card">
@@ -320,7 +320,7 @@
             <label>
               <div class="file" id="iconDrop">
                 <input type="file" id="iconInput" accept="image/png,image/jpeg,image/webp" />
-                <span>Seleccionar imagen PNG / JPG / WebP (512Ñ—512 píxeles)</span>
+                <span>Seleccionar imagen PNG / JPG / WebP (512×512 píxeles)</span>
               </div>
               <img id="iconPreview" class="icon-preview hidden" alt="preview" />
             </label>
@@ -686,7 +686,7 @@
               <label class="plugin-card" data-plugin="plugin_biometrics">
                 <input type="checkbox" name="plugin_biometrics" />
                 <div class="pi"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 11c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/><path d="M12 2a10 10 0 00-10 10c0 4.4 2.9 8.2 7 9.5M12 6a6 6 0 00-6 6c0 2.4 1.4 4.5 3.5 5.4"/></svg></div>
-                <div class="pl"><b>Biometric Auth</b><small>@capacitor/biometrics</small></div>
+                <div class="pl"><b>Biometric Auth</b><small>@capgo/capacitor-native-biometric</small></div>
                 <div class="plugin-check"></div>
               </label>
               <label class="plugin-card" data-plugin="plugin_haptics">
@@ -977,7 +977,7 @@
                 <div style="color:var(--muted);cursor:pointer;margin-top:2px" data-devview="res">res/</div>
               </div>
               <div style="flex:1;min-width:0">
-                <pre id="devCodeView" class="console" style="margin-top:0;height:120px;background:#0f172a;color:#38bdf8">{
+                <pre id="devCodeView" class="console" style="margin-top:0;height:120px;background:#0d0f12;color:#8fe3cf">{
   "appId": "com.inteebuild.app",
   "webDir": "www",
   "bundledWebRuntime": false
@@ -1136,11 +1136,11 @@
                 <div class="preview-device-select" style="flex:1;min-width:180px">
                   <label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px">Dispositivo</label>
                   <select id="deviceSelectMain">
-                    <option value="iphone">iPhone 15 Pro (393Ñ—852)</option>
-                    <option value="galaxy">Samsung Galaxy S25 (384Ñ—854)</option>
-                    <option value="pixel" selected>Google Pixel 9 (360Ñ—800)</option>
-                    <option value="tablet">Tablet Genérica (768Ñ—1024)</option>
-                    <option value="desktop">Escritorio (1280Ñ—720)</option>
+                    <option value="iphone">iPhone 15 Pro (393×852)</option>
+                    <option value="galaxy">Samsung Galaxy S25 (384×854)</option>
+                    <option value="pixel" selected>Google Pixel 9 (360×800)</option>
+                    <option value="tablet">Tablet Genérica (768×1024)</option>
+                    <option value="desktop">Escritorio (1280×720)</option>
                   </select>
                 </div>
                 <div class="preview-zoom" style="display:flex;align-items:center;gap:6px">
@@ -1161,6 +1161,9 @@
                   <span id="networkIndicator" class="network-indicator online" style="font-size:11px;padding:2px 8px;border-radius:999px;background:var(--success-soft);color:var(--success)">En línea</span>
                 </div>
                 <div style="display:flex;gap:4px;margin-left:auto">
+                  <button type="button" class="btn ghost sm" id="ppPerms" title="Permisos"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 11 11 13 15 9"/></svg></button>
+                  <button type="button" class="btn ghost sm" id="ppNotif" title="Notificación"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></button>
+                  <button type="button" class="btn ghost sm" id="ppOffline" title="Sin conexión"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0119 12.55"/><path d="M5 12.55a10.94 10.94 0 015.17-2.39"/><path d="M10.71 5.05A16 16 0 0122.58 9"/><path d="M1.42 9a15.91 15.91 0 014.7-2.88"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg></button>
                   <button type="button" class="btn ghost sm" id="ppRotate" title="Rotar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg></button>
                   <button type="button" class="btn ghost sm" id="ppTheme" title="Modo oscuro"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
                   <button type="button" class="btn ghost sm" id="previewFullscreenMain" title="Pantalla completa"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg></button>
@@ -1178,6 +1181,27 @@
                       <div class="phone-url" id="previewUrlMain">https://mi-web.com</div>
                       <div class="phone-splash hidden" id="previewSplashMain">Pantalla de Carga</div>
                       <div class="phone-iframe-wrap hidden" id="ppIframe"></div>
+                      <div class="sim-overlay hidden" id="ppPermDialog">
+                        <div class="perm-dialog">
+                          <div class="perm-dialog-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 11 11 13 15 9"/></svg></div>
+                          <div class="perm-dialog-app" id="ppPermAppName">Mi App</div>
+                          <div class="perm-dialog-text" id="ppPermText"></div>
+                          <div class="perm-dialog-actions">
+                            <button type="button" class="perm-dialog-btn" id="ppPermDeny">Denegar</button>
+                            <button type="button" class="perm-dialog-btn" id="ppPermAllow">Permitir</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="sim-banner hidden" id="ppNotifBanner" role="button" tabindex="0">
+                        <div class="sim-banner-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div>
+                        <div class="sim-banner-body"><b id="ppNotifTitle">Mi App</b><span id="ppNotifText"></span><small id="ppNotifTime">12:30</small></div>
+                      </div>
+                      <div class="sim-offline hidden" id="ppOfflineScreen">
+                        <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0119 12.55"/><path d="M5 12.55a10.94 10.94 0 015.17-2.39"/><path d="M10.71 5.05A16 16 0 0122.58 9"/><path d="M1.42 9a15.91 15.91 0 014.7-2.88"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+                        <b>Sin conexión</b>
+                        <span>Comprueba tu conexión a internet</span>
+                        <button type="button" class="btn ghost sm" id="ppOfflineRetry">Reintentar</button>
+                      </div>
                     </div>
                     <div class="phone-nav"><span>&#9665;</span><span>&#9675;</span><span>&#9633;</span></div>
                   </div>
@@ -1379,11 +1403,11 @@
         </div>
         <div class="preview-device-select" style="margin-top:10px">
           <select id="deviceSelectSidebar" style="font-size:12px;padding:6px 10px;width:100%">
-            <option value="iphone">iPhone 15 Pro (393Ñ—852)</option>
-            <option value="galaxy">Samsung Galaxy S25 (384Ñ—854)</option>
-            <option value="pixel" selected>Google Pixel 9 (360Ñ—800)</option>
-            <option value="tablet">Tablet Genérica (768Ñ—1024)</option>
-            <option value="desktop">Escritorio (1280Ñ—720)</option>
+            <option value="iphone">iPhone 15 Pro (393×852)</option>
+            <option value="galaxy">Samsung Galaxy S25 (384×854)</option>
+            <option value="pixel" selected>Google Pixel 9 (360×800)</option>
+            <option value="tablet">Tablet Genérica (768×1024)</option>
+            <option value="desktop">Escritorio (1280×720)</option>
           </select>
         </div>
         <div class="preview-controls">

@@ -3,19 +3,83 @@
 const { catalogUiJsSrc, patchCatalogSrc } = require('./providers');
 const { notifyScriptSrc, foregroundRuntimeSrc } = require('./audio');
 
-const MINIMAL_WWW = `<!DOCTYPE html>
+function escHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function urlBootHtml(cfg) {
+  const target = escHtml(cfg.url);
+  const title = escHtml(cfg.appName || 'App');
+  const bg = escHtml(cfg.splashColor || '#0b0f1a');
+  const accent = escHtml(cfg.accentColor || '#22d3a7');
+  const textColor = cfg.appTheme === 'light' ? '#111827' : '#f9fafb';
+  const mutedColor = cfg.appTheme === 'light' ? '#6b7280' : '#9ca3af';
+
+  return `<!DOCTYPE html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cargando...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>${title}</title>
+    <noscript><meta http-equiv="refresh" content="0;url=${target}" /></noscript>
     <style>
-      html, body { margin: 0; padding: 0; height: 100%; background: #0b0f1a; }
+      html, body { margin: 0; height: 100%; background: ${bg}; color: ${textColor};
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        -webkit-user-select: none; user-select: none; }
+      body { display: flex; align-items: center; justify-content: center; }
+      .wrap { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 24px; text-align: center; }
+      .ring { width: 42px; height: 42px; border-radius: 50%; border: 3px solid rgba(128,128,128,.25); border-top-color: ${accent}; animation: spin .8s linear infinite; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .name { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: .2px; }
+      .hint { margin: 0; font-size: 13px; color: ${mutedColor}; }
+      #err { display: none; flex-direction: column; align-items: center; gap: 14px; }
+      #err p { margin: 0; font-size: 14px; color: ${mutedColor}; max-width: 260px; line-height: 1.5; }
+      #retry { appearance: none; border: 1px solid ${accent}; background: transparent; color: ${accent};
+        font: inherit; font-size: 14px; font-weight: 600; padding: 10px 22px; border-radius: 10px; cursor: pointer; }
+      @media (prefers-reduced-motion: reduce) { .ring { animation-duration: 2s; } }
     </style>
   </head>
-  <body></body>
+  <body>
+    <div class="wrap">
+      <div class="ring"></div>
+      <p class="name">${title}</p>
+      <p class="hint">Cargando sitio&hellip;</p>
+      <div id="err">
+        <p>No se pudo cargar el sitio. Revisa tu conexion e intentalo de nuevo.</p>
+        <button id="retry" type="button">Reintentar</button>
+      </div>
+    </div>
+    <script>
+      (function () {
+        var TARGET = ${JSON.stringify(String(cfg.url)).replace(/</g, '\\u003c')};
+        var err = document.getElementById('err');
+        var boot = document.querySelector('.wrap .ring');
+        function go() { window.location.replace(TARGET); }
+        function fail() {
+          if (boot) boot.style.display = 'none';
+          document.querySelector('.hint').style.display = 'none';
+          err.style.display = 'flex';
+        }
+        document.getElementById('retry').addEventListener('click', function () {
+          if (navigator.onLine === false) { fail(); return; }
+          err.style.display = 'none';
+          if (boot) boot.style.display = '';
+          document.querySelector('.hint').style.display = '';
+          go();
+        });
+        window.addEventListener('online', go);
+        window.addEventListener('offline', fail);
+        if (navigator.onLine === false) fail(); else go();
+      })();
+    </script>
+  </body>
 </html>
 `;
+}
 
 const NO_SELECT_CSS = '<style>*{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none} input,textarea{-webkit-user-select:text;user-select:text}</style>';
 
@@ -50,7 +114,7 @@ function ensureViewport(html) {
 }
 
 function starterHtml(cfg) {
-  return cfg.inputType === 'html' ? cfg.htmlCode : MINIMAL_WWW;
+  return cfg.inputType === 'html' ? cfg.htmlCode : urlBootHtml(cfg);
 }
 
 function catalogFiles(cfg) {
