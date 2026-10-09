@@ -36,7 +36,7 @@ function colorFiles(cfg) {
   if (!usesCustomColors) return {};
 
   return {
-    'custom-colors.xml': `<?xml version="1.0" encoding="utf-8"?><resources><color name="colorPrimary">${cfg.accentColor}</color><color name="colorPrimaryDark">${cfg.statusBarColor}</color><color name="colorAccent">${cfg.accentColor}</color></resources>`
+    'custom-colors.xml': `<?xml version="1.0" encoding="utf-8"?><resources><color name="theme_color">${cfg.themeColor || cfg.accentColor}</color><color name="colorPrimary">${cfg.accentColor}</color><color name="colorPrimaryDark">${cfg.statusBarColor}</color><color name="colorAccent">${cfg.accentColor}</color></resources>`
   };
 }
 

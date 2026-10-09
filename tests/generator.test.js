@@ -295,6 +295,11 @@ test('tema: styles.xml propio pisa el de Capacitor (sin AppTheme duplicado)', ()
   const conSplash = g.normalizeConfig({ appName: 'Splash Theme', url: 'https://example.com', outputs: ['apk'], themeColor: '#123456', splashEnabled: true, splashImageBase64: 'data:image/png;base64,aGVsbG8=' });
   const f2 = g.generateFiles(conSplash);
   assert.match(f2['android/app/src/main/res/values/styles.xml'], /splash_background/, 'con splash usa splash_background como fondo de lanzamiento');
+  const custom = g.normalizeConfig({ appName: 'Color Test', url: 'https://example.com', outputs: ['apk'], accentColor: '#22d3a7' });
+  const f3 = g.generateFiles(custom);
+  assert.ok(f3['custom-colors.xml'], 'con acento personalizado sale custom-colors.xml');
+  assert.match(f3['custom-colors.xml'], /name="theme_color"/, 'custom-colors conserva theme_color aunque el CI lo copie sobre colors.xml');
+  assert.match(f3['custom-colors.xml'], /#22d3a7/, 'custom-colors lleva el acento');
 });
 
 test('modo URL: www/index.html es una pagina de arranque que redirige a la web', () => {
