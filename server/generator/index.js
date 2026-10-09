@@ -2,7 +2,7 @@
 
 const { PERMISSION_SPEC, runtimeBatchConsts, wantsBackground, specialNeeds, needsSpecialFile } = require('./permissions');
 const { VALID_COMPILE_SDKS, VALID_TARGET_SDKS, VALID_MIN_SDKS } = require('./versions');
-const { permissionManifestBlocks, hardwareFeatureBlocks, nfcTechFilterXml, generateAndroidManifest } = require('./manifest');
+const { permissionManifestBlocks, hardwareFeatureBlocks, nfcTechFilterXml, patchNfcSrc, generateAndroidManifest } = require('./manifest');
 const { nativePermissionsJavaSrc, specialAccessJavaSrc, patchPermissionsSrc, patchSpecialSrc } = require('./runtime');
 const { nativeAudioServiceSrc, audioBridgeSrc, mainActivityPatchSrc, patchAudioSrc } = require('./audio');
 const { droncitoBridgeJavaSrc, droncitoPatchSrc, droncitoNativePatchSrc, droncitoGradlePatchSrc, droncitoNeedsGradle } = require('./droncito');
@@ -543,8 +543,9 @@ function generateFiles(cfg) {
     files['patch-special.js'] = patchSpecialSrc();
   }
 
-  if (cfg.permissions.nfc) {
+  if (cfg.permissions.nfc || cfg.plugins.nfc) {
     files['res/xml/nfc_tech_filter.xml'] = nfcTechFilterXml();
+    files['patch-nfc.js'] = patchNfcSrc();
   }
 
 
@@ -675,6 +676,7 @@ module.exports = {
   permissionManifestBlocks,
   hardwareFeatureBlocks,
   nfcTechFilterXml,
+  patchNfcSrc,
   runtimeBatchConsts,
   wantsBackground,
   specialNeeds,

@@ -35,6 +35,18 @@ test('manifest: cubre 1:1 todo el spec + features + NFC', () => {
   assert.ok(man.includes('android.hardware.camera'));
   assert.ok(man.includes('TECH_DISCOVERED'));
   assert.ok(files['res/xml/nfc_tech_filter.xml']);
+  assert.ok(files['patch-nfc.js'], 'emite patch-nfc.js con NFC');
+  const patch = files['patch-nfc.js'];
+  assert.ok(patch.includes("isNdefPushEnabled"), 'parchea isNdefPushEnabled');
+  assert.ok(patch.includes("setNdefPushMessage"), 'parchea setNdefPushMessage');
+  assert.ok(patch.includes("setBeamPushUris"), 'parchea setBeamPushUris');
+  assert.ok(patch.includes("setOnNdefPushCompleteCallback"), 'parchea setOnNdefPushCompleteCallback');
+});
+
+test('nfc: sin NFC no emite patch-nfc.js', () => {
+  const cfg = g.normalizeConfig({ appName: 'Test Suite', url: 'https://example.com', permissions: { cameraMic: true } });
+  const files = g.generateFiles(cfg);
+  assert.ok(!files['patch-nfc.js'], 'sin NFC no hay patch');
 });
 
 test('batch runtime: data-driven, sin background ni manage-storage', () => {

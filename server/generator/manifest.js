@@ -146,9 +146,27 @@ ${cfg.permissions.advGeo && !cfg.permissions.foreground ? `        <service andr
 }
 
 
+function patchNfcSrc() {
+  return [
+    "const fs = require('fs');",
+    "const p = 'android/capacitor-cordova-android-plugins/src/main/java/com/chariotsolutions/nfc/plugin/NfcPlugin.java';",
+    "if (!fs.existsSync(p)) { console.log('NfcPlugin no presente, patch NFC omitido'); process.exit(0); }",
+    "let src = fs.readFileSync(p, 'utf8');",
+    "const before = src;",
+    "src = src.replace(/nfcAdapter\\.setNdefPushMessage\\([^;]*;/g, '');",
+    "src = src.replace(/nfcAdapter\\.setOnNdefPushCompleteCallback\\([^;]*;/g, '');",
+    "src = src.replace(/nfcAdapter\\.setBeamPushUris\\([^;]*;/g, '');",
+    "src = src.replace(/!nfcAdapter\\.isNdefPushEnabled\\(\\)/g, 'true');",
+    "if (src !== before) fs.writeFileSync(p, src);",
+    "console.log('NFC Beam parcheado:' + (src !== before));"
+  ].join('\n') + '\n';
+}
+
+
 module.exports = {
   permissionManifestBlocks,
   hardwareFeatureBlocks,
   nfcTechFilterXml,
+  patchNfcSrc,
   generateAndroidManifest
 };

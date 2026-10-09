@@ -153,6 +153,12 @@ jobs:
           cp res/xml/nfc_tech_filter.xml android/app/src/main/res/xml/nfc_tech_filter.xml
           echo "--- NFC filter installed ---"
 
+      - name: Patch NFC Beam (Android moderno)
+        if: \${{ hashFiles('patch-nfc.js') != '' }}
+        run: |
+          node patch-nfc.js
+          echo "--- NFC beam patched ---"
+
       - name: Install catalog native patches
         if: \${{ hashFiles('patch-catalog.js') != '' }}
         run: |
