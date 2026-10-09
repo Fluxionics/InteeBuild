@@ -225,6 +225,12 @@ jobs:
           echo "--- droncito gradle deps applied (heavy APK expected) ---"
           grep -c "com.google.ar\|mlkit\|sceneview\|play-services-location" android/app/build.gradle || true
 
+      - name: Apply packaging excludes (META-INF duplicados)
+        if: \${{ hashFiles('patch-packaging.gradle.js') != '' }}
+        run: |
+          node patch-packaging.gradle.js
+          grep -c "META-INF/DISCLAIMER" android/app/build.gradle || true
+
       # --- Assets ---
       - name: Apply app icon
         if: \${{ hashFiles('app-icon.png') != '' }}

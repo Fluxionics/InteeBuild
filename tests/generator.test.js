@@ -361,3 +361,14 @@ test('patch-main-activity (Radio): no crea un segundo onCreate si ya existe', ()
   assert.ok(dron.includes('onCreate(android.os.Bundle ibState)'), 'patch-droncito tambien asegura onCreate');
 });
 
+test('packaging: siempre emite patch de excludes para META-INF/DISCLAIMER', () => {
+  const cfg = g.normalizeConfig({ appName: 'Pack Patch', url: 'https://example.com' });
+  const p = String(g.generateFiles(cfg)['patch-packaging.gradle.js']);
+  assert.ok(p, 'emitido en cualquier config');
+  assert.ok(p.includes('META-INF/DISCLAIMER'), 'excluye el DISCLAIMER duplicado');
+  assert.ok(p.includes('packaging'), 'bloque packaging de AGP 8');
+  assert.ok(p.includes('android\\s*\\{'), 'inyecta tras android {');
+  assert.ok(g.WORKFLOW_YML.includes('Apply packaging excludes'), 'el workflow lo corre');
+});
+
+
