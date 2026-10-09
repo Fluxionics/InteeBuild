@@ -69,10 +69,43 @@ function waitData(inbox, ms) {
   });
 }
 
+function waitCount(inbox, n, ms) {
+  return new Promise((resolve, reject) => {
+    const t0 = Date.now();
+    const tick = () => {
+      if (inbox.data.length >= n) return resolve(inbox.data[n - 1]);
+      if (Date.now() - t0 > (ms || 8000)) return reject(new Error('timeout esperando ' + n + ' correos'));
+      setTimeout(tick, 50);
+    };
+    tick();
+  });
+}
+
 function decodeBody(raw) {
   const idx = raw.indexOf('\r\n\r\n');
   assert.ok(idx !== -1, 'el mensaje tiene encabezados y cuerpo');
+  const head = raw.slice(0, idx);
+  const b = head.match(/boundary=(?:"([^"]+)"|([^\r\n;]+))/i);
+  if (b) {
+    const marker = '--' + (b[1] || b[2]);
+    const part = raw.slice(idx + 4).split(marker).find(p => /Content-Type:\s*text\/plain/i.test(p));
+    assert.ok(part, 'la parte text/plain existe en el multipart');
+    const s = part.indexOf('\r\n\r\n');
+    return Buffer.from(part.slice(s + 4).replace(/\r?\n/g, ''), 'base64').toString('utf8');
+  }
   return Buffer.from(raw.slice(idx + 4).replace(/\r?\n/g, ''), 'base64').toString('utf8');
+}
+
+function decodeHtmlPart(raw) {
+  const idx = raw.indexOf('\r\n\r\n');
+  const head = raw.slice(0, idx);
+  const b = head.match(/boundary=(?:"([^"]+)"|([^\r\n;]+))/i);
+  assert.ok(b, 'el mensaje con html es multipart');
+  const marker = '--' + (b[1] || b[2]);
+  const part = raw.slice(idx + 4).split(marker).find(p => /Content-Type:\s*text\/html/i.test(p));
+  assert.ok(part, 'la parte text/html existe');
+  const s = part.indexOf('\r\n\r\n');
+  return Buffer.from(part.slice(s + 4).replace(/\r?\n/g, ''), 'base64').toString('utf8');
 }
 
 test('mailer: sin SMTP configurado no hace nada ni lanza', async () => {
@@ -170,19 +203,66 @@ test('mailer: un mismo build solo avisa una vez', async () => {
   } finally { server.close(); clearEnv(); }
 });
 
-test('mailer: fireWebhook dispara correo solo en fallo y sin url', async () => {
+test('mailer: fireWebhook avisa por correo tanto el exito como el fallo, con o sin url', async () => {
   const { server, port, inbox } = await startFakeSmtp();
   try {
     setSmtp(port);
     const { fireWebhook } = require('../server/build-engine');
-    await fireWebhook('', { event: 'build.completed', buildId: 'mok', status: 'success' });
-    await new Promise(r => setTimeout(r, 150));
-    assert.equal(inbox.data.length, 0, 'build.completed no genera correo');
+    const ok = fireWebhook('', { event: 'build.completed', buildId: 'mok', status: 'success', appName: 'App OK', apkUrl: '/api/download/mok' });
+    const okData = await waitCount(inbox, 1);
+    await ok;
+    assert.match(decodeBody(okData), /ID: mok/);
+    assert.match(decodeBody(okData), /termino bien/);
     const p = fireWebhook('', { event: 'build.failed', buildId: 'mf1', status: 'failed', error: 'boom' });
-    const data = await waitData(inbox);
+    const data = await waitCount(inbox, 2);
     await p;
     assert.match(decodeBody(data), /ID: mf1/);
     assert.match(decodeBody(data), /boom/);
+    assert.equal(inbox.data.length, 2, 'un correo por evento');
+  } finally { server.close(); clearEnv(); }
+});
+
+test('mailer: el aviso de exito trae app, duracion y enlace de descarga', async () => {
+  const { server, port, inbox } = await startFakeSmtp();
+  try {
+    setSmtp(port);
+    const { builds } = require('../server/store');
+    builds.set('mok2', { appName: 'Mi App' });
+    const sent = await mailer.notifyBuildSuccess({
+      event: 'build.completed', buildId: 'mok2', status: 'success',
+      duration: 95, runUrl: 'https://github.com/x/y/runs/2', apkUrl: '/api/download/mok2'
+    });
+    assert.equal(sent, true);
+    const raw = await waitData(inbox);
+    const body = decodeBody(raw);
+    assert.match(body, /App: Mi App/);
+    assert.match(body, /ID: mok2/);
+    assert.match(body, /Duracion: 95 s/);
+    assert.match(body, /APK: \/api\/download\/mok2/);
+    const html = decodeHtmlPart(raw);
+    assert.match(html, /Build listo/);
+    assert.match(html, /Descargar APK/);
+    builds.delete('mok2');
+  } finally { server.close(); clearEnv(); }
+});
+
+test('mailer: el html va sin scripts y con el detalle escapado', async () => {
+  const { server, port, inbox } = await startFakeSmtp();
+  try {
+    setSmtp(port);
+    const sent = await mailer.notifyBuildFailure({
+      event: 'build.failed', buildId: 'mhtml',
+      error: 'boom <img src=x>',
+      detail: '<script>alert(1)</script> fallo real'
+    });
+    assert.equal(sent, true);
+    const raw = await waitData(inbox);
+    const html = decodeHtmlPart(raw);
+    assert.match(html, /<span[^>]*>Build fallido/);
+    assert.ok(!html.includes('<script>'), 'sin scripts en el html');
+    assert.ok(html.includes('&lt;script&gt;alert(1)&lt;/script&gt;'), 'detalle escapado');
+    assert.match(html, /boom &lt;img src=x&gt;/);
+    assert.match(decodeBody(raw), /<script>alert\(1\)<\/script> fallo real/, 'el texto plano conserva el original');
   } finally { server.close(); clearEnv(); }
 });
 
@@ -200,7 +280,9 @@ test('mailer: sin servidor SMTP rechaza rapido, no se cuelga', async () => {
 test('avisos: build-engine esta enganchado al mailer', () => {
   const src = fs.readFileSync(path.join(__dirname, '..', 'server', 'build-engine.js'), 'utf8');
   assert.match(src, /notifyBuildFailure\(payload\)/);
+  assert.match(src, /notifyBuildSuccess\(payload\)/);
   assert.match(src, /build\.failed/);
+  assert.match(src, /build\.completed/);
 });
 
 test('avisos: build.js integra toast, notificacion del navegador y sonido', () => {

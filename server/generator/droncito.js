@@ -164,14 +164,12 @@ function droncitoGradleDeps() {
   return [
     "    // Droncito Pack (pesado permitido: AR / IA / Geo)",
     "    implementation 'com.google.ar:core:1.42.0'",
-    "    implementation 'com.google.android.filament:sceneview:1.20.0'",
-    "    implementation 'com.google.mlkit:image-labeling:17.2.1'",
+    "    implementation 'com.google.mlkit:image-labeling:17.0.9'",
     "    implementation 'com.google.mlkit:barcode-scanning:17.2.0'",
-    "    implementation 'com.google.mlkit:face-detection:16.2.0'",
-    "    implementation 'com.google.mlkit:text-recognition:19.1.0'",
+    "    implementation 'com.google.mlkit:face-detection:16.1.7'",
+    "    implementation 'com.google.mlkit:text-recognition:16.0.1'",
     "    implementation 'com.google.android.gms:play-services-location:21.3.0'",
-    "    // Droncito Oleada 2 (VR/MR + Blockchain + IoT)",
-    "    implementation 'com.google.vr:sdk-base:1.220.0'",
+    "    // Droncito Oleada 2 (Blockchain + IoT)",
     "    implementation 'org.web3j:core:4.12.0'",
     "    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'"
   ].join('\n');

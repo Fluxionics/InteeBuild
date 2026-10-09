@@ -12,6 +12,8 @@ const { summarizeRunLogs } = require('./actions-error');
 async function fireWebhook(url, payload) {
   if (payload && (payload.event === 'build.failed' || payload.event === 'build.error')) {
     try { mailer.notifyBuildFailure(payload); } catch (_) {}
+  } else if (payload && payload.event === 'build.completed' && payload.status === 'success') {
+    try { mailer.notifyBuildSuccess(payload); } catch (_) {}
   }
   if (!url) return;
   if (isBlockedUrl(url)) {

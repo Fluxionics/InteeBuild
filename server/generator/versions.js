@@ -42,13 +42,11 @@ const PLUGIN_VERSIONS = {
 
 
   arCoreGradle: '1.42.0',
-  sceneViewGradle: '1.20.0',
-  mlkitLabelGradle: '17.2.1',
+  mlkitLabelGradle: '17.0.9',
   mlkitBarcodeGradle: '17.2.0',
-  mlkitFaceGradle: '16.2.0',
-  mlkitTextGradle: '19.1.0',
+  mlkitFaceGradle: '16.1.7',
+  mlkitTextGradle: '16.0.1',
   playLocationGradle: '21.3.0',
-  gvrGradle: '1.220.0',
   web3jGradle: '4.12.0',
   mqttGradle: '1.2.5',
   screenReader: { 6: '^6.0.0', 7: '^7.0.0' },
