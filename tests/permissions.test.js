@@ -114,3 +114,26 @@ test('grant WebView: Capacitor ya concede camara/mic, el parche no sustituye su 
   assert.ok(!mj.includes('ok.add(r)'), 'nunca mete r (PermissionRequest) a la lista de String');
   assert.ok(!mj.includes('r.contains('), 'PermissionRequest no tiene contains');
 });
+
+test('lab: declarado, concedido, probado y rango de Android por permiso', () => {
+  const cfg = g.normalizeConfig({ appName: 'Lab Test', url: 'https://example.com', minSdk: 23, permissions: { gps: true, cameraMic: true, storage: true, nearby: true } });
+  const audit = g.getPermissionAudit(cfg, { detectedApis: ['geolocation'] });
+  const gps = audit.items.find(i => i.key === 'gps');
+  assert.equal(gps.granted, 'Dialogo al ejecutar', 'runtime se concede con dialogo');
+  assert.equal(gps.used, 'detectado', 'geolocation detectada en la web cuenta como probado');
+  const cam = audit.items.find(i => i.key === 'cameraMic');
+  assert.equal(cam.used, 'sin-uso', 'declarado pero sin uso detectado');
+  const store = audit.items.find(i => i.key === 'storage');
+  assert.equal(store.used, 'n/a', 'sin API web comparable');
+  const nearby = audit.items.find(i => i.key === 'nearby');
+  assert.equal(nearby.rangeStatus, 'warn', 'minSdk del permiso mayor al del proyecto');
+  assert.ok(/Android 33/.test(nearby.range) && /minSdk 23/.test(nearby.range), nearby.range);
+  const install = g.getPermissionAudit(g.normalizeConfig({ appName: 'Lab Test', url: 'https://example.com', permissions: { vibration: true } }));
+  const vib = install.items.find(i => i.key === 'vibration');
+  assert.equal(vib.granted, 'Automatico al instalar', 'install-time no pide dialogo');
+  assert.equal(vib.used, 'sin-datos', 'sin analisis web no hay juicio de uso');
+  assert.equal(vib.rangeStatus, 'ok', 'sin aviso de rango');
+  const special = g.getPermissionAudit(g.normalizeConfig({ appName: 'Lab Test', url: 'https://example.com', permissions: { systemAlert: true } }));
+  const overlay = special.items.find(i => i.key === 'systemAlert');
+  assert.equal(overlay.granted, 'Manual en Settings', 'los especiales van por Settings');
+});

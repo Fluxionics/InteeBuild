@@ -1,9 +1,10 @@
 'use strict';
 
 const { loadZipGuarded, entryBuffer } = require('../zip-guard');
+const { runDoctor } = require('../doctor');
 
 module.exports = function registerCatalogRoutes(app, ctx) {
-  const { generator, templates, configFromBody, detectWebApis, isBlockedUrl, checkRateLimit } = ctx;
+  const { generator, templates, configFromBody, detectWebApis, isBlockedUrl, checkRateLimit, securityScan, errorDetection } = ctx;
 
 
   app.post('/api/manifest-diff', (req,res)=>{
@@ -122,11 +123,27 @@ module.exports = function registerCatalogRoutes(app, ctx) {
 
   app.get('/api/permissions/spec', (req,res)=> res.json(generator.PERMISSION_SPEC));
   app.get('/api/permissions/droncito-defaults', (req,res)=> res.json({ essentials: generator.DRONCITO_ESSENTIALS }));
-  app.post('/api/permissions/audit', (req,res)=>{
+  app.post('/api/permissions/audit', async (req,res)=>{
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
     try{
       const cfg=configFromBody(req.body);
-      const audit=generator.getPermissionAudit(cfg);
-      res.json(audit);
+      let detectedApis;
+      const inputType=cfg.inputType||'url';
+      const htmlIn=String(req.body.html||req.body.htmlCode||'');
+      const urlIn=String(req.body.url||'').trim();
+      if(inputType==='html' && htmlIn){
+        detectedApis=detectWebApis(htmlIn.slice(0,500000));
+      } else if(inputType==='url' && urlIn && !isBlockedUrl(urlIn)){
+        if(checkRateLimit(ip,'catalog')){
+          try{
+            const r=await fetch(urlIn,{headers:{'User-Agent':'InteeBuild-PermAudit/1.0'}, signal:AbortSignal.timeout(8000)});
+            const t=await r.text();
+            detectedApis=detectWebApis(t.slice(0,500000));
+          }catch{}
+        }
+      }
+      const audit=generator.getPermissionAudit(cfg,{detectedApis});
+      res.json({...audit, detectedApis: detectedApis||null});
     }catch(e){ res.status(400).json({error:e.message}); }
   });
   app.post('/api/permissions/suggest', async (req,res)=>{
@@ -174,6 +191,44 @@ module.exports = function registerCatalogRoutes(app, ctx) {
       if(cfg.nativeAudio && !cfg.streamUrl) warnings.push('Audio nativo activo pero sin URL del stream: pon tu servidor en Audio nativo');
       if(cfg.nativeAudio && !!cfg.streamUrl && !/^https?:\/\//.test(cfg.streamUrl)) warnings.push('streamUrl debe empezar con http:// o https://');
       res.json({readiness, checks:{...checks, nativeAudio:nativeAudioOk}, audit, warnings, canBuild: audit.canBuild && hasUrlOrHtml && nativeAudioOk, message: readiness>=90?'Listo para compilar': readiness>=70?'Recomendado revisar':'Corrige permisos'});
+    }catch(e){ res.status(400).json({error:e.message}); }
+  });
+
+  app.post('/api/doctor', async (req,res)=>{
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    try{
+      const cfg=configFromBody(req.body);
+      const audit=generator.getPermissionAudit(cfg);
+      const inputType=cfg.inputType||'url';
+      const url=String(cfg.url||'').trim();
+      const htmlSrc=String(cfg.htmlCode||'');
+      let html='', urlError=null, blockedUrl=false, detectedApis;
+      if(inputType==='html' && htmlSrc){
+        html=htmlSrc.slice(0,600000);
+      } else if(inputType==='url' && url){
+        if(isBlockedUrl(url)) blockedUrl=true;
+        else if(!checkRateLimit(ip,'catalog')) urlError='Rate limit de analisis (10/h por IP)';
+        else{
+          try{
+            const r=await fetch(url,{headers:{'User-Agent':'InteeBuild-Doctor/1.0'}, redirect:'manual', signal:AbortSignal.timeout(8000)});
+            if(r.status>=400) urlError='HTTP '+r.status;
+            else{
+              const t=await r.text();
+              html=t.slice(0,500000);
+              if(t.length>500000) urlError='HTML demasiado grande (max 500KB)';
+            }
+          }catch(e){ urlError=e.message||'No responde'; }
+        }
+      }
+      let security=null, errors=null;
+      if(html){
+        detectedApis=detectWebApis(html);
+        try{ security=securityScan(html,{}, inputType==='url'?url:'https://html-direct'); }catch{}
+        try{ errors=errorDetection(html); }catch{}
+      }
+      const suggest=generator.suggestPermissionsFromApis(detectedApis||[]);
+      const result=runDoctor(cfg,{audit, html, urlError, blockedUrl, detectedApis, security, errors, suggest});
+      res.json(result);
     }catch(e){ res.status(400).json({error:e.message}); }
   });
 };
