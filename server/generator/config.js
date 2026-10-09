@@ -109,6 +109,13 @@ const PLUGIN_KEYS = [
 
 
 
+const DRONCITO_ESSENTIALS = [
+  'internet', 'vibration', 'wakeLock', 'notifications',
+  'cameraMic', 'gps', 'storage', 'nfc', 'biometric',
+  'bluetooth', 'bluetoothScan', 'bluetoothConnect',
+  'changeWifiState', 'changeNetworkState', 'nearbyWifiDevices'
+];
+
 const PERMISSION_POWERS_PLUGINS = [
   [['gps', 'gpsBackground', 'accessFineLocation', 'accessCoarseLocation', 'accessBackgroundLocation'], ['geolocation']],
   [['cameraMic', 'cameraFlash', 'cameraAutoFocus', 'videoCapture'], ['camera', 'haptics']],
@@ -431,7 +438,12 @@ function normalizeConfig(raw) {
   const build = readBuildOptions(raw, sdk);
   const permissions = readPermissions(raw);
   if (build.provider === 'droncito') {
-    Object.keys(PERMISSION_SPEC).forEach(k => { if (k !== 'ads') permissions[k] = true; });
+    const explicit = raw?.permissions && typeof raw.permissions === 'object' ? raw.permissions : null;
+    Object.keys(PERMISSION_SPEC).forEach(k => {
+      if (k === 'ads') return;
+      if (explicit && Object.prototype.hasOwnProperty.call(explicit, k)) return;
+      permissions[k] = DRONCITO_ESSENTIALS.includes(k);
+    });
   }
   const plugins = readPlugins(raw, permissions);
   if (build.provider === 'droncito') plugins.inteebridge = true;
@@ -494,4 +506,4 @@ function normalizeConfig(raw) {
   };
 }
 
-module.exports = { normalizeConfig, deriveOutputs, OUTPUT_FORMATS, getSupportedOutputs };
+module.exports = { normalizeConfig, deriveOutputs, OUTPUT_FORMATS, getSupportedOutputs, DRONCITO_ESSENTIALS };

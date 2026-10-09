@@ -64,10 +64,18 @@ const Form = (() => {
 
 
 
+  let droncitoEssentials = ['internet', 'vibration', 'wakeLock', 'notifications', 'cameraMic', 'gps', 'storage', 'nfc', 'biometric', 'bluetooth', 'bluetoothScan', 'bluetoothConnect', 'changeWifiState', 'changeNetworkState', 'nearbyWifiDevices'];
   const renderGranularPerms = async () => {
     try {
-      const r = await fetch('/api/permissions/spec');
+      const [r, rd] = await Promise.all([
+        fetch('/api/permissions/spec'),
+        fetch('/api/permissions/droncito-defaults').catch(() => null)
+      ]);
       if (!r.ok) return;
+      if (rd && rd.ok) {
+        const jd = await rd.json();
+        if (Array.isArray(jd.essentials) && jd.essentials.length) droncitoEssentials = jd.essentials;
+      }
       const spec = await r.json();
       const covered = new Set(['internet', 'foregroundService']);
       $$('#permEasy input[type="checkbox"], #permAdvanced input[type="checkbox"]').forEach((el) => {
@@ -107,9 +115,9 @@ const Form = (() => {
       const activeProvider = $('input[name="provider"]:checked');
       if (activeProvider && activeProvider.value === 'droncito') {
         wrap.querySelectorAll('input[type="checkbox"]').forEach((el) => {
-          el.checked = true;
+          el.checked = droncitoEssentials.includes(el.getAttribute('data-perm-key') || el.name);
           const tile = el.closest('.switch');
-          if (tile) tile.classList.add('checked');
+          if (tile) tile.classList.toggle('checked', el.checked);
         });
       }
 
@@ -575,14 +583,9 @@ const Form = (() => {
     if (droncitoDefaultsMark === 'droncito') return;
     droncitoDefaultsMark = 'droncito';
     $$('#permEasy input[type="checkbox"], #permAdvanced input[type="checkbox"]').forEach((el) => {
-      el.checked = true;
+      el.checked = droncitoEssentials.includes(el.getAttribute('data-perm-key') || el.name);
       const tile = el.closest('.perm-tile, .switch');
-      if (tile) tile.classList.add('checked');
-    });
-    $$('.plugin-cat[data-pcat="droncito"] .plugin-card input[type="checkbox"], input[name="plugin_inteebridge"]').forEach((el) => {
-      el.checked = true;
-      const card = el.closest('.plugin-card');
-      if (card) card.classList.add('checked');
+      if (tile) tile.classList.toggle('checked', el.checked);
     });
     setVisible($('#integridgeInfo'), true);
   };

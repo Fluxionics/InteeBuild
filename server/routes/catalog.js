@@ -121,6 +121,7 @@ module.exports = function registerCatalogRoutes(app, ctx) {
   });
 
   app.get('/api/permissions/spec', (req,res)=> res.json(generator.PERMISSION_SPEC));
+  app.get('/api/permissions/droncito-defaults', (req,res)=> res.json({ essentials: generator.DRONCITO_ESSENTIALS }));
   app.post('/api/permissions/audit', (req,res)=>{
     try{
       const cfg=configFromBody(req.body);

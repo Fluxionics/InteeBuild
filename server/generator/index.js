@@ -9,7 +9,7 @@ const { droncitoBridgeJavaSrc, droncitoPatchSrc, droncitoNativePatchSrc, droncit
 const { WORKFLOW_YML, DECOMPILE_WORKFLOW_YML } = require('./workflow');
 const { getPermissionAudit, suggestPermissionsFromApis } = require('./audit');
 
-const { normalizeConfig, getSupportedOutputs } = require('./config');
+const { normalizeConfig, getSupportedOutputs, DRONCITO_ESSENTIALS } = require('./config');
 const { packageFiles } = require('./package-files');
 const { assetFiles } = require('./assets');
 const { starterHtml, catalogFiles, finalizeWebAssets } = require('./web-assets');
@@ -694,6 +694,7 @@ module.exports = {
   specialNeeds,
   needsSpecialFile,
   PERMISSION_SPEC,
+  DRONCITO_ESSENTIALS,
   WORKFLOW_YML,
   DECOMPILE_WORKFLOW_YML,
   VALID_COMPILE_SDKS,

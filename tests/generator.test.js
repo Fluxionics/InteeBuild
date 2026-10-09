@@ -55,15 +55,15 @@ test('providers capacitor/native generan MainActivity válido', () => {
   assert.ok(fnat['native-MainActivity.java'].includes('NativePermissions.requestAll'));
 });
 
-test('provider droncito: shell nativo + DroncitoPack + 85 permisos por defecto', () => {
+test('provider droncito: shell nativo + DroncitoPack con 15 esenciales Play-safe', () => {
   const cfg = g.normalizeConfig({ appName: 'Dron Test', url: 'https://example.com', provider: 'droncito' });
   assert.equal(cfg.provider, 'droncito');
-  assert.equal(Object.values(cfg.permissions).filter(Boolean).length, 85, 'todos los defaults menos ads');
+  assert.equal(Object.values(cfg.permissions).filter(Boolean).length, 15, 'solo esenciales, sin restringidos de Play');
   assert.equal(cfg.permissions.ads, false, 'ads se queda fuera: requiere AdMob App ID');
-  assert.equal(cfg.permissions.ar, true);
-  assert.equal(cfg.permissions.iot, true);
+  assert.equal(cfg.permissions.ar, false, 'AR no viene ON: es restringido/pesado para Play');
+  assert.equal(cfg.permissions.iot, false, 'IoT tampoco: encenderlo es a un clic');
   assert.equal(cfg.plugins.inteebridge, true, 'InteeBridge activo por defecto');
-  assert.equal(cfg.plugins.ar, true, 'los permisos del pack encienden sus plugins');
+  assert.equal(cfg.plugins.ar, false, 'el plugin AR se enciende con su permiso, no solo');
   const f = g.generateFiles(cfg);
   assert.ok(f['provider.json'].includes('droncito'));
   assert.ok(f['provider.json'].includes('Droncito Compiler'));
@@ -81,6 +81,15 @@ test('provider droncito: shell nativo + DroncitoPack + 85 permisos por defecto',
   assert.equal(g.getPermissionAudit(cfg).canBuild, true, 'los defaults de droncito compilan');
   const invalid = g.normalizeConfig({ appName: 'Dron Test', url: 'https://example.com', provider: 'nope' });
   assert.equal(invalid.provider, 'capacitor', 'provider desconocido sigue cayendo a capacitor');
+});
+
+test('droncito: respeta la seleccion explicita del usuario sobre los esenciales', () => {
+  const c = g.normalizeConfig({ appName: 'Dron Test', url: 'https://example.com', provider: 'droncito', permissions: { sms: true, gps: false } });
+  assert.equal(c.permissions.sms, true, 'permiso restringido explicito se enciende');
+  assert.equal(c.permissions.gps, false, 'esencial apagado a mano se queda apagado');
+  assert.equal(c.permissions.cameraMic, true, 'los no mencionados caen en el default esencial');
+  assert.equal(c.permissions.advGeo, false, 'los restringidos no mencionados siguen apagados');
+  assert.deepEqual(g.DRONCITO_ESSENTIALS.length, 15, 'lista de esenciales exportada');
 });
 
 test('native y gecko hornean DownloadManager y file chooser', () => {

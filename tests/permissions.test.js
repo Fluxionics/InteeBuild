@@ -86,15 +86,19 @@ test('audit: GENERATED vs SPEC ONLY honesto', () => {
   assert.equal(auditAds.canBuild, false);
 });
 
-test('audit droncito: 85 defaults sin fails y provider READY', () => {
+test('audit droncito: 15 esenciales sin fails y provider READY', () => {
   const cfg = g.normalizeConfig({ appName: 'Dron Test', url: 'https://example.com', provider: 'droncito' });
   const audit = g.getPermissionAudit(cfg);
-  assert.equal(audit.total, 85, 'sin ads en los defaults');
+  assert.equal(audit.total, 15, 'solo esenciales Play-safe por defecto');
   assert.equal(audit.canBuild, true);
   assert.equal(audit.verifiedAll, true);
-  const ar = audit.items.find(i => i.key === 'ar');
-  assert.ok(ar.provider.startsWith('OK (droncito)'), ar.provider);
+  assert.ok(!audit.items.some(i => i.key === 'ar'), 'las features pesadas no vienen ON');
   assert.ok(!audit.items.some(i => i.key === 'ads'), 'los defaults nunca encienden ads');
+  const cfgAr = g.normalizeConfig({ appName: 'Dron Test', url: 'https://example.com', provider: 'droncito', permissions: { ar: true } });
+  const auditAr = g.getPermissionAudit(cfgAr);
+  const ar = auditAr.items.find(i => i.key === 'ar');
+  assert.ok(ar && ar.provider.startsWith('OK (droncito)'), ar && ar.provider);
+  assert.equal(auditAr.canBuild, true, 'AR explicito sigue compilandose');
 });
 
 test('grant WebView: Capacitor ya concede camara/mic, el parche no sustituye su WebChromeClient', () => {
