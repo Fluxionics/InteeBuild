@@ -69,6 +69,10 @@ test('provider droncito: shell nativo + DroncitoPack + 85 permisos por defecto',
   assert.ok(f['provider.json'].includes('Droncito Compiler'));
   assert.ok(f['native-MainActivity.java'], 'trae la MainActivity nativa');
   assert.ok(f['DroncitoBridge.java'], 'trae el puente del pack');
+  const br = f['DroncitoBridge.java'];
+  assert.ok(br.includes('ArCoreApk.Availability'), 'checkAvailability devuelve Availability, no int');
+  assert.ok(br.includes('startsWith("AVAILABLE")'), 'available se deriva del nombre del enum');
+  assert.ok(!br.includes('int v = com.google.ar'), 'sin cast int obsoleto');
   assert.ok(f['patch-droncito-native.js']);
   assert.ok(f['patch-droncito-gradle.js']);
   assert.ok(f['main-manifest.xml'].includes('android:name=".MainActivity"'));

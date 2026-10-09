@@ -105,4 +105,8 @@ test('grant WebView: Capacitor ya concede camara/mic, el parche no sustituye su 
   const nat = g.generateFiles(g.normalizeConfig({ appName: 'Test Suite', url: 'https://example.com', provider: 'native', permissions: { cameraMic: true } }));
   assert.ok(nat['native-MainActivity.java'].includes('onPermissionRequest'), 'el provider native si trae su propio grant selectivo');
   assert.ok(nat['native-MainActivity.java'].includes('r.deny()'), 'native niega por defecto');
+  const mj = nat['native-MainActivity.java'];
+  assert.ok(mj.includes('x.contains("VIDEO")') && mj.includes('ok.add(x)'), 'el grant compara el recurso x, no el PermissionRequest r');
+  assert.ok(!mj.includes('ok.add(r)'), 'nunca mete r (PermissionRequest) a la lista de String');
+  assert.ok(!mj.includes('r.contains('), 'PermissionRequest no tiene contains');
 });

@@ -144,7 +144,7 @@ function nativeMainActivitySrc(pkg, cfg) {
     const consts = webGrantConsts(cfg, kind);
     if (!consts.length) return '';
     const shortNames = consts.map(c => '"' + c.split('.').pop() + '"').join(',');
-    return 'if(r.contains("' + resource + '")&&hasAny(new String[]{' + shortNames + '})) ok.add(r);';
+    return 'if(x.contains("' + resource + '")&&hasAny(new String[]{' + shortNames + '})) ok.add(x);';
   }).filter(Boolean).join(' else ');
 
   const audioBridgeHook = cfg.permissions.foreground ? ' try { wv.addJavascriptInterface(new AudioBridge(this), "InteeAudio"); } catch (Exception ignored) {}' : '';

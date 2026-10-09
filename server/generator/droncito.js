@@ -42,7 +42,7 @@ public class DroncitoBridge {
     private boolean has(String perm) { try { return act.checkSelfPermission(perm) == PackageManager.PERMISSION_GRANTED; } catch (Exception e) { return false; } }
     // 1) AR: estado ARCore (instalado?) + intent de modelo. El render real usa <model-viewer>/SceneView en la web.
     @JavascriptInterface public String arStatus() {
-        try { int v = com.google.ar.core.ArCoreApk.getInstance().checkAvailability(act); return "{\\"available\\":" + (v==0||v==1) + ",\\"code\\":"+v+"}"; }
+        try { com.google.ar.core.ArCoreApk.Availability a = com.google.ar.core.ArCoreApk.getInstance().checkAvailability(act); boolean ok = a.name().startsWith("AVAILABLE"); return "{\\"available\\":" + ok + ",\\"code\\":"+a.ordinal()+"}"; }
         catch (Throwable t) { return "{\\"available\\":false,\\"error\\":\\"arcore-missing\\"}"; }
     }
     @JavascriptInterface public void arOpen(String modelUrl) {
