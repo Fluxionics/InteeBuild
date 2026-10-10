@@ -1318,6 +1318,12 @@
                 <button type="button" class="btn ghost sm" id="showApkInfoBtn">Detalles del APK</button>
                 <button type="button" class="btn ghost sm" id="downloadZipBtn">Código Fuente (.zip)</button>
               </div>
+              <div id="reviewBanner" class="hidden" style="margin-top:10px;padding:11px 13px;border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px">
+                <span style="flex:1;min-width:220px">¿Te funcionó? Déjanos una estrella en GitHub y una reseña en AlternativeTo, de verdad ayuda a que más gente lo encuentre.</span>
+                <a class="btn ghost sm" href="https://github.com/Fluxionics/InteeBuild" target="_blank" rel="noopener" data-review-dismiss><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Estrella en GitHub</a>
+                <a class="btn ghost sm" href="https://alternativeto.net/software/inteebuild/about/" target="_blank" rel="noopener" data-review-dismiss>Reseña en AlternativeTo</a>
+                <button type="button" class="btn ghost sm" id="reviewClose" style="opacity:.7">No, gracias</button>
+              </div>
               <div id="apkInfoBox" class="apk-info hidden">
                 <hr class="section-divider" />
                 <div class="apk-info-grid" id="apkInfoGrid"></div>

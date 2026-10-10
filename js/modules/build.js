@@ -243,6 +243,19 @@ const Build = (() => {
   on('#zipBtn', 'click', () => downloadZip());
   on('#downloadZipBtn', 'click', () => downloadZip());
 
+  const REVIEW_KEY = 'ib_review_dismissed';
+  const dismissReview = () => {
+    try { localStorage.setItem(REVIEW_KEY, '1'); } catch (_) {}
+    hide($('#reviewBanner'));
+  };
+  const maybeShowReviewBanner = () => {
+    let dismissed = false;
+    try { dismissed = !!localStorage.getItem(REVIEW_KEY); } catch (_) {}
+    if (!dismissed) show($('#reviewBanner'));
+  };
+  on('#reviewClose', 'click', dismissReview);
+  onAll('[data-review-dismiss]', 'click', dismissReview);
+
   on('#toggleConsole', 'click', (e) => {
     buildConsole.classList.toggle('hidden');
     e.currentTarget.textContent = buildConsole.classList.contains('hidden') ? 'Ver registros en vivo' : 'Ocultar registros';
@@ -431,6 +444,7 @@ const Build = (() => {
               label: 'Descargar ' + FORMAT_LABELS[fmt]
             }));
           });
+          maybeShowReviewBanner();
         }, 600);
       } else if (s.status === 'failed' || s.status === 'error') {
         closeEventSource();
