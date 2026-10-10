@@ -243,6 +243,19 @@ const Build = (() => {
   on('#zipBtn', 'click', () => downloadZip());
   on('#downloadZipBtn', 'click', () => downloadZip());
 
+  const REVIEW_KEY = 'ib_review_dismissed';
+  const dismissReview = () => {
+    try { localStorage.setItem(REVIEW_KEY, '1'); } catch (_) {}
+    hide($('#reviewBanner'));
+  };
+  const maybeShowReviewBanner = () => {
+    let dismissed = false;
+    try { dismissed = !!localStorage.getItem(REVIEW_KEY); } catch (_) {}
+    if (!dismissed) show($('#reviewBanner'));
+  };
+  on('#reviewClose', 'click', dismissReview);
+  onAll('[data-review-dismiss]', 'click', dismissReview);
+
   on('#toggleConsole', 'click', (e) => {
     buildConsole.classList.toggle('hidden');
     e.currentTarget.textContent = buildConsole.classList.contains('hidden') ? 'Ver registros en vivo' : 'Ocultar registros';
@@ -431,6 +444,7 @@ const Build = (() => {
               label: 'Descargar ' + FORMAT_LABELS[fmt]
             }));
           });
+          maybeShowReviewBanner();
         }, 600);
       } else if (s.status === 'failed' || s.status === 'error') {
         closeEventSource();
@@ -537,6 +551,9 @@ const Build = (() => {
       return;
     }
 
+    const countEl = $('#histCount');
+    if (countEl) countEl.textContent = items.length + (items.length === 1 ? ' registro' : ' registros');
+
     historyList.innerHTML = items
       .map((h) => {
         const statusClass = h.status === 'success' ? 'ok' : h.status === 'failed' || h.status === 'error' ? 'fail' : 'pending';
@@ -551,9 +568,13 @@ const Build = (() => {
         if (h.runUrl) {
           buttons.push('<a class="btn ghost sm" href="' + h.runUrl + '" target="_blank" rel="noopener">Logs</a>');
         }
-        buttons.push('<button type="button" class="btn ghost sm" data-dup="' + h.id + '">Duplicar</button>');
+        buttons.push('<button type="button" class="btn ghost sm" data-dup="' + h.id + '">Cargar</button>');
         buttons.push('<button type="button" class="btn ghost sm" data-exp="' + h.id + '">JSON</button>');
-        buttons.push('<button type="button" class="btn ghost sm" data-del="' + h.id + '">Eliminar</button>');
+        buttons.push('<button type="button" class="btn ghost sm" data-del="' + h.id + '">Borrar</button>');
+        const dur = typeof h.duration === 'number' && h.duration > 0
+          ? '<span>' + (h.duration >= 60 ? Math.floor(h.duration / 60) + 'm ' + (h.duration % 60) + 's' : h.duration + 's') + '</span>'
+          : '';
+        const fmts = (h.outputs && h.outputs.length ? h.outputs : [h.outputType].filter(Boolean)).map((f) => '<span style="opacity:.75">' + String(f).toUpperCase() + '</span>').join(' ');
         return (
           '<div class="hitem">' +
           '<div class="hitem-left">' +
@@ -561,7 +582,9 @@ const Build = (() => {
           '<div class="hitem-meta">' +
           '<span class="hitem-status ' + statusClass + '">' + statusText + '</span>' +
           '<span>' + timeAgo(h.createdAt) + '</span>' +
+          dur +
           '<span>ID: ' + escHtml(h.id) + '</span>' +
+          fmts +
           '</div>' +
           '</div>' +
           '<div class="hitem-right">' + buttons.join('') + '</div>' +
@@ -604,6 +627,20 @@ const Build = (() => {
       alert(err.message);
     }
   };
+
+  const clearHistory = async () => {
+    if (!confirm('¿Borrar todo el historial? Esta acción no se puede deshacer.')) return;
+    try {
+      const res = await fetch('/api/history', { method: 'DELETE' });
+      if (!res.ok) throw new Error('No se pudo borrar el historial');
+      historyCache = [];
+      renderHistory();
+      loadStats();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+  on('#histClearAll', 'click', clearHistory);
 
   const loadHistory = async () => {
     try {

@@ -3,9 +3,26 @@
 const { PERMISSION_SPEC, BG_LOCATION, MANAGE_STORAGE, runtimeBatchConsts, needsSpecialFile } = require('./permissions');
 const { permissionManifestBlocks } = require('./manifest');
 
-function getPermissionAudit(cfg){
+const API_OF = {
+  gps:'geolocation', gpsBackground:'geolocation', accessFineLocation:'geolocation', accessCoarseLocation:'geolocation', advGeo:'geolocation',
+  cameraMic:'camera', microphone:'microphone', voiceRec:'microphone',
+  bluetooth:'bluetooth', bluetoothScan:'bluetooth', bluetoothConnect:'bluetooth', bluetoothAdvertise:'bluetooth',
+  nfc:'nfc', notifications:'notifications', vibration:'vibration', wakeLock:'wakelock',
+  ar:'camera'
+};
+const GRANTED_LABEL = {
+  'install-time':'Automatico al instalar',
+  'runtime':'Dialogo al ejecutar',
+  'special':'Manual en Settings',
+  'background':'Dialogo foreground + background',
+  'missing':'No generado'
+};
+
+function getPermissionAudit(cfg, opts){
+  const detectedApis = opts && Array.isArray(opts.detectedApis) ? opts.detectedApis : undefined;
   const selected = Object.entries(cfg.permissions||{}).filter(([,v])=>v).map(([k])=>k);
   const targetSdk = cfg.targetSdk||35;
+  const projectMinSdk = cfg.minSdk||23;
   const provider = cfg.provider||'capacitor';
   let manifestXml='';
   try{ manifestXml = permissionManifestBlocks(cfg); }catch{ manifestXml=''; }
@@ -69,7 +86,13 @@ function getPermissionAudit(cfg){
     if(key==='gpsBackground' && !cfg.permissions.gps) status='fail';
     if(key==='accessBackgroundLocation' && !(cfg.permissions.gps || cfg.permissions.accessFineLocation || cfg.permissions.accessCoarseLocation)) status='fail';
     if(key==='advGeo' && !(cfg.permissions.gps || cfg.permissions.accessFineLocation || cfg.permissions.accessCoarseLocation)) status='warn';
-    return {key, title:spec.title, manifest, runtime, native, bridge, capability, mechanism, handler:spec.handler, version, special:spec.specialAccess||spec.legacyNote||null, provider:providerOk, status, minSdk:spec.minSdk, api:spec.api, verified};
+    const apiOf = API_OF[key] || null;
+    let used = 'sin-datos';
+    if (Array.isArray(detectedApis)) used = !apiOf ? 'n/a' : (detectedApis.includes(apiOf) ? 'detectado' : 'sin-uso');
+    const granted = GRANTED_LABEL[mechanism] || GRANTED_LABEL['install-time'];
+    const rangeWarn = !!(spec.minSdk && spec.minSdk > projectMinSdk);
+    const range = rangeWarn ? 'No funciona en Android ' + spec.minSdk + ' (tu minSdk ' + projectMinSdk + ')' : null;
+    return {key, title:spec.title, manifest, runtime, native, bridge, capability, mechanism, handler:spec.handler, version, special:spec.specialAccess||spec.legacyNote||null, provider:providerOk, status, minSdk:spec.minSdk, api:spec.api, verified, granted, used, apiOf, range, rangeStatus: rangeWarn?'warn':'ok'};
   });
   const ok=res.filter(r=>r.status==='ok').length;
   const total=res.length;
