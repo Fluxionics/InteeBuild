@@ -66,3 +66,15 @@ test('doctor: permisos fallidos y avisos de rango se reflejan en los checks', ()
   assert.ok(rango && rango.status === 'warn');
   assert.equal(d.canBuild, false);
 });
+
+test('doctor: avisa los permisos que Play suele rechazar', () => {
+  const risky = g.normalizeConfig({ appName: 'Doc Play', url: 'https://example.com', permissions: { sms: true, systemAlert: true, gps: true } });
+  const d = runDoctor(risky, { audit: g.getPermissionAudit(risky) });
+  const aviso = d.checks.find(c => c.label.includes('Play puede rechazar'));
+  assert.ok(aviso && aviso.status === 'warn');
+  assert.ok(aviso.detail.includes('SMS') && aviso.detail.includes('Superposicion'), aviso.detail);
+  const clean = g.normalizeConfig({ appName: 'Doc Play', url: 'https://example.com', permissions: { gps: true } });
+  const d2 = runDoctor(clean, { audit: g.getPermissionAudit(clean) });
+  const ok = d2.checks.find(c => c.label.includes('Ningun permiso de riesgo'));
+  assert.ok(ok && ok.status === 'ok');
+});

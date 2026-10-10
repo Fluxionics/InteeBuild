@@ -83,6 +83,11 @@ module.exports = function registerSystemRoutes(app, ctx) {
     res.json(loadHistory().slice(0, 30));
   });
 
+  app.delete('/api/history', (req, res) => {
+    saveHistory([]);
+    res.json({ ok: true });
+  });
+
   app.get('/api/history/:id', (req, res) => {
     const h = loadHistory().find(x => x.id === req.params.id);
     if (!h) return res.status(404).json({ error: 'Build no encontrado en el historial' });

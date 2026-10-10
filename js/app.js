@@ -68,3 +68,14 @@ if (dupId) Build.duplicateBuild(dupId);
 
 refreshHealthBadge();
 Build.loadStats();
+
+const previewBar = $('#previewBar');
+if (previewBar && location.hostname !== 'inteebuild.onrender.com') {
+  let previewBarHidden = false;
+  try { previewBarHidden = !!localStorage.getItem('ib:previewbar'); } catch (_) {}
+  if (!previewBarHidden) show(previewBar);
+  on('#previewBarClose', 'click', () => {
+    hide(previewBar);
+    try { localStorage.setItem('ib:previewbar', '1'); } catch (_) {}
+  });
+}

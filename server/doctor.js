@@ -1,5 +1,21 @@
 'use strict';
 
+const PLAY_RESTRICTED = {
+  sms: 'SMS: casi siempre bloqueado salvo apps de mensajeria justificadas',
+  callLog: 'Registro de llamadas: rechazado salvo dialer predeterminado',
+  contacts: 'Contactos: requiere justificacion y video demo a Google',
+  calendar: 'Calendario: requiere justificacion estricta',
+  phone: 'Estado del telefono: revision estricta',
+  gpsBackground: 'Ubicacion en segundo plano: permiso especial de Google',
+  accessBackgroundLocation: 'Ubicacion en segundo plano: permiso especial de Google',
+  systemAlert: 'Superposicion de pantalla: solo accesibilidad y usos especiales',
+  systemAlertWindow: 'Superposicion de pantalla: solo accesibilidad y usos especiales',
+  installPackages: 'Instalar APKs: reservado a tiendas y gestores',
+  requestInstallPackages: 'Instalar APKs: reservado a tiendas y gestores',
+  envSensors: 'Sensores corporales: requiere video demo',
+  storage: 'Almacenamiento total: solo apps que lo justifican bien'
+};
+
 function runDoctor(cfg, ctx){
   const audit = ctx.audit || {items:[], ok:0, total:0, canBuild:true};
   const html = ctx.html || '';
@@ -48,6 +64,10 @@ function runDoctor(cfg, ctx){
     const unused = audit.items.filter(i=>i.used==='sin-uso');
     if(unused.length) add('warn', unused.length+' permiso(s) declarado(s) sin uso detectado', unused.map(i=>i.title).join(', '));
   }
+
+  const risky = [...new Set(Object.keys(PLAY_RESTRICTED).filter(k=>cfg.permissions && cfg.permissions[k]).map(k=>PLAY_RESTRICTED[k]))];
+  if(risky.length) add('warn', risky.length+' permiso(s) que Play puede rechazar', risky.join(' | '));
+  else add('ok', 'Ningun permiso de riesgo para Play Store', 'Nada de lo que suela caer en rechazo automatico');
 
   if(html){
     const sizeKB = Math.round(Buffer.byteLength(html,'utf8')/1024);
