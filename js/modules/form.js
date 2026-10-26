@@ -213,6 +213,97 @@ const Form = (() => {
     }
   });
 
+  const drawMonogram = (ctx, text, w, h, fontPx) => {
+    const letters = String(text || 'A').trim().slice(0, 3).toUpperCase() || 'A';
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = '700 ' + fontPx + 'px Inter, Arial, sans-serif';
+    ctx.fillText(letters, w / 2, h / 2);
+  };
+
+  const makeIconMonogram = (text, color) => {
+    const cv = document.createElement('canvas');
+    cv.width = 512;
+    cv.height = 512;
+    const ctx = cv.getContext('2d');
+    ctx.fillStyle = color || '#4f46e5';
+    ctx.fillRect(0, 0, 512, 512);
+    drawMonogram(ctx, text, 512, 512, 220);
+    return cv.toDataURL('image/png');
+  };
+
+  const makeSplashMonogram = () => {
+    const cv = document.createElement('canvas');
+    cv.width = 1080;
+    cv.height = 1920;
+    const ctx = cv.getContext('2d');
+    const bg = ($('[name="splashColor"]') && $('[name="splashColor"]').value) || '#ffffff';
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, 1080, 1920);
+    if (state.iconBase64) {
+      const img = new Image();
+      img.src = state.iconBase64;
+      const size = 380;
+      try { ctx.drawImage(img, (1080 - size) / 2, (1920 - size) / 2 - 120, size, size); } catch (_) {}
+    }
+    const name = String($('[name="appName"]') && $('[name="appName"]').value || '').trim().slice(0, 24);
+    if (name) {
+      const dark = bg.toLowerCase() !== '#ffffff' && bg.toLowerCase() !== '#fff' && bg.toLowerCase() !== '#f5f5f5';
+      ctx.fillStyle = dark ? '#ffffff' : '#111111';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = '700 88px Inter, Arial, sans-serif';
+      ctx.fillText(name, 540, 1280);
+    }
+    return cv.toDataURL('image/png');
+  };
+
+  on('#monoIconBtn', 'click', () => {
+    const text = ($('#monoIconText') && $('#monoIconText').value.trim()) || String($('[name="appName"]') && $('[name="appName"]').value || '').trim() || 'A';
+    const color = ($('#monoIconColor') && $('#monoIconColor').value) || '#4f46e5';
+    const dataUrl = makeIconMonogram(text, color);
+    state.iconBase64 = dataUrl;
+    const ip = $('#iconPreview');
+    if (ip) { ip.src = dataUrl; show(ip); }
+    Preview.refresh();
+  });
+
+  on('#monoSplashBtn', 'click', () => {
+    splashImageBase64 = makeSplashMonogram();
+    alert('Splash generado con tu monograma. Activa la pantalla de splash si aún no lo hiciste.');
+  });
+
+  on('#playPreviewBtn', 'click', async () => {
+    const box = $('#playPreviewBox');
+    if (!box) return;
+    box.innerHTML = '<small style="color:var(--muted)">Armando la ficha…</small>';
+    show(box);
+    try {
+      const r = await fetch('/api/listing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(collect())
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || 'No se pudo armar la ficha');
+      const L = j.listing || {};
+      const icon = state.iconBase64
+        ? '<img src="' + state.iconBase64 + '" alt="icon" style="width:64px;height:64px;border-radius:14px;object-fit:cover" />'
+        : '<div style="width:64px;height:64px;border-radius:14px;background:var(--border);display:flex;align-items:center;justify-content:center;font-weight:700">' + escHtml(String(L.title || 'A').slice(0, 1)) + '</div>';
+      box.innerHTML =
+        '<div style="display:flex;gap:12px;align-items:center;padding:10px;border:1px solid var(--border);border-radius:10px">' + icon +
+        '<div style="min-width:0"><b style="font-size:15px">' + escHtml(L.title || '') + '</b> <small style="color:var(--muted)">' + escHtml(L.version || '') + '</small>' +
+        '<div style="font-size:12px;color:var(--muted)">' + escHtml(L.category || '') + ' · ' + escHtml(L.packageName || '') + '</div>' +
+        '<div style="font-size:12px;margin-top:2px">' + escHtml(L.shortDescription || '') + '</div></div></div>' +
+        '<details style="margin-top:8px"><summary style="cursor:pointer;font-size:13px">Descripción larga y palabras clave</summary>' +
+        '<p style="font-size:12px;white-space:pre-wrap">' + escHtml(L.fullDescription || '') + '</p>' +
+        '<p style="font-size:12px;color:var(--muted)">Palabras clave: ' + escHtml(L.keywords || '') + '</p></details>';
+    } catch (e) {
+      box.innerHTML = '<span style="color:var(--danger)">' + escHtml(e.message) + '</span>';
+    }
+  });
+
   bindFileInput({
     input: '#ksInput',
     label: '#ksLabel',
